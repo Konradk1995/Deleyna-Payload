@@ -1,8 +1,13 @@
 {
-  "name": "template-cms-payload",
+  "name": "deleyna-payload",
   "version": "1.0.0",
-  "description": "A blank template to get started with Payload 3.0",
+  "description": "Deleyna – Elite Dancer & Model Agency (Next.js + Payload CMS)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Konradk1995/Deleyna-Payload"
+  },
+  "homepage": "https://github.com/Konradk1995/Deleyna-Payload#readme",
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
@@ -11,27 +16,60 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
+    "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,md}\"",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
-    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:e2e": "cross-env NODE_OPTIONS=--no-deprecation pnpm exec playwright test",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "seed": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed/scripts.ts",
+    "user:promote-admin": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/users/promote-admin.ts",
+    "validate": "pnpm run lint && pnpm exec tsc --noEmit",
+    "verify": "pnpm run validate && pnpm run build",
+    "export:talents-csv": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/export-talents-csv.ts"
   },
   "dependencies": {
-    "@payloadcms/next": "3.70.0",
-    "@payloadcms/richtext-lexical": "3.70.0",
-    "@payloadcms/ui": "3.70.0",
+    "@notionhq/client": "^5.11.0",
+    "@payloadcms/db-postgres": "3.71.1",
+    "@payloadcms/email-resend": "3.71.1",
+    "@payloadcms/live-preview-react": "3.71.1",
+    "@payloadcms/next": "3.71.1",
+    "@payloadcms/plugin-form-builder": "3.71.1",
+    "@payloadcms/plugin-redirects": "3.71.1",
+    "@payloadcms/richtext-lexical": "3.71.1",
+    "@payloadcms/storage-s3": "3.71.1",
+    "@payloadcms/ui": "3.71.1",
+    "@radix-ui/react-checkbox": "^1.3.3",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@react-pdf/renderer": "^4.3.2",
+    "@tailwindcss/postcss": "^4.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
     "dotenv": "16.4.7",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "embla-carousel-wheel-gestures": "^8.1.0",
     "graphql": "^16.8.1",
+    "lucide-react": "^0.562.0",
+    "motion": "^12.34.3",
     "next": "15.4.10",
-    "payload": "3.70.0",
+    "next-intl": "^4.8.3",
+    "payload": "3.71.1",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "react-hook-form": "^7.71.2",
+    "schema-dts": "^1.1.5",
     "sharp": "0.34.2",
-    "@payloadcms/db-mongodb": "3.70.0"
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@playwright/test": "1.56.1",
     "@testing-library/react": "16.3.0",
     "@types/node": "^22.5.4",
@@ -44,6 +82,7 @@
     "playwright": "1.56.1",
     "playwright-core": "1.56.1",
     "prettier": "^3.4.2",
+    "tsx": "^4.20.6",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.3"
@@ -56,7 +95,14 @@
     "onlyBuiltDependencies": [
       "sharp",
       "esbuild",
-      "unrs-resolver"
-    ]
+      "unrs-resolver",
+      "@parcel/watcher",
+      "@swc/core"
+    ],
+    "overrides": {
+      "payload": "3.71.1",
+      "@payloadcms/ui": "3.71.1",
+      "@payloadcms/storage-s3": "3.71.1"
+    }
   }
 }

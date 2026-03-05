@@ -1,0 +1,1 @@
+export { MarqueeBannerBlock } from './Component'

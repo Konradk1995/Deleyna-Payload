@@ -67,34 +67,88 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    pages: Page;
     media: Media;
+    posts: Post;
+    categories: Category;
+    talents: Talent;
+    'talent-skills': TalentSkill;
+    users: User;
+    redirects: Redirect;
+    forms: Form;
+    'form-submissions': FormSubmission;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
+    'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'payload-folders': {
+      documentsAndFolders: 'payload-folders' | 'media';
+    };
+  };
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    talents: TalentsSelect<false> | TalentsSelect<true>;
+    'talent-skills': TalentSkillsSelect<false> | TalentSkillsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
+    forms: FormsSelect<false> | FormsSelect<true>;
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
+    'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
-  fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
-  locale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('de' | 'en') | ('de' | 'en')[];
+  globals: {
+    'posts-archive': PostsArchive;
+    'talents-archive': TalentsArchive;
+    'sedcard-settings': SedcardSetting;
+    'form-settings': FormSetting;
+    header: Header;
+    footer: Footer;
+    seo: Seo;
+    'theme-settings': ThemeSetting;
+    'cookie-banner': CookieBanner;
+    'notion-settings': NotionSetting;
+    notifications: Notification;
+  };
+  globalsSelect: {
+    'posts-archive': PostsArchiveSelect<false> | PostsArchiveSelect<true>;
+    'talents-archive': TalentsArchiveSelect<false> | TalentsArchiveSelect<true>;
+    'sedcard-settings': SedcardSettingsSelect<false> | SedcardSettingsSelect<true>;
+    'form-settings': FormSettingsSelect<false> | FormSettingsSelect<true>;
+    header: HeaderSelect<false> | HeaderSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    seo: SeoSelect<false> | SeoSelect<true>;
+    'theme-settings': ThemeSettingsSelect<false> | ThemeSettingsSelect<true>;
+    'cookie-banner': CookieBannerSelect<false> | CookieBannerSelect<true>;
+    'notion-settings': NotionSettingsSelect<false> | NotionSettingsSelect<true>;
+    notifications: NotificationsSelect<false> | NotificationsSelect<true>;
+  };
+  locale: 'de' | 'en';
   user: User & {
     collection: 'users';
   };
   jobs: {
-    tasks: unknown;
+    tasks: {
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -117,11 +171,912 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Website pages (home, about, contact etc.). SEO and layout configurable per page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  hero: {
+    type:
+      | 'none'
+      | 'highImpact'
+      | 'mediumImpact'
+      | 'lowImpact'
+      | 'centeredVideo'
+      | 'textLeftAligned'
+      | 'textMiddleAligned';
+    /**
+     * e.g. "NEW" or "Talent Agency" – small text above the headline
+     */
+    badge?: string | null;
+    /**
+     * Main headline of the hero section. Rendered as H1.
+     */
+    headline?: string | null;
+    /**
+     * Short text below the headline.
+     */
+    subtext?: string | null;
+    /**
+     * Optional: additional paragraphs or H2/H3. If headline (H1) is set, use for extra content only.
+     */
+    richText?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    /**
+     * This word is highlighted in the headline in the accent colour (optional)
+     */
+    headlineHighlight?: string | null;
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom' | 'archive') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'talents';
+                  value: number | Talent;
+                } | null);
+            url?: string | null;
+            archive?: ('posts' | 'talents') | null;
+            label: string;
+            appearance?:
+              | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+              | null;
+            /**
+             * Sends an event to Rybbit Analytics when this link is clicked.
+             */
+            trackClicks?: boolean | null;
+            /**
+             * Default 'link_click' when left empty.
+             */
+            trackingEventName?: string | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Image or video for background/content (Desktop). For video: upload MP4/WebM.
+     */
+    media?: (number | null) | Media;
+    /**
+     * Optional: Separate image or video for mobile devices (e.g. portrait).
+     */
+    mediaMobile?: (number | null) | Media;
+    /**
+     * Optional: Image/logo centred above or below the headline (e.g. metallic logo).
+     */
+    heroLogo?: (number | null) | Media;
+    backgroundStyle?: ('dark' | 'light' | 'gradient') | null;
+    alignment?: ('left' | 'center') | null;
+    rightSide?: ('image' | 'features' | 'off') | null;
+    features?:
+      | {
+          feature: string;
+          id?: string | null;
+        }[]
+      | null;
+    showScrollIndicator?: boolean | null;
+    /**
+     * Upload an optimised MP4/WebM background video.
+     */
+    video?: (number | null) | Media;
+    /**
+     * Optional: Video in portrait format for mobile devices.
+     */
+    videoMobile?: (number | null) | Media;
+    /**
+     * Used when no desktop upload is provided.
+     */
+    videoUrl?: string | null;
+    /**
+     * Used when no mobile upload is provided.
+     */
+    videoUrlMobile?: string | null;
+    posterImage?: (number | null) | Media;
+    posterImageMobile?: (number | null) | Media;
+    muted?: boolean | null;
+    loop?: boolean | null;
+    autoPlay?: boolean | null;
+    playsInline?: boolean | null;
+  };
+  /**
+   * At least one block recommended. Editable per locale.
+   */
+  layout?:
+    | (
+        | {
+            layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
+            backgroundColor?: ('white' | 'muted') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'content';
+          }
+        | {
+            variant?: ('default' | 'background' | 'split' | 'banner') | null;
+            /**
+             * Background image or side media
+             */
+            media?: (number | null) | Media;
+            headline: string;
+            text?: string | null;
+            backgroundImage?: (number | null) | Media;
+            button: {
+              type?: ('reference' | 'custom' | 'archive') | null;
+              newTab?: boolean | null;
+              reference?:
+                | ({
+                    relationTo: 'pages';
+                    value: number | Page;
+                  } | null)
+                | ({
+                    relationTo: 'posts';
+                    value: number | Post;
+                  } | null)
+                | ({
+                    relationTo: 'talents';
+                    value: number | Talent;
+                  } | null);
+              url?: string | null;
+              archive?: ('posts' | 'talents') | null;
+              label: string;
+              appearance?:
+                | (
+                    | 'primary'
+                    | 'secondary'
+                    | 'outline'
+                    | 'ghost'
+                    | 'link'
+                    | 'primary-pill'
+                    | 'secondary-glass'
+                    | 'copper'
+                  )
+                | null;
+              /**
+               * Sends an event to Rybbit Analytics when this link is clicked.
+               */
+              trackClicks?: boolean | null;
+              /**
+               * Default 'link_click' when left empty.
+               */
+              trackingEventName?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | FAQBlock
+        | StickyMediaBlock
+        | MediaContentBlock
+        | MasonryGridBlock
+        | SliderBlock
+        | FormBlock
+        | BigTextBlock
+        | StepSectionBlock
+        | InfoCardsBlock
+        | ImpressumBlock
+        | LegalContentBlock
+        | ServicesBlock
+        | EducationBlock
+        | CoachingBlock
+        | ContactBlock
+        | StatsBlock
+        | FeaturedTalentsBlock
+        | TeamBlock
+        | LogoGridBlock
+        | ScheduleBlock
+        | TestimonialBlock
+        | {
+            /**
+             * The address to display (e.g. "Friedrichstraße 43, Berlin")
+             */
+            location: string;
+            height?: ('small' | 'medium' | 'large') | null;
+            zoom?: number | null;
+            title?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'map';
+          }
+        | MarqueeBannerBlock
+      )[]
+    | null;
+  pageSettings?: {
+    /**
+     * Overrides the default title (max. 60 characters)
+     */
+    metaTitle?: string | null;
+    /**
+     * Description for search engines (max. 160 characters)
+     */
+    metaDescription?: string | null;
+    /**
+     * Comma-separated keywords
+     */
+    metaKeywords?: string | null;
+    /**
+     * Title for social media sharing
+     */
+    ogTitle?: string | null;
+    /**
+     * Description for social media
+     */
+    ogDescription?: string | null;
+    /**
+     * Image for social media (recommended: 1200x630px)
+     */
+    ogImage?: (number | null) | Media;
+    schemaType?:
+      | (
+          | 'WebPage'
+          | 'Article'
+          | 'BlogPosting'
+          | 'FAQPage'
+          | 'ContactPage'
+          | 'AboutPage'
+          | 'CollectionPage'
+          | 'Service'
+          | 'Product'
+        )
+      | null;
+    includeBreadcrumbs?: boolean | null;
+    includeOrganization?: boolean | null;
+    /**
+     * Custom JSON-LD schema markup (optional). Inserted as <script type="application/ld+json">.
+     */
+    schemaMarkup?: string | null;
+    /**
+     * Exclude this page from search engines
+     */
+    noIndex?: boolean | null;
+    /**
+     * Do not follow links on this page
+     */
+    noFollow?: boolean | null;
+    /**
+     * Exclude from sitemap
+     */
+    excludeFromSitemap?: boolean | null;
+    /**
+     * Exclude from llms.txt
+     */
+    excludeFromLLM?: boolean | null;
+    /**
+     * Optional canonical URL (for duplicate content)
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Sitemap priority (0.0 - 1.0)
+     */
+    priority?: number | null;
+  };
+  /**
+   * URL-friendly path
+   */
+  slug: string;
+  /**
+   * Parent page for breadcrumbs
+   */
+  parent?: (number | null) | Page;
+  template?: ('default' | 'fullWidth' | 'landing' | 'blogListing') | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Blog posts and magazine articles. Categories, drafts and publishing per post.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  featuredImage?: (number | null) | Media;
+  /**
+   * Short summary for lists and SEO
+   */
+  excerpt?: string | null;
+  content?:
+    | (
+        | {
+            layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
+            backgroundColor?: ('white' | 'muted') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'content';
+          }
+        | {
+            variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | FAQBlock
+        | {
+            variant?: ('default' | 'background' | 'split' | 'banner') | null;
+            /**
+             * Background image or side media
+             */
+            media?: (number | null) | Media;
+            headline: string;
+            text?: string | null;
+            backgroundImage?: (number | null) | Media;
+            button: {
+              type?: ('reference' | 'custom' | 'archive') | null;
+              newTab?: boolean | null;
+              reference?:
+                | ({
+                    relationTo: 'pages';
+                    value: number | Page;
+                  } | null)
+                | ({
+                    relationTo: 'posts';
+                    value: number | Post;
+                  } | null)
+                | ({
+                    relationTo: 'talents';
+                    value: number | Talent;
+                  } | null);
+              url?: string | null;
+              archive?: ('posts' | 'talents') | null;
+              label: string;
+              appearance?:
+                | (
+                    | 'primary'
+                    | 'secondary'
+                    | 'outline'
+                    | 'ghost'
+                    | 'link'
+                    | 'primary-pill'
+                    | 'secondary-glass'
+                    | 'copper'
+                  )
+                | null;
+              /**
+               * Sends an event to Rybbit Analytics when this link is clicked.
+               */
+              trackClicks?: boolean | null;
+              /**
+               * Default 'link_click' when left empty.
+               */
+              trackingEventName?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            /**
+             * The address to display (e.g. "Friedrichstraße 43, Berlin")
+             */
+            location: string;
+            height?: ('small' | 'medium' | 'large') | null;
+            zoom?: number | null;
+            title?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'map';
+          }
+      )[]
+    | null;
+  pageSettings?: {
+    /**
+     * Overrides the default title (max. 60 characters)
+     */
+    metaTitle?: string | null;
+    /**
+     * Description for search engines (max. 160 characters)
+     */
+    metaDescription?: string | null;
+    /**
+     * Comma-separated keywords
+     */
+    metaKeywords?: string | null;
+    /**
+     * Title for social media sharing
+     */
+    ogTitle?: string | null;
+    /**
+     * Description for social media
+     */
+    ogDescription?: string | null;
+    /**
+     * Image for social media (recommended: 1200x630px)
+     */
+    ogImage?: (number | null) | Media;
+    schemaType?:
+      | (
+          | 'WebPage'
+          | 'Article'
+          | 'BlogPosting'
+          | 'FAQPage'
+          | 'ContactPage'
+          | 'AboutPage'
+          | 'CollectionPage'
+          | 'Service'
+          | 'Product'
+        )
+      | null;
+    includeBreadcrumbs?: boolean | null;
+    includeOrganization?: boolean | null;
+    /**
+     * Custom JSON-LD schema markup (optional). Inserted as <script type="application/ld+json">.
+     */
+    schemaMarkup?: string | null;
+    /**
+     * Exclude this page from search engines
+     */
+    noIndex?: boolean | null;
+    /**
+     * Do not follow links on this page
+     */
+    noFollow?: boolean | null;
+    /**
+     * Exclude from sitemap
+     */
+    excludeFromSitemap?: boolean | null;
+    /**
+     * Exclude from llms.txt
+     */
+    excludeFromLLM?: boolean | null;
+    /**
+     * Optional canonical URL (for duplicate content)
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Sitemap priority (0.0 - 1.0)
+     */
+    priority?: number | null;
+  };
+  /**
+   * URL-friendly path
+   */
+  slug: string;
+  /**
+   * Article, news update, or dance class announcement.
+   */
+  postType?: ('article' | 'news' | 'class') | null;
+  /**
+   * Details for class posts: studio, date, talent instructor, etc.
+   */
+  classDetails?: {
+    classDate?: string | null;
+    classEndDate?: string | null;
+    studioName?: string | null;
+    studioCity?: string | null;
+    studioAddress?: string | null;
+    danceStyle?: string | null;
+    level?: ('open' | 'beginner' | 'intermediate' | 'advanced') | null;
+    duration?: string | null;
+    priceInfo?: string | null;
+    maxParticipants?: number | null;
+    bookingUrl?: string | null;
+    /**
+     * Optional: Google Maps embed link (https://www.google.com/maps/embed?…). Shows an interactive map below class details.
+     */
+    mapEmbedUrl?: string | null;
+    /**
+     * Talents from your roster who teach this class.
+     */
+    instructorTalents?: (number | Talent)[] | null;
+  };
+  author: number | User;
+  /**
+   * Categories for this post
+   */
+  categories?: (number | Category)[] | null;
+  tags?: string[] | null;
+  publishedAt?: string | null;
+  /**
+   * Related posts
+   */
+  relatedPosts?: (number | Post)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Images, videos and files for the website. Set alt text for SEO and accessibility.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Descriptive alt text for accessibility and SEO. Recommended: Images < 400 KB, Videos < 12 MB.
+   */
+  alt: string;
+  /**
+   * Optional caption
+   */
+  caption?: string | null;
+  /**
+   * Automatic warning based on file size (performance/Lighthouse).
+   */
+  performanceNote?: string | null;
+  prefix?: string | null;
+  folder?: (number | null) | FolderInterface;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    square?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-folders".
+ */
+export interface FolderInterface {
+  id: number;
+  name: string;
+  folder?: (number | null) | FolderInterface;
+  documentsAndFolders?: {
+    docs?: (
+      | {
+          relationTo?: 'payload-folders';
+          value: number | FolderInterface;
+        }
+      | {
+          relationTo?: 'media';
+          value: number | Media;
+        }
+    )[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  folderType?: 'media'[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FAQBlock".
+ */
+export interface FAQBlock {
+  /**
+   * Optional. For in-page links, e.g. #faq
+   */
+  anchorId?: string | null;
+  title?: string | null;
+  description?: string | null;
+  items?:
+    | {
+        question: string;
+        answer: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Automatically generate FAQPage schema for Google Rich Results
+   */
+  generateSchema?: boolean | null;
+  layout?: ('accordion' | 'list' | 'twoColumn') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * Manage dancers, models and other talents
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talents".
+ */
+export interface Talent {
+  id: number;
+  name: string;
+  category: 'dancer' | 'model' | 'both';
+  /**
+   * Main image / cover (portrait, min. 800x1200px). Also used as sedcard cover. Please do NOT use a cutout image here.
+   */
+  featuredImage?: (number | null) | Media;
+  /**
+   * Cutout image (PNG with transparency) for the home slider (premium layout). Talent should be centered ("like on a platform"). Please do NOT use for the sedcard.
+   */
+  cutoutImage?: (number | null) | Media;
+  /**
+   * Additional images for the talent detail page (website). Not for the sedcard PDF — use the "Sedcard" tab for that.
+   */
+  galleryImages?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Short biography (max. 500 characters)
+   */
+  bio: string;
+  measurements?: {
+    height?: string | null;
+    bust?: string | null;
+    waist?: string | null;
+    hips?: string | null;
+    shoeSize?: string | null;
+    confectionSize?: string | null;
+    hair?: ('black' | 'brown' | 'blonde' | 'red' | 'auburn' | 'gray' | 'white' | 'highlights' | 'other')[] | null;
+    eyes?: ('brown' | 'blue' | 'green' | 'hazel' | 'gray' | 'amber')[] | null;
+  };
+  /**
+   * Select skills from the Talent Skills collection
+   */
+  skills?: (number | TalentSkill)[] | null;
+  languages?:
+    | (
+        | 'de'
+        | 'en'
+        | 'fr'
+        | 'es'
+        | 'it'
+        | 'pt'
+        | 'ru'
+        | 'tr'
+        | 'pl'
+        | 'nl'
+        | 'zh'
+        | 'ja'
+        | 'ko'
+        | 'ar'
+        | 'hi'
+        | 'mandarin'
+      )[]
+    | null;
+  /**
+   * Previous jobs, shows, campaigns
+   */
+  experience?:
+    | {
+        title: string;
+        year?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Used for booking enquiries
+   */
+  bookingEmail?: string | null;
+  socialMedia?: {
+    instagram?: string | null;
+    tiktok?: string | null;
+    website?: string | null;
+  };
+  /**
+   * Full body shot (portrait). Please do NOT use a cutout image here.
+   */
+  sedcardImage1?: (number | null) | Media;
+  /**
+   * Close-up / portrait. Please do NOT use a cutout image here.
+   */
+  sedcardImage2?: (number | null) | Media;
+  /**
+   * Movement / dance / action. Please do NOT use a cutout image here.
+   */
+  sedcardImage3?: (number | null) | Media;
+  /**
+   * Freely chosen image. Please do NOT use a cutout image here.
+   */
+  sedcardImage4?: (number | null) | Media;
+  /**
+   * PDF template for this talent.
+   */
+  sedcardTemplate?: 'classic' | null;
+  seo?: {
+    /**
+     * Overrides the default title
+     */
+    metaTitle?: string | null;
+    /**
+     * Recommended for snippets: 140-160 characters. Up to 320 allowed for social/LLM context.
+     */
+    metaDescription?: string | null;
+  };
+  /**
+   * URL-friendly path
+   */
+  slug: string;
+  /**
+   * Show on homepage
+   */
+  featured?: boolean | null;
+  /**
+   * Lower numbers = higher in list
+   */
+  sortOrder?: number | null;
+  /**
+   * Card background colour (chrome-grace-talent style). Empty = automatic.
+   */
+  cardStyle?: ('' | 'sage' | 'peach' | 'cream') | null;
+  heightNum?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Skills for talents (e.g. Contemporary, Hip-Hop, Editorial)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talent-skills".
+ */
+export interface TalentSkill {
+  id: number;
+  title: string;
+  /**
+   * URL-friendly name (auto-generated)
+   */
+  slug: string;
+  skillGroup?: ('dance' | 'modeling' | 'acting' | 'fitness' | 'other') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  name: string;
+  roles: ('admin' | 'editor' | 'user')[];
+  avatar?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -141,30 +1096,1690 @@ export interface User {
   password?: string | null;
 }
 /**
+ * Categories for blog posts (e.g. News, Campaigns). Optional: image and colour.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "categories".
  */
-export interface Media {
-  id: string;
-  alt: string;
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * URL-friendly name (e.g. "web-development")
+   */
+  slug: string;
+  /**
+   * Short category description (optional)
+   */
+  description?: string | null;
+  /**
+   * Image for the category page (optional)
+   */
+  image?: (number | null) | Media;
+  /**
+   * HEX colour code for the category (e.g. #3B82F6)
+   */
+  color?: string | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StickyMediaBlock".
+ */
+export interface StickyMediaBlock {
+  /**
+   * Section background colour (adapts to dark mode)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Optional badge/tagline above the headline (e.g. "EINLEITUNG").
+   */
+  badge?: string | null;
+  /**
+   * Main headline (H2). Leave empty to hide.
+   */
+  headline?: string | null;
+  /**
+   * Word or phrase in the headline to highlight in accent colour.
+   */
+  headlineHighlight?: string | null;
+  /**
+   * Text below the headline. Scrolls in Star Wars style.
+   */
+  subtitle?: string | null;
+  /**
+   * Background image or video (fullscreen, sticky).
+   */
+  media: number | Media;
+  /**
+   * Darken the background for better text readability.
+   */
+  overlayOpacity?: ('0' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stickyMedia';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaContentBlock".
+ */
+export interface MediaContentBlock {
+  /**
+   * Arrangement of media and text
+   */
+  layout?: ('mediaLeft' | 'mediaRight') | null;
+  /**
+   * Image or video (autoplay)
+   */
+  media: number | Media;
+  /**
+   * Small label above the headline
+   */
+  tagline?: string | null;
+  headline: string;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom' | 'archive') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'talents';
+                value: number | Talent;
+              } | null);
+          url?: string | null;
+          archive?: ('posts' | 'talents') | null;
+          label: string;
+          appearance?: ('primary-pill' | 'outline' | 'secondary-glass') | null;
+          /**
+           * Sends an event to Rybbit Analytics when this link is clicked.
+           */
+          trackClicks?: boolean | null;
+          /**
+           * Default 'link_click' when left empty.
+           */
+          trackingEventName?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaContent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MasonryGridBlock".
+ */
+export interface MasonryGridBlock {
+  variant?: ('benefits' | 'audience') | null;
+  /**
+   * Optional badge/tagline above the headline
+   */
+  badge?: string | null;
+  /**
+   * Optional heading for the section (H2)
+   */
+  heading?: string | null;
+  /**
+   * Optional phrase to emphasize in the headline (shown in primary color)
+   */
+  headlineHighlight?: string | null;
+  /**
+   * Section background (Dark/Light mode applies automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Primary feature card content
+   */
+  highlightCard?: {
+    title: string;
+    description?: string | null;
+    textTone?: ('light' | 'dark') | null;
+    backgroundMedia?: (number | null) | Media;
+    link?: {
+      type?: ('reference' | 'custom' | 'archive') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'talents';
+            value: number | Talent;
+          } | null);
+      url?: string | null;
+      archive?: ('posts' | 'talents') | null;
+      label?: string | null;
+      /**
+       * Sends an event to Rybbit Analytics when this link is clicked.
+       */
+      trackClicks?: boolean | null;
+      /**
+       * Default 'link_click' when left empty.
+       */
+      trackingEventName?: string | null;
+    };
+  };
+  /**
+   * Tabbed content card
+   */
+  tabsCard?: {
+    textTone?: ('dark' | 'light') | null;
+    backgroundMedia?: (number | null) | Media;
+    tabs: {
+      label: string;
+      title?: string | null;
+      description?: string | null;
+      link?: {
+        type?: ('reference' | 'custom' | 'archive') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null)
+          | ({
+              relationTo: 'talents';
+              value: number | Talent;
+            } | null);
+        url?: string | null;
+        archive?: ('posts' | 'talents') | null;
+        label?: string | null;
+        /**
+         * Sends an event to Rybbit Analytics when this link is clicked.
+         */
+        trackClicks?: boolean | null;
+        /**
+         * Default 'link_click' when left empty.
+         */
+        trackingEventName?: string | null;
+      };
+      id?: string | null;
+    }[];
+  };
+  /**
+   * Secondary supporting card
+   */
+  cashflowCard?: {
+    title: string;
+    description?: string | null;
+    textTone?: ('light' | 'dark') | null;
+    backgroundMedia?: (number | null) | Media;
+    link?: {
+      type?: ('reference' | 'custom' | 'archive') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'talents';
+            value: number | Talent;
+          } | null);
+      url?: string | null;
+      archive?: ('posts' | 'talents') | null;
+      label?: string | null;
+      /**
+       * Sends an event to Rybbit Analytics when this link is clicked.
+       */
+      trackClicks?: boolean | null;
+      /**
+       * Default 'link_click' when left empty.
+       */
+      trackingEventName?: string | null;
+    };
+  };
+  /**
+   * Full-width media card with optional play link
+   */
+  videoCard?: {
+    title: string;
+    description?: string | null;
+    textTone?: ('light' | 'dark') | null;
+    backgroundMedia?: (number | null) | Media;
+    link?: {
+      type?: ('reference' | 'custom' | 'archive') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'talents';
+            value: number | Talent;
+          } | null);
+      url?: string | null;
+      archive?: ('posts' | 'talents') | null;
+      /**
+       * Sends an event to Rybbit Analytics when this link is clicked.
+       */
+      trackClicks?: boolean | null;
+      /**
+       * Default 'link_click' when left empty.
+       */
+      trackingEventName?: string | null;
+    };
+  };
+  /**
+   * Background tone for the audience grid section
+   */
+  sectionTone?: ('light' | 'dark') | null;
+  /**
+   * Add exactly four cards for the audience grid layout
+   */
+  audienceCards?:
+    | {
+        title: string;
+        description?: string | null;
+        backgroundMedia?: (number | null) | Media;
+        size?: ('large' | 'medium') | null;
+        theme?: ('dark' | 'light') | null;
+        linkStyle?: ('default' | 'outline') | null;
+        link?: {
+          type?: ('reference' | 'custom' | 'archive') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'talents';
+                value: number | Talent;
+              } | null);
+          url?: string | null;
+          archive?: ('posts' | 'talents') | null;
+          label?: string | null;
+          /**
+           * Sends an event to Rybbit Analytics when this link is clicked.
+           */
+          trackClicks?: boolean | null;
+          /**
+           * Default 'link_click' when left empty.
+           */
+          trackingEventName?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'masonryGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SliderBlock".
+ */
+export interface SliderBlock {
+  /**
+   * Compact: Small product-style cards | Featured: Large cards with image
+   */
+  cardStyle: 'compact' | 'featured';
+  /**
+   * Which collection to pull slider items from
+   */
+  sourceCollection: 'posts' | 'talents';
+  /**
+   * Where to pull the badge text from (displayed above card title)
+   */
+  badgeField?: ('none' | 'title' | 'category') | null;
+  /**
+   * Static badge text to show on all cards (e.g. "WEESS", "FEATURED")
+   */
+  staticBadge?: string | null;
+  header: {
+    /**
+     * Small text above the heading (e.g. "Feature", "Products")
+     */
+    eyebrow?: string | null;
+    /**
+     * Main section heading
+     */
+    heading: string;
+    /**
+     * Supporting text below the heading
+     */
+    description?: string | null;
+  };
+  /**
+   * Maximum number of items to show in the slider
+   */
+  itemsLimit?: number | null;
+  /**
+   * How to sort and select items
+   */
+  sortBy?: ('publishedAt' | 'title' | 'manual') | null;
+  /**
+   * Manually select and order items for the slider
+   */
+  manualSelection?:
+    | (
+        | {
+            relationTo: 'posts';
+            value: number | Post;
+          }
+        | {
+            relationTo: 'talents';
+            value: number | Talent;
+          }
+      )[]
+    | null;
+  compactFields?: {
+    /**
+     * Show the product/collection image
+     */
+    showImage?: boolean | null;
+  };
+  featuredFields?: {
+    /**
+     * Which side the image appears on
+     */
+    imagePosition?: ('left' | 'right') | null;
+    /**
+     * Show fallback image if collection item has no image
+     */
+    showFallbackImage?: boolean | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'slider';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  form: number | Form;
+  overline?: string | null;
+  titleLine1?: string | null;
+  titleHighlight?: string | null;
+  description?: string | null;
+  enableIntro?: boolean | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
+}
+/**
+ * Forms for contact, talent requests, "become a talent" etc.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms".
+ */
+export interface Form {
+  id: number;
+  title: string;
+  fields?:
+    | (
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            defaultValue?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'checkbox';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'country';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'email';
+          }
+        | {
+            message?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'message';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'number';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            placeholder?: string | null;
+            options?:
+              | {
+                  label: string;
+                  value: string;
+                  id?: string | null;
+                }[]
+              | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'select';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'state';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'text';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textarea';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'talentSelection';
+          }
+        | {
+            stepTitle?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'pageBreak';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            maxFiles?: number | null;
+            maxFileSizeMB?: number | null;
+            width?: number | null;
+            minWidth?: number | null;
+            minHeight?: number | null;
+            helpText?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageUpload';
+          }
+      )[]
+    | null;
+  submitButtonLabel?: string | null;
+  /**
+   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
+   */
+  confirmationType?: ('message' | 'redirect') | null;
+  confirmationMessage?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  redirect?: {
+    url: string;
+  };
+  /**
+   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
+   */
+  emails?:
+    | {
+        emailTo?: string | null;
+        cc?: string | null;
+        bcc?: string | null;
+        replyTo?: string | null;
+        emailFrom?: string | null;
+        subject: string;
+        /**
+         * Enter the message that should be sent in this email.
+         */
+        message?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Allows filtering submissions by type (e.g. talent requests vs. become a talent).
+   */
+  formCategory?: ('contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'other') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BigTextBlock".
+ */
+export interface BigTextBlock {
+  /**
+   * Heading level for SEO hierarchy
+   */
+  headingLevel?: ('h2' | 'h3') | null;
+  /**
+   * First heading line
+   */
+  lineOne: string;
+  /**
+   * Word/phrase in line 1 to highlight (e.g. in black instead of grey)
+   */
+  lineOneHighlight?: string | null;
+  /**
+   * Second heading line (optional)
+   */
+  lineTwo?: string | null;
+  /**
+   * Word/phrase in line 2 to highlight (e.g. in black instead of grey)
+   */
+  lineTwoHighlight?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'bigText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StepSectionBlock".
+ */
+export interface StepSectionBlock {
+  /**
+   * Cards: Number or icon per card. Timeline: Numbered circles with connecting line. Flow: Horizontal icons with arrows.
+   */
+  layout?: ('cards' | 'timeline' | 'flow') | null;
+  /**
+   * Numbers: Large number in card (steps). Icons: Icon image instead of number (overview).
+   */
+  cardDisplay?: ('number' | 'icon') | null;
+  /**
+   * Section background colour (adapts to dark mode)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Small label above the headline
+   */
+  badge?: string | null;
+  /**
+   * Section headline (H2) — leave empty to hide
+   */
+  headline?: string | null;
+  /**
+   * Word or phrase to highlight in primary colour within the headline
+   */
+  headlineHighlight?: string | null;
+  /**
+   * Optional intro text below the headline
+   */
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Section items (max. 6 for optimal display)
+   */
+  steps: {
+    /**
+     * Number or label, e.g. "01", "02", "03"
+     */
+    number?: string | null;
+    /**
+     * Item title
+     */
+    title: string;
+    /**
+     * Short description
+     */
+    description?: string | null;
+    /**
+     * Short subtitle below the title (Flow variant only)
+     */
+    subtitle?: string | null;
+    /**
+     * Icon or image for this item
+     */
+    icon?: (number | null) | Media;
+    /**
+     * Highlight this item with primary colour accent (Flow variant)
+     */
+    highlight?: boolean | null;
+    id?: string | null;
+  }[];
+  /**
+   * Optional CTA button below the items
+   */
+  cta: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label: string;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * CTA button alignment
+   */
+  ctaPosition?: ('center' | 'left' | 'right') | null;
+  /**
+   * Whether to wrap the flow items in a card container
+   */
+  flowContainerStyle?: ('none' | 'card') | null;
+  /**
+   * Optional description text below the flow items (supports bold with **text**)
+   */
+  flowDescription?: string | null;
+  /**
+   * Result box title
+   */
+  resultTitle?: string | null;
+  /**
+   * Short text below the title
+   */
+  resultDescription?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stepSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InfoCardsBlock".
+ */
+export interface InfoCardsBlock {
+  /**
+   * Max. 2 cards side by side
+   */
+  topCards?:
+    | {
+        /**
+         * Headline
+         */
+        headline: string;
+        /**
+         * Body text
+         */
+        body: string;
+        /**
+         * CTA (Outline: white background, black border as in design)
+         */
+        link: {
+          type?: ('reference' | 'custom' | 'archive') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'talents';
+                value: number | Talent;
+              } | null);
+          url?: string | null;
+          archive?: ('posts' | 'talents') | null;
+          label: string;
+          appearance?: 'outline' | null;
+          /**
+           * Sends an event to Rybbit Analytics when this link is clicked.
+           */
+          trackClicks?: boolean | null;
+          /**
+           * Default 'link_click' when left empty.
+           */
+          trackingEventName?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional media on the side of the main block
+   */
+  sideMedia?: (number | null) | Media;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Small label above the headline, e.g. "WHAT SETS US APART"
+   */
+  tagline?: string | null;
+  /**
+   * Main headline, e.g. "5+ disciplines. One goal."
+   */
+  title: string;
+  /**
+   * Cards with icon, title, short description and optional link (e.g. for "What We Offer")
+   */
+  cards: {
+    /**
+     * Icon at top of card (SVG recommended)
+     */
+    icon?: (number | null) | Media;
+    /**
+     * Card title, e.g. "Planning quality"
+     */
+    title: string;
+    /**
+     * Short description below the title
+     */
+    description: string;
+    /**
+     * Entire card becomes clickable (e.g. Services, Education, About)
+     */
+    link?: {
+      type?: ('reference' | 'custom' | 'archive') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'talents';
+            value: number | Talent;
+          } | null);
+      url?: string | null;
+      archive?: ('posts' | 'talents') | null;
+      label?: string | null;
+      appearance?:
+        | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+        | null;
+      /**
+       * Sends an event to Rybbit Analytics when this link is clicked.
+       */
+      trackClicks?: boolean | null;
+      /**
+       * Default 'link_click' when left empty.
+       */
+      trackingEventName?: string | null;
+    };
+    id?: string | null;
+  }[];
+  /**
+   * Optional. Only fill in if additional text below the cards is desired – otherwise leave empty.
+   */
+  contentBelowCards?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'infoCards';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImpressumBlock".
+ */
+export interface ImpressumBlock {
+  /**
+   * z.B. "Unternehmensangaben" / "Company Information"
+   */
+  headingCompany?: string | null;
+  /**
+   * z.B. "Kontakt" / "Contact"
+   */
+  headingContact?: string | null;
+  /**
+   * z.B. "Vertretungsberechtigte" / "Authorized Representatives"
+   */
+  headingRepresentatives?: string | null;
+  /**
+   * z.B. "Registereintrag" / "Register Entry"
+   */
+  headingRegister?: string | null;
+  /**
+   * z.B. "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV" (langer Titel)
+   */
+  headingContentResponsible?: string | null;
+  /**
+   * z.B. "Haftungsausschluss" / "Disclaimer"
+   */
+  headingDisclaimer?: string | null;
+  /**
+   * z.B. "Haftung für Inhalte" / "Liability for Content"
+   */
+  headingLiabilityContent?: string | null;
+  /**
+   * z.B. "Haftung für Links" / "Liability for Links"
+   */
+  headingLiabilityLinks?: string | null;
+  /**
+   * z.B. "Urheberrecht" / "Copyright"
+   */
+  headingCopyright?: string | null;
+  /**
+   * z.B. "EU-Streitschlichtung" / "EU Dispute Resolution"
+   */
+  headingEuDispute?: string | null;
+  /**
+   * Unternehmensangaben – Firmenname
+   */
+  companyName: string;
+  /**
+   * Straße und Hausnummer
+   */
+  street: string;
+  /**
+   * PLZ
+   */
+  postalCode: string;
+  /**
+   * Ort
+   */
+  city: string;
+  /**
+   * Land
+   */
+  country: string;
+  /**
+   * Telefon (z.B. +49 30 123 456 789)
+   */
+  phone?: string | null;
+  /**
+   * E-Mail
+   */
+  email?: string | null;
+  /**
+   * Website (z.B. www.weess.energy)
+   */
+  website?: string | null;
+  /**
+   * Überschrift (z.B. Geschäftsführer:)
+   */
+  representativesLabel?: string | null;
+  /**
+   * Namen der vertretungsberechtigten Personen
+   */
+  representativesNames?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Registergericht (z.B. Amtsgericht Charlottenburg)
+   */
+  registerCourt?: string | null;
+  /**
+   * Registernummer (z.B. HRB 123456 B)
+   */
+  registerNumber?: string | null;
+  /**
+   * USt-IdNr. (z.B. DE123456789)
+   */
+  vatId?: string | null;
+  /**
+   * Name der verantwortlichen Person (Adresse wird aus Unternehmensangaben übernommen)
+   */
+  contentResponsibleName: string;
+  /**
+   * Haftung für Inhalte
+   */
+  liabilityContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Haftung für Links
+   */
+  liabilityLinks?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Urheberrecht
+   */
+  copyright?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Einleitungstext zur ODR-Plattform
+   */
+  euDisputeIntro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * URL der EU-Streitschlichtungsplattform
+   */
+  euDisputeUrl?: string | null;
+  /**
+   * Schlusstext (E-Mail im Impressum, keine Verpflichtung zur Teilnahme)
+   */
+  euDisputeClosing?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * z.B. "Stand: Dezember 2024"
+   */
+  dateLabel?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'impressum';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LegalContentBlock".
+ */
+export interface LegalContentBlock {
+  /**
+   * Optionaler Seitentitel (z.B. "Datenschutz" oder "AGB")
+   */
+  title?: string | null;
+  /**
+   * Überschrift über der linken Navigation (z.B. "Inhaltsverzeichnis" / "Table of contents")
+   */
+  tocLabel?: string | null;
+  /**
+   * Nummerierte Abschnitte. Reihenfolge = Reihenfolge auf der Seite.
+   */
+  sections: {
+    /**
+     * Überschrift des Abschnitts (erscheint im Inhaltsverzeichnis und über dem Text)
+     */
+    heading: string;
+    /**
+     * Inhalt des Abschnitts
+     */
+    content: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    };
+    id?: string | null;
+  }[];
+  /**
+   * z.B. "Stand: Dezember 2024"
+   */
+  dateLabel?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'legalContent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock".
+ */
+export interface ServicesBlock {
+  /**
+   * e.g. What We Offer
+   */
+  overline?: string | null;
+  title: string;
+  description?: string | null;
+  services: {
+    icon: 'users' | 'calendar' | 'handshake' | 'globe';
+    title: string;
+    description: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'services';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EducationBlock".
+ */
+export interface EducationBlock {
+  overline?: string | null;
+  title: string;
+  description?: string | null;
+  programs: {
+    icon: 'graduationCap' | 'users' | 'briefcase' | 'zap';
+    title: string;
+    description: string;
+    duration?: string | null;
+    level?: string | null;
+    id?: string | null;
+  }[];
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    appearance?:
+      | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+      | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'education';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachingBlock".
+ */
+export interface CoachingBlock {
+  overline?: string | null;
+  title: string;
+  description?: string | null;
+  benefitsSubheading?: string | null;
+  benefits?:
+    | {
+        icon: 'award' | 'trendingUp' | 'target' | 'heart';
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  coachesSubheading?: string | null;
+  coaches?:
+    | {
+        name: string;
+        role: string;
+        available?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaText?: string | null;
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    appearance?:
+      | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+      | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coaching';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactBlock".
+ */
+export interface ContactBlock {
+  overline?: string | null;
+  title: string;
+  /**
+   * Choose the Payload form that should be rendered on the right side.
+   */
+  form: number | Form;
+  emailLabel?: string | null;
+  email?: string | null;
+  phoneLabel?: string | null;
+  phone?: string | null;
+  addressLabel?: string | null;
+  address?: string | null;
+  socialLabel?: string | null;
+  socialUrl?: string | null;
+  socialText?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contact';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock".
+ */
+export interface StatsBlock {
+  overline?: string | null;
+  title?: string | null;
+  titleHighlight?: string | null;
+  description?: string | null;
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    appearance?:
+      | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+      | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  stats: {
+    value: number;
+    suffix?: string | null;
+    label: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedTalentsBlock".
+ */
+export interface FeaturedTalentsBlock {
+  overline?: string | null;
+  title?: string | null;
+  /**
+   * Carousel: one talent with navigation. Grid: multiple talents in a row.
+   */
+  layout?: ('carousel' | 'premium' | 'grid') | null;
+  /**
+   * If enabled, talents will be shown in a random order on every load.
+   */
+  randomize?: boolean | null;
+  size?: ('normal' | 'hero') | null;
+  /**
+   * Optional: Select specific talents. Otherwise all "Featured" talents are shown automatically.
+   */
+  talents?: (number | Talent)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'featuredTalents';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock".
+ */
+export interface TeamBlock {
+  overline?: string | null;
+  title: string;
+  members: {
+    name: string;
+    role: string;
+    /**
+     * Portrait (optional)
+     */
+    image?: (number | null) | Media;
+    bio?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'team';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoGridBlock".
+ */
+export interface LogoGridBlock {
+  variant?: ('logos' | 'text') | null;
+  /**
+   * Optional headline, e.g. "Trusted by"
+   */
+  headline?: string | null;
+  clients?:
+    | {
+        name: string;
+        logo?: (number | null) | Media;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'logoGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScheduleBlock".
+ */
+export interface ScheduleBlock {
+  headline?: string | null;
+  subtitle?: string | null;
+  layout?: ('list' | 'grid') | null;
+  classes?:
+    | {
+        title: string;
+        coach?: string | null;
+        dateText?: string | null;
+        time?: string | null;
+        level?: string | null;
+        location?: string | null;
+        /**
+         * For example: *NO STREET SHOES*
+         */
+        notes?: string | null;
+        /**
+         * External URL to booking page
+         */
+        bookingLink?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'schedule';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialBlock".
+ */
+export interface TestimonialBlock {
+  /**
+   * Small label above the headline, e.g. "WHAT OUR CLIENTS SAY"
+   */
+  badge?: string | null;
+  /**
+   * Main headline, e.g. "Industry voices"
+   */
+  headline?: string | null;
+  /**
+   * Part of the headline to highlight in accent color
+   */
+  headlineHighlight?: string | null;
+  items: {
+    /**
+     * Quote text
+     */
+    quote: string;
+    /**
+     * Person name
+     */
+    author: string;
+    /**
+     * Role / Title
+     */
+    role?: string | null;
+    /**
+     * Company / Organisation
+     */
+    company?: string | null;
+    /**
+     * Portrait (optional)
+     */
+    avatar?: (number | null) | Media;
+    /**
+     * Video or image from the shoot / project (optional). Displayed as large background visual.
+     */
+    media?: (number | null) | Media;
+    /**
+     * Company logo (optional)
+     */
+    logo?: (number | null) | Media;
+    id?: string | null;
+  }[];
+  /**
+   * Section background
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonial';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarqueeBannerBlock".
+ */
+export interface MarqueeBannerBlock {
+  /**
+   * Text that scrolls continuously (e.g. "DESIGNED FOR MODERN BRANDS AND TALENT").
+   */
+  text: string;
+  /**
+   * Speed of the scrolling animation.
+   */
+  speed?: ('slow' | 'normal' | 'fast') | null;
+  /**
+   * Solid = filled text, Outline = stroke only.
+   */
+  appearance?: ('solid' | 'outline') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'marqueeBanner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  from: string;
+  to?: {
+    type?: ('reference' | 'custom') | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * All form submissions: contact requests, bookings, talent applications
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submissions".
+ */
+export interface FormSubmission {
+  id: number;
+  form: number | Form;
+  submissionData?:
+    | {
+        field: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Set automatically from the form category. Filter e.g. talent requests vs. become a talent.
+   */
+  category?: ('contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'other') | null;
+  locale?: ('de' | 'en') | null;
+  read?: boolean | null;
+  applicationStatus?: ('pending' | 'approved' | 'rejected') | null;
+  rejectionReason?: string | null;
+  linkedTalent?: (number | null) | Talent;
+  /**
+   * Automatically generated notes for suspicious inputs (e.g. measurements outside plausible ranges).
+   */
+  applicationValidationNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -178,23 +2793,151 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'talents';
+        value: number | Talent;
+      } | null)
+    | ({
+        relationTo: 'talent-skills';
+        value: number | TalentSkill;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
+      } | null)
+    | ({
+        relationTo: 'forms';
+        value: number | Form;
+      } | null)
+    | ({
+        relationTo: 'form-submissions';
+        value: number | FormSubmission;
+      } | null)
+    | ({
+        relationTo: 'payload-folders';
+        value: number | FolderInterface;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -204,10 +2947,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -227,7 +2970,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -235,9 +2978,1163 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  hero?:
+    | T
+    | {
+        type?: T;
+        badge?: T;
+        headline?: T;
+        subtext?: T;
+        richText?: T;
+        headlineHighlight?: T;
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    archive?: T;
+                    label?: T;
+                    appearance?: T;
+                    trackClicks?: T;
+                    trackingEventName?: T;
+                  };
+              id?: T;
+            };
+        media?: T;
+        mediaMobile?: T;
+        heroLogo?: T;
+        backgroundStyle?: T;
+        alignment?: T;
+        rightSide?: T;
+        features?:
+          | T
+          | {
+              feature?: T;
+              id?: T;
+            };
+        showScrollIndicator?: T;
+        video?: T;
+        videoMobile?: T;
+        videoUrl?: T;
+        videoUrlMobile?: T;
+        posterImage?: T;
+        posterImageMobile?: T;
+        muted?: T;
+        loop?: T;
+        autoPlay?: T;
+        playsInline?: T;
+      };
+  layout?:
+    | T
+    | {
+        content?:
+          | T
+          | {
+              layout?: T;
+              backgroundColor?: T;
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              variant?: T;
+              media?: T;
+              headline?: T;
+              text?: T;
+              backgroundImage?: T;
+              button?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    archive?: T;
+                    label?: T;
+                    appearance?: T;
+                    trackClicks?: T;
+                    trackingEventName?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              variant?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?: T | FAQBlockSelect<T>;
+        stickyMedia?: T | StickyMediaBlockSelect<T>;
+        mediaContent?: T | MediaContentBlockSelect<T>;
+        masonryGrid?: T | MasonryGridBlockSelect<T>;
+        slider?: T | SliderBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        bigText?: T | BigTextBlockSelect<T>;
+        stepSection?: T | StepSectionBlockSelect<T>;
+        infoCards?: T | InfoCardsBlockSelect<T>;
+        impressum?: T | ImpressumBlockSelect<T>;
+        legalContent?: T | LegalContentBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        education?: T | EducationBlockSelect<T>;
+        coaching?: T | CoachingBlockSelect<T>;
+        contact?: T | ContactBlockSelect<T>;
+        stats?: T | StatsBlockSelect<T>;
+        featuredTalents?: T | FeaturedTalentsBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+        logoGrid?: T | LogoGridBlockSelect<T>;
+        schedule?: T | ScheduleBlockSelect<T>;
+        testimonial?: T | TestimonialBlockSelect<T>;
+        map?:
+          | T
+          | {
+              location?: T;
+              height?: T;
+              zoom?: T;
+              title?: T;
+              id?: T;
+              blockName?: T;
+            };
+        marqueeBanner?: T | MarqueeBannerBlockSelect<T>;
+      };
+  pageSettings?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        metaKeywords?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        schemaType?: T;
+        includeBreadcrumbs?: T;
+        includeOrganization?: T;
+        schemaMarkup?: T;
+        noIndex?: T;
+        noFollow?: T;
+        excludeFromSitemap?: T;
+        excludeFromLLM?: T;
+        canonicalUrl?: T;
+        priority?: T;
+      };
+  slug?: T;
+  parent?: T;
+  template?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FAQBlock_select".
+ */
+export interface FAQBlockSelect<T extends boolean = true> {
+  anchorId?: T;
+  title?: T;
+  description?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  generateSchema?: T;
+  layout?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StickyMediaBlock_select".
+ */
+export interface StickyMediaBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  badge?: T;
+  headline?: T;
+  headlineHighlight?: T;
+  subtitle?: T;
+  media?: T;
+  overlayOpacity?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaContentBlock_select".
+ */
+export interface MediaContentBlockSelect<T extends boolean = true> {
+  layout?: T;
+  media?: T;
+  tagline?: T;
+  headline?: T;
+  body?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              appearance?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MasonryGridBlock_select".
+ */
+export interface MasonryGridBlockSelect<T extends boolean = true> {
+  variant?: T;
+  badge?: T;
+  heading?: T;
+  headlineHighlight?: T;
+  backgroundColor?: T;
+  highlightCard?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        textTone?: T;
+        backgroundMedia?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+      };
+  tabsCard?:
+    | T
+    | {
+        textTone?: T;
+        backgroundMedia?: T;
+        tabs?:
+          | T
+          | {
+              label?: T;
+              title?: T;
+              description?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    archive?: T;
+                    label?: T;
+                    trackClicks?: T;
+                    trackingEventName?: T;
+                  };
+              id?: T;
+            };
+      };
+  cashflowCard?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        textTone?: T;
+        backgroundMedia?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+      };
+  videoCard?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        textTone?: T;
+        backgroundMedia?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+      };
+  sectionTone?: T;
+  audienceCards?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        backgroundMedia?: T;
+        size?: T;
+        theme?: T;
+        linkStyle?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SliderBlock_select".
+ */
+export interface SliderBlockSelect<T extends boolean = true> {
+  cardStyle?: T;
+  sourceCollection?: T;
+  badgeField?: T;
+  staticBadge?: T;
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        description?: T;
+      };
+  itemsLimit?: T;
+  sortBy?: T;
+  manualSelection?: T;
+  compactFields?:
+    | T
+    | {
+        showImage?: T;
+      };
+  featuredFields?:
+    | T
+    | {
+        imagePosition?: T;
+        showFallbackImage?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock_select".
+ */
+export interface FormBlockSelect<T extends boolean = true> {
+  form?: T;
+  overline?: T;
+  titleLine1?: T;
+  titleHighlight?: T;
+  description?: T;
+  enableIntro?: T;
+  introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BigTextBlock_select".
+ */
+export interface BigTextBlockSelect<T extends boolean = true> {
+  headingLevel?: T;
+  lineOne?: T;
+  lineOneHighlight?: T;
+  lineTwo?: T;
+  lineTwoHighlight?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StepSectionBlock_select".
+ */
+export interface StepSectionBlockSelect<T extends boolean = true> {
+  layout?: T;
+  cardDisplay?: T;
+  backgroundColor?: T;
+  badge?: T;
+  headline?: T;
+  headlineHighlight?: T;
+  intro?: T;
+  steps?:
+    | T
+    | {
+        number?: T;
+        title?: T;
+        description?: T;
+        subtitle?: T;
+        icon?: T;
+        highlight?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  ctaPosition?: T;
+  flowContainerStyle?: T;
+  flowDescription?: T;
+  resultTitle?: T;
+  resultDescription?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InfoCardsBlock_select".
+ */
+export interface InfoCardsBlockSelect<T extends boolean = true> {
+  topCards?:
+    | T
+    | {
+        headline?: T;
+        body?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              appearance?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        id?: T;
+      };
+  sideMedia?: T;
+  backgroundColor?: T;
+  tagline?: T;
+  title?: T;
+  cards?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              appearance?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        id?: T;
+      };
+  contentBelowCards?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImpressumBlock_select".
+ */
+export interface ImpressumBlockSelect<T extends boolean = true> {
+  headingCompany?: T;
+  headingContact?: T;
+  headingRepresentatives?: T;
+  headingRegister?: T;
+  headingContentResponsible?: T;
+  headingDisclaimer?: T;
+  headingLiabilityContent?: T;
+  headingLiabilityLinks?: T;
+  headingCopyright?: T;
+  headingEuDispute?: T;
+  companyName?: T;
+  street?: T;
+  postalCode?: T;
+  city?: T;
+  country?: T;
+  phone?: T;
+  email?: T;
+  website?: T;
+  representativesLabel?: T;
+  representativesNames?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  registerCourt?: T;
+  registerNumber?: T;
+  vatId?: T;
+  contentResponsibleName?: T;
+  liabilityContent?: T;
+  liabilityLinks?: T;
+  copyright?: T;
+  euDisputeIntro?: T;
+  euDisputeUrl?: T;
+  euDisputeClosing?: T;
+  dateLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LegalContentBlock_select".
+ */
+export interface LegalContentBlockSelect<T extends boolean = true> {
+  title?: T;
+  tocLabel?: T;
+  sections?:
+    | T
+    | {
+        heading?: T;
+        content?: T;
+        id?: T;
+      };
+  dateLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock_select".
+ */
+export interface ServicesBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  description?: T;
+  services?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EducationBlock_select".
+ */
+export interface EducationBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  description?: T;
+  programs?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        duration?: T;
+        level?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        appearance?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachingBlock_select".
+ */
+export interface CoachingBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  description?: T;
+  benefitsSubheading?: T;
+  benefits?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  coachesSubheading?: T;
+  coaches?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        available?: T;
+        id?: T;
+      };
+  ctaText?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        appearance?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactBlock_select".
+ */
+export interface ContactBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  form?: T;
+  emailLabel?: T;
+  email?: T;
+  phoneLabel?: T;
+  phone?: T;
+  addressLabel?: T;
+  address?: T;
+  socialLabel?: T;
+  socialUrl?: T;
+  socialText?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock_select".
+ */
+export interface StatsBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  titleHighlight?: T;
+  description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        appearance?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  stats?:
+    | T
+    | {
+        value?: T;
+        suffix?: T;
+        label?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedTalentsBlock_select".
+ */
+export interface FeaturedTalentsBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  layout?: T;
+  randomize?: T;
+  size?: T;
+  talents?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock_select".
+ */
+export interface TeamBlockSelect<T extends boolean = true> {
+  overline?: T;
+  title?: T;
+  members?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        image?: T;
+        bio?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoGridBlock_select".
+ */
+export interface LogoGridBlockSelect<T extends boolean = true> {
+  variant?: T;
+  headline?: T;
+  clients?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
+        link?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScheduleBlock_select".
+ */
+export interface ScheduleBlockSelect<T extends boolean = true> {
+  headline?: T;
+  subtitle?: T;
+  layout?: T;
+  classes?:
+    | T
+    | {
+        title?: T;
+        coach?: T;
+        dateText?: T;
+        time?: T;
+        level?: T;
+        location?: T;
+        notes?: T;
+        bookingLink?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialBlock_select".
+ */
+export interface TestimonialBlockSelect<T extends boolean = true> {
+  badge?: T;
+  headline?: T;
+  headlineHighlight?: T;
+  items?:
+    | T
+    | {
+        quote?: T;
+        author?: T;
+        role?: T;
+        company?: T;
+        avatar?: T;
+        media?: T;
+        logo?: T;
+        id?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarqueeBannerBlock_select".
+ */
+export interface MarqueeBannerBlockSelect<T extends boolean = true> {
+  text?: T;
+  speed?: T;
+  appearance?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  performanceNote?: T;
+  prefix?: T;
+  folder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        square?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  featuredImage?: T;
+  excerpt?: T;
+  content?:
+    | T
+    | {
+        content?:
+          | T
+          | {
+              layout?: T;
+              backgroundColor?: T;
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              variant?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?: T | FAQBlockSelect<T>;
+        cta?:
+          | T
+          | {
+              variant?: T;
+              media?: T;
+              headline?: T;
+              text?: T;
+              backgroundImage?: T;
+              button?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    archive?: T;
+                    label?: T;
+                    appearance?: T;
+                    trackClicks?: T;
+                    trackingEventName?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        map?:
+          | T
+          | {
+              location?: T;
+              height?: T;
+              zoom?: T;
+              title?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  pageSettings?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        metaKeywords?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        schemaType?: T;
+        includeBreadcrumbs?: T;
+        includeOrganization?: T;
+        schemaMarkup?: T;
+        noIndex?: T;
+        noFollow?: T;
+        excludeFromSitemap?: T;
+        excludeFromLLM?: T;
+        canonicalUrl?: T;
+        priority?: T;
+      };
+  slug?: T;
+  postType?: T;
+  classDetails?:
+    | T
+    | {
+        classDate?: T;
+        classEndDate?: T;
+        studioName?: T;
+        studioCity?: T;
+        studioAddress?: T;
+        danceStyle?: T;
+        level?: T;
+        duration?: T;
+        priceInfo?: T;
+        maxParticipants?: T;
+        bookingUrl?: T;
+        mapEmbedUrl?: T;
+        instructorTalents?: T;
+      };
+  author?: T;
+  categories?: T;
+  tags?: T;
+  publishedAt?: T;
+  relatedPosts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  image?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talents_select".
+ */
+export interface TalentsSelect<T extends boolean = true> {
+  name?: T;
+  category?: T;
+  featuredImage?: T;
+  cutoutImage?: T;
+  galleryImages?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  bio?: T;
+  measurements?:
+    | T
+    | {
+        height?: T;
+        bust?: T;
+        waist?: T;
+        hips?: T;
+        shoeSize?: T;
+        confectionSize?: T;
+        hair?: T;
+        eyes?: T;
+      };
+  skills?: T;
+  languages?: T;
+  experience?:
+    | T
+    | {
+        title?: T;
+        year?: T;
+        id?: T;
+      };
+  bookingEmail?: T;
+  socialMedia?:
+    | T
+    | {
+        instagram?: T;
+        tiktok?: T;
+        website?: T;
+      };
+  sedcardImage1?: T;
+  sedcardImage2?: T;
+  sedcardImage3?: T;
+  sedcardImage4?: T;
+  sedcardTemplate?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  slug?: T;
+  featured?: T;
+  sortOrder?: T;
+  cardStyle?: T;
+  heightNum?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talent-skills_select".
+ */
+export interface TalentSkillsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  skillGroup?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  roles?: T;
+  avatar?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -257,21 +4154,208 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
+ * via the `definition` "redirects_select".
  */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
+export interface RedirectsSelect<T extends boolean = true> {
+  from?: T;
+  to?:
+    | T
+    | {
+        type?: T;
+        reference?: T;
+        url?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms_select".
+ */
+export interface FormsSelect<T extends boolean = true> {
+  title?: T;
+  fields?:
+    | T
+    | {
+        checkbox?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              defaultValue?: T;
+              id?: T;
+              blockName?: T;
+            };
+        country?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        email?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        message?:
+          | T
+          | {
+              message?: T;
+              id?: T;
+              blockName?: T;
+            };
+        number?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        select?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              placeholder?: T;
+              options?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        state?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        text?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        textarea?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        talentSelection?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        pageBreak?:
+          | T
+          | {
+              stepTitle?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageUpload?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              maxFiles?: T;
+              maxFileSizeMB?: T;
+              width?: T;
+              minWidth?: T;
+              minHeight?: T;
+              helpText?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  submitButtonLabel?: T;
+  confirmationType?: T;
+  confirmationMessage?: T;
+  redirect?:
+    | T
+    | {
+        url?: T;
+      };
+  emails?:
+    | T
+    | {
+        emailTo?: T;
+        cc?: T;
+        bcc?: T;
+        replyTo?: T;
+        emailFrom?: T;
+        subject?: T;
+        message?: T;
+        id?: T;
+      };
+  formCategory?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submissions_select".
+ */
+export interface FormSubmissionsSelect<T extends boolean = true> {
+  form?: T;
+  submissionData?:
+    | T
+    | {
+        field?: T;
+        value?: T;
+        id?: T;
+      };
+  category?: T;
+  locale?: T;
+  read?: T;
+  applicationStatus?: T;
+  rejectionReason?: T;
+  linkedTalent?: T;
+  applicationValidationNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -280,6 +4364,49 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-folders_select".
+ */
+export interface PayloadFoldersSelect<T extends boolean = true> {
+  name?: T;
+  folder?: T;
+  documentsAndFolders?: T;
+  folderType?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -312,6 +4439,1285 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Configure blog overview page content
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts-archive".
+ */
+export interface PostsArchive {
+  id: number;
+  heroHeadline?: string | null;
+  heroDescription?: string | null;
+  postsPerPage?: number | null;
+  showCategories?: boolean | null;
+  showFeatured?: boolean | null;
+  showCta?: boolean | null;
+  ctaHeadline?: string | null;
+  ctaDescription?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Configure talents overview page content
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talents-archive".
+ */
+export interface TalentsArchive {
+  id: number;
+  /**
+   * Shows a large talent swiper at the top of the page
+   */
+  showcaseEnabled?: boolean | null;
+  showcaseMode?: ('featured' | 'manual') | null;
+  /**
+   * Select up to 12 talents for the showcase
+   */
+  showcaseTalents?: (number | Talent)[] | null;
+  /**
+   * Maximum number of slides in the showcase
+   */
+  showcaseMaxSlides?: number | null;
+  showcaseAutoplay?: boolean | null;
+  heroHeadline?: string | null;
+  heroDescription?: string | null;
+  heroImage?: (number | null) | Media;
+  /**
+   * Content blocks displayed between the showcase and talent grid.
+   */
+  layout?:
+    | (
+        | {
+            layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
+            backgroundColor?: ('white' | 'muted') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'content';
+          }
+        | {
+            variant?: ('default' | 'background' | 'split' | 'banner') | null;
+            /**
+             * Background image or side media
+             */
+            media?: (number | null) | Media;
+            headline: string;
+            text?: string | null;
+            backgroundImage?: (number | null) | Media;
+            button: {
+              type?: ('reference' | 'custom' | 'archive') | null;
+              newTab?: boolean | null;
+              reference?:
+                | ({
+                    relationTo: 'pages';
+                    value: number | Page;
+                  } | null)
+                | ({
+                    relationTo: 'posts';
+                    value: number | Post;
+                  } | null)
+                | ({
+                    relationTo: 'talents';
+                    value: number | Talent;
+                  } | null);
+              url?: string | null;
+              archive?: ('posts' | 'talents') | null;
+              label: string;
+              appearance?:
+                | (
+                    | 'primary'
+                    | 'secondary'
+                    | 'outline'
+                    | 'ghost'
+                    | 'link'
+                    | 'primary-pill'
+                    | 'secondary-glass'
+                    | 'copper'
+                  )
+                | null;
+              /**
+               * Sends an event to Rybbit Analytics when this link is clicked.
+               */
+              trackClicks?: boolean | null;
+              /**
+               * Default 'link_click' when left empty.
+               */
+              trackingEventName?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | FAQBlock
+        | StickyMediaBlock
+        | MediaContentBlock
+        | MasonryGridBlock
+        | SliderBlock
+        | FormBlock
+        | BigTextBlock
+        | StepSectionBlock
+        | InfoCardsBlock
+        | ImpressumBlock
+        | LegalContentBlock
+        | ServicesBlock
+        | EducationBlock
+        | CoachingBlock
+        | ContactBlock
+        | StatsBlock
+        | FeaturedTalentsBlock
+        | TeamBlock
+        | LogoGridBlock
+        | ScheduleBlock
+        | TestimonialBlock
+        | {
+            /**
+             * The address to display (e.g. "Friedrichstraße 43, Berlin")
+             */
+            location: string;
+            height?: ('small' | 'medium' | 'large') | null;
+            zoom?: number | null;
+            title?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'map';
+          }
+        | MarqueeBannerBlock
+      )[]
+    | null;
+  showFilters?: boolean | null;
+  filterLabels?: {
+    all?: string | null;
+    dancers?: string | null;
+    models?: string | null;
+  };
+  showHairFilter?: boolean | null;
+  showEyeFilter?: boolean | null;
+  showSkillsFilter?: boolean | null;
+  showCta?: boolean | null;
+  ctaHeadline?: string | null;
+  ctaDescription?: string | null;
+  /**
+   * Button link (internal page e.g. Contact, external URL, or archive).
+   */
+  ctaButton?:
+    | {
+        link: {
+          type?: ('reference' | 'custom' | 'archive') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'talents';
+                value: number | Talent;
+              } | null);
+          url?: string | null;
+          archive?: ('posts' | 'talents') | null;
+          label: string;
+          appearance?:
+            | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+            | null;
+          /**
+           * Sends an event to Rybbit Analytics when this link is clicked.
+           */
+          trackClicks?: boolean | null;
+          /**
+           * Default 'link_click' when left empty.
+           */
+          trackingEventName?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * PDF download and template settings for sedcards.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sedcard-settings".
+ */
+export interface SedcardSetting {
+  id: number;
+  /**
+   * When enabled, website visitors can download sedcard PDFs.
+   */
+  enableFrontendDownload?: boolean | null;
+  /**
+   * Default PDF template for all talents (can be overridden per talent).
+   */
+  defaultTemplate?: 'classic' | null;
+  /**
+   * Logo for the sedcard PDF (placed top-right).
+   */
+  agencyLogo?: (number | null) | Media;
+  /**
+   * Footer text in the sedcard PDF (e.g. contact info, website).
+   */
+  footerText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Bot protection (Turnstile) and automatic email replies for forms.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-settings".
+ */
+export interface FormSetting {
+  id: number;
+  /**
+   * When set, the contact block saves submissions to form submissions (with Turnstile & auto-reply). Form should have fields e.g. firstName, lastName, email, subject, message.
+   */
+  contactForm?: (number | null) | Form;
+  /**
+   * Cookie-free bot protection (Cloudflare). Keys can be set here or in .env.
+   */
+  enableTurnstile?: boolean | null;
+  /**
+   * Overrides NEXT_PUBLIC_TURNSTILE_SITE_KEY from .env
+   */
+  turnstileSiteKey?: string | null;
+  /**
+   * Overrides TURNSTILE_SECRET_KEY from .env
+   */
+  turnstileSecretKey?: string | null;
+  /**
+   * Send a confirmation email after each form submission. Keys can be set here or in .env.
+   */
+  enableAutoReply?: boolean | null;
+  /**
+   * Overrides RESEND_API_KEY from .env
+   */
+  resendApiKey?: string | null;
+  /**
+   * Overrides RESEND_FROM_ADDRESS from .env
+   */
+  resendFromAddress?: string | null;
+  /**
+   * Overrides RESEND_FROM_NAME from .env
+   */
+  resendFromName?: string | null;
+  /**
+   * Form field name that contains the submitter's email (e.g. "email" or "e-mail").
+   */
+  autoReplyEmailField?: string | null;
+  /**
+   * Placeholder: {formName}
+   */
+  autoReplySubject?: string | null;
+  /**
+   * Placeholder: {formName}. Single-line placeholders.
+   */
+  autoReplyBody?: string | null;
+  /**
+   * Distributed rate limiting with Upstash Redis. Keys can be set here or in .env.
+   */
+  enableUpstash?: boolean | null;
+  /**
+   * Overrides UPSTASH_REDIS_REST_URL from .env
+   */
+  upstashRedisUrl?: string | null;
+  /**
+   * Overrides UPSTASH_REDIS_REST_TOKEN from .env
+   */
+  upstashRedisToken?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Header navigation, language switcher and CTA buttons
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header".
+ */
+export interface Header {
+  id: number;
+  languageSwitcherPlacement?: ('header' | 'footer' | 'header-footer') | null;
+  themeTogglePlacement?: ('header' | 'footer' | 'header-footer' | 'hidden') | null;
+  /**
+   * Navigation cards that expand from the header
+   */
+  cardNavItems?:
+    | {
+        /**
+         * The main label shown in the navigation (e.g. "Talents", "Services", "About us")
+         */
+        label: string;
+        /**
+         * Make the card label clickable. Leave empty if the label should not be a link.
+         */
+        labelLink?: {
+          type?: ('reference' | 'custom' | 'archive') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'talents';
+                value: number | Talent;
+              } | null);
+          url?: string | null;
+          archive?: ('posts' | 'talents') | null;
+          /**
+           * Sends an event to Rybbit Analytics when this link is clicked.
+           */
+          trackClicks?: boolean | null;
+          /**
+           * Default 'link_click' when left empty.
+           */
+          trackingEventName?: string | null;
+        };
+        /**
+         * Wählen Sie, ob ein Bild hochgeladen oder automatisch der neueste Blog-Beitrag angezeigt werden soll.
+         */
+        mediaDisplay?: ('image' | 'latestBlog') | null;
+        /**
+         * Optionales Bild, das links neben den Links in der Navigations-Karte angezeigt wird.
+         */
+        image?: (number | null) | Media;
+        /**
+         * Links, die in dieser Karte angezeigt werden. Leer lassen, um einen einfachen Navigations-Link ohne Dropdown zu erstellen.
+         */
+        links?:
+          | {
+              link: {
+                type?: ('reference' | 'custom' | 'archive') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null)
+                  | ({
+                      relationTo: 'talents';
+                      value: number | Talent;
+                    } | null);
+                url?: string | null;
+                archive?: ('posts' | 'talents') | null;
+                label: string;
+                /**
+                 * Sends an event to Rybbit Analytics when this link is clicked.
+                 */
+                trackClicks?: boolean | null;
+                /**
+                 * Default 'link_click' when left empty.
+                 */
+                trackingEventName?: string | null;
+              };
+              /**
+               * Optional. Geben Sie einen Lucide-Icon-Namen ein, z.B. ArrowUpRight, Sparkles, Workflow. Leer lassen für den Standard-Pfeil.
+               */
+              icon?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Call-to-action buttons in the header (max. 3)
+   */
+  ctaButtons?:
+    | {
+        link: {
+          type?: ('reference' | 'custom' | 'archive') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'talents';
+                value: number | Talent;
+              } | null);
+          url?: string | null;
+          archive?: ('posts' | 'talents') | null;
+          label: string;
+          appearance?: ('primary' | 'secondary' | 'outline' | 'primary-pill' | 'secondary-glass' | 'copper') | null;
+          /**
+           * Sends an event to Rybbit Analytics when this link is clicked.
+           */
+          trackClicks?: boolean | null;
+          /**
+           * Default 'link_click' when left empty.
+           */
+          trackingEventName?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Footer content: logo, columns, contact, social media and bottom bar (copyright, links, cookie link).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  logo?: (number | null) | Media;
+  description?: string | null;
+  columns?:
+    | {
+        title: string;
+        links?:
+          | {
+              label: string;
+              page?: (number | null) | Page;
+              url?: string | null;
+              newTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  contact?: {
+    showContact?: boolean | null;
+    title?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  };
+  socialLinks?:
+    | {
+        platform:
+          | 'facebook'
+          | 'instagram'
+          | 'linkedin'
+          | 'twitter'
+          | 'youtube'
+          | 'tiktok'
+          | 'github'
+          | 'dribbble'
+          | 'behance';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * {year} is replaced automatically
+   */
+  copyright?: string | null;
+  bottomLinks?:
+    | {
+        label: string;
+        page?: (number | null) | Page;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showCookieSettings?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Global SEO settings for your website
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo".
+ */
+export interface Seo {
+  id: number;
+  /**
+   * Small icon for browser tabs (e.g. 32×32 or SVG). Empty = project default.
+   */
+  favicon?: (number | null) | Media;
+  /**
+   * For home screen / "Add to Home Screen" (recommended 180×180 px). Empty = favicon or default.
+   */
+  appleTouchIcon?: (number | null) | Media;
+  businessInfo: {
+    name: string;
+    description: string;
+    businessType?: ('LocalBusiness' | 'ProfessionalService' | 'Organization') | null;
+    foundingDate?: string | null;
+    priceRange?: ('€' | '€€' | '€€€') | null;
+  };
+  contactInfo?: {
+    email?: string | null;
+    /**
+     * With country code (e.g. +49 123 456789)
+     */
+    telephone?: string | null;
+    streetAddress?: string | null;
+    addressLocality?: string | null;
+    postalCode?: string | null;
+    addressCountry?: string | null;
+  };
+  socialMedia?: {
+    website?: string | null;
+    logo?: (number | null) | Media;
+    sameAs?:
+      | {
+          platform?: ('facebook' | 'instagram' | 'linkedin' | 'twitter' | 'youtube' | 'github') | null;
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  aiAndCrawlers?: {
+    allowAITraining?: boolean | null;
+    llmTxtEnabled?: boolean | null;
+    llmTxtContent?: {
+      updateSchedule?: ('daily' | 'weekly' | 'monthly') | null;
+      citationPolicy?: string | null;
+      /**
+       * Ein Pfad pro Zeile, z.B.:
+       * /blog/*
+       * /leistungen/*
+       */
+      contentAreasText?: string | null;
+    };
+    /**
+     * Zusätzliche robots.txt Direktiven (eine pro Zeile)
+     */
+    robotsExtraRules?: string | null;
+  };
+  sitemapsIndexing?: {
+    enabled?: boolean | null;
+    includePages?: boolean | null;
+    includePosts?: boolean | null;
+    changeFrequency?: ('daily' | 'weekly' | 'monthly') | null;
+    priority?: number | null;
+    /**
+     * One path per line
+     */
+    excludePathsText?: string | null;
+  };
+  analytics?: {
+    rybbit?: {
+      enabled?: boolean | null;
+      siteId?: string | null;
+      scriptUrl?: string | null;
+    };
+    googleAnalytics?: {
+      enabled?: boolean | null;
+      /**
+       * e.g. G-XXXXXXXXXX
+       */
+      measurementId?: string | null;
+      requireConsent?: boolean | null;
+    };
+    googleTagManager?: {
+      enabled?: boolean | null;
+      /**
+       * e.g. GTM-XXXXXXX
+       */
+      containerId?: string | null;
+    };
+  };
+  schemaTemplates?: {
+    websiteSchema?: {
+      enableSearch?: boolean | null;
+      searchEndpoint?: string | null;
+      language?: ('de-DE' | 'en-US') | null;
+    };
+    includeBreadcrumbs?: boolean | null;
+    includeOrganization?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Default theme and colour preset for the website. Background and accents follow the Deleyna design (dark, copper/gold).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme-settings".
+ */
+export interface ThemeSetting {
+  id: number;
+  /**
+   * Which theme visitors see on first visit (without saved preference).
+   */
+  defaultTheme: 'dark' | 'light' | 'system';
+  /**
+   * The site uses this preset. Colours are defined in globals.css – here for reference only.
+   */
+  colorPreset?: ('deleyna-dark' | 'deleyna-light') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Cookie banner settings for GDPR compliance
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cookie-banner".
+ */
+export interface CookieBanner {
+  id: number;
+  enabled?: boolean | null;
+  trigger: {
+    placement: 'footer' | 'floating' | 'floating-right';
+  };
+  banner: {
+    title: string;
+    description: string;
+    acceptAllLabel: string;
+    rejectLabel: string;
+    settingsLabel: string;
+    saveLabel: string;
+  };
+  modal: {
+    title: string;
+    description: string;
+  };
+  policies: {
+    privacyPolicyLabel: string;
+    privacyPolicy?: (number | null) | Page;
+    imprintLabel?: string | null;
+    imprint?: (number | null) | Page;
+  };
+  necessary: {
+    label: string;
+    description: string;
+  };
+  analytics: {
+    enabled?: boolean | null;
+    label: string;
+    description: string;
+  };
+  marketing: {
+    enabled?: boolean | null;
+    label: string;
+    description: string;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Automatically sync approved talents to a Notion database.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notion-settings".
+ */
+export interface NotionSetting {
+  id: number;
+  /**
+   * When enabled, published talents are automatically synced to Notion. Requires API key and database ID.
+   */
+  enabled?: boolean | null;
+  /**
+   * Integration token from https://www.notion.so/my-integrations. Alternatively set as NOTION_API_KEY in .env.
+   */
+  apiKey?: string | null;
+  /**
+   * The 32-character ID from the Notion database URL. Alternatively set as NOTION_TALENTS_DB_ID in .env.
+   */
+  databaseId?: string | null;
+  /**
+   * Automatically sync talent when it is published or updated.
+   */
+  syncOnPublish?: boolean | null;
+  /**
+   * Archive Notion page when a talent is deleted.
+   */
+  archiveOnDelete?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Counters for unread form submissions per locale (set automatically).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications".
+ */
+export interface Notification {
+  id: number;
+  unreadFormSubmissionsDe?: number | null;
+  unreadFormSubmissionsEn?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts-archive_select".
+ */
+export interface PostsArchiveSelect<T extends boolean = true> {
+  heroHeadline?: T;
+  heroDescription?: T;
+  postsPerPage?: T;
+  showCategories?: T;
+  showFeatured?: T;
+  showCta?: T;
+  ctaHeadline?: T;
+  ctaDescription?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talents-archive_select".
+ */
+export interface TalentsArchiveSelect<T extends boolean = true> {
+  showcaseEnabled?: T;
+  showcaseMode?: T;
+  showcaseTalents?: T;
+  showcaseMaxSlides?: T;
+  showcaseAutoplay?: T;
+  heroHeadline?: T;
+  heroDescription?: T;
+  heroImage?: T;
+  layout?:
+    | T
+    | {
+        content?:
+          | T
+          | {
+              layout?: T;
+              backgroundColor?: T;
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              variant?: T;
+              media?: T;
+              headline?: T;
+              text?: T;
+              backgroundImage?: T;
+              button?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    archive?: T;
+                    label?: T;
+                    appearance?: T;
+                    trackClicks?: T;
+                    trackingEventName?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              variant?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?: T | FAQBlockSelect<T>;
+        stickyMedia?: T | StickyMediaBlockSelect<T>;
+        mediaContent?: T | MediaContentBlockSelect<T>;
+        masonryGrid?: T | MasonryGridBlockSelect<T>;
+        slider?: T | SliderBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        bigText?: T | BigTextBlockSelect<T>;
+        stepSection?: T | StepSectionBlockSelect<T>;
+        infoCards?: T | InfoCardsBlockSelect<T>;
+        impressum?: T | ImpressumBlockSelect<T>;
+        legalContent?: T | LegalContentBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        education?: T | EducationBlockSelect<T>;
+        coaching?: T | CoachingBlockSelect<T>;
+        contact?: T | ContactBlockSelect<T>;
+        stats?: T | StatsBlockSelect<T>;
+        featuredTalents?: T | FeaturedTalentsBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+        logoGrid?: T | LogoGridBlockSelect<T>;
+        schedule?: T | ScheduleBlockSelect<T>;
+        testimonial?: T | TestimonialBlockSelect<T>;
+        map?:
+          | T
+          | {
+              location?: T;
+              height?: T;
+              zoom?: T;
+              title?: T;
+              id?: T;
+              blockName?: T;
+            };
+        marqueeBanner?: T | MarqueeBannerBlockSelect<T>;
+      };
+  showFilters?: T;
+  filterLabels?:
+    | T
+    | {
+        all?: T;
+        dancers?: T;
+        models?: T;
+      };
+  showHairFilter?: T;
+  showEyeFilter?: T;
+  showSkillsFilter?: T;
+  showCta?: T;
+  ctaHeadline?: T;
+  ctaDescription?: T;
+  ctaButton?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              appearance?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        id?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sedcard-settings_select".
+ */
+export interface SedcardSettingsSelect<T extends boolean = true> {
+  enableFrontendDownload?: T;
+  defaultTemplate?: T;
+  agencyLogo?: T;
+  footerText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-settings_select".
+ */
+export interface FormSettingsSelect<T extends boolean = true> {
+  contactForm?: T;
+  enableTurnstile?: T;
+  turnstileSiteKey?: T;
+  turnstileSecretKey?: T;
+  enableAutoReply?: T;
+  resendApiKey?: T;
+  resendFromAddress?: T;
+  resendFromName?: T;
+  autoReplyEmailField?: T;
+  autoReplySubject?: T;
+  autoReplyBody?: T;
+  enableUpstash?: T;
+  upstashRedisUrl?: T;
+  upstashRedisToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header_select".
+ */
+export interface HeaderSelect<T extends boolean = true> {
+  languageSwitcherPlacement?: T;
+  themeTogglePlacement?: T;
+  cardNavItems?:
+    | T
+    | {
+        label?: T;
+        labelLink?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        mediaDisplay?: T;
+        image?: T;
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    archive?: T;
+                    label?: T;
+                    trackClicks?: T;
+                    trackingEventName?: T;
+                  };
+              icon?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  ctaButtons?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              archive?: T;
+              label?: T;
+              appearance?: T;
+              trackClicks?: T;
+              trackingEventName?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  logo?: T;
+  description?: T;
+  columns?:
+    | T
+    | {
+        title?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              page?: T;
+              url?: T;
+              newTab?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  contact?:
+    | T
+    | {
+        showContact?: T;
+        title?: T;
+        email?: T;
+        phone?: T;
+        address?: T;
+      };
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  copyright?: T;
+  bottomLinks?:
+    | T
+    | {
+        label?: T;
+        page?: T;
+        url?: T;
+        id?: T;
+      };
+  showCookieSettings?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo_select".
+ */
+export interface SeoSelect<T extends boolean = true> {
+  favicon?: T;
+  appleTouchIcon?: T;
+  businessInfo?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        businessType?: T;
+        foundingDate?: T;
+        priceRange?: T;
+      };
+  contactInfo?:
+    | T
+    | {
+        email?: T;
+        telephone?: T;
+        streetAddress?: T;
+        addressLocality?: T;
+        postalCode?: T;
+        addressCountry?: T;
+      };
+  socialMedia?:
+    | T
+    | {
+        website?: T;
+        logo?: T;
+        sameAs?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  aiAndCrawlers?:
+    | T
+    | {
+        allowAITraining?: T;
+        llmTxtEnabled?: T;
+        llmTxtContent?:
+          | T
+          | {
+              updateSchedule?: T;
+              citationPolicy?: T;
+              contentAreasText?: T;
+            };
+        robotsExtraRules?: T;
+      };
+  sitemapsIndexing?:
+    | T
+    | {
+        enabled?: T;
+        includePages?: T;
+        includePosts?: T;
+        changeFrequency?: T;
+        priority?: T;
+        excludePathsText?: T;
+      };
+  analytics?:
+    | T
+    | {
+        rybbit?:
+          | T
+          | {
+              enabled?: T;
+              siteId?: T;
+              scriptUrl?: T;
+            };
+        googleAnalytics?:
+          | T
+          | {
+              enabled?: T;
+              measurementId?: T;
+              requireConsent?: T;
+            };
+        googleTagManager?:
+          | T
+          | {
+              enabled?: T;
+              containerId?: T;
+            };
+      };
+  schemaTemplates?:
+    | T
+    | {
+        websiteSchema?:
+          | T
+          | {
+              enableSearch?: T;
+              searchEndpoint?: T;
+              language?: T;
+            };
+        includeBreadcrumbs?: T;
+        includeOrganization?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme-settings_select".
+ */
+export interface ThemeSettingsSelect<T extends boolean = true> {
+  defaultTheme?: T;
+  colorPreset?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cookie-banner_select".
+ */
+export interface CookieBannerSelect<T extends boolean = true> {
+  enabled?: T;
+  trigger?:
+    | T
+    | {
+        placement?: T;
+      };
+  banner?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        acceptAllLabel?: T;
+        rejectLabel?: T;
+        settingsLabel?: T;
+        saveLabel?: T;
+      };
+  modal?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  policies?:
+    | T
+    | {
+        privacyPolicyLabel?: T;
+        privacyPolicy?: T;
+        imprintLabel?: T;
+        imprint?: T;
+      };
+  necessary?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+      };
+  analytics?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        description?: T;
+      };
+  marketing?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notion-settings_select".
+ */
+export interface NotionSettingsSelect<T extends boolean = true> {
+  enabled?: T;
+  apiKey?: T;
+  databaseId?: T;
+  syncOnPublish?: T;
+  archiveOnDelete?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications_select".
+ */
+export interface NotificationsSelect<T extends boolean = true> {
+  unreadFormSubmissionsDe?: T;
+  unreadFormSubmissionsEn?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    global?: string | null;
+    user?: (number | null) | User;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -3,18 +3,22 @@ import config from '@/payload.config'
 
 import { describe, it, beforeAll, expect } from 'vitest'
 
-let payload: Payload
+let payload: Payload | null = null
+const runDBTests = process.env.RUN_DB_TESTS === '1'
 
-describe('API', () => {
-  beforeAll(async () => {
-    const payloadConfig = await config
-    payload = await getPayload({ config: payloadConfig })
-  })
+const describeDB = runDBTests ? describe : describe.skip
 
-  it('fetches users', async () => {
-    const users = await payload.find({
-      collection: 'users',
+describeDB('API', () => {
+    beforeAll(async () => {
+        const payloadConfig = await config
+        payload = await getPayload({ config: payloadConfig })
     })
-    expect(users).toBeDefined()
-  })
+
+    it('fetches users', async () => {
+        if (!payload) return
+        const users = await payload.find({
+            collection: 'users',
+        })
+        expect(users).toBeDefined()
+    })
 })
