@@ -1,5 +1,9 @@
 import type { CollectionConfig } from 'payload'
 import { adminOnly, adminOrSelf, authenticated } from '../access'
+import {
+    generateVerifyEmailHTML,
+    generateForgotPasswordHTML,
+} from '../utilities/emailTemplates'
 
 export const Users: CollectionConfig = {
     slug: 'users',
@@ -14,16 +18,32 @@ export const Users: CollectionConfig = {
         group: { de: 'Admin', en: 'Admin' },
     },
     auth: {
-        tokenExpiration: 7200, // 2 Stunden
+        tokenExpiration: 7200,
         maxLoginAttempts: 5,
-        lockTime: 600 * 1000, // 10 Minuten Sperre nach 5 Fehlversuchen
+        lockTime: 600 * 1000,
         cookies: {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'Strict',
         },
-        verify: false, // Email verification (enable in production with email service)
+        verify: {
+            generateEmailHTML: (args: { token: string; user: Record<string, unknown> }) =>
+                generateVerifyEmailHTML({
+                    token: args.token,
+                    user: {
+                        email: String(args.user.email ?? ''),
+                        name: args.user.name ? String(args.user.name) : undefined,
+                    },
+                }),
+        },
         forgotPassword: {
-            generateEmailHTML: undefined, // Configure with email service
+            generateEmailHTML: (args?: { token?: string; user?: Record<string, unknown> }) =>
+                generateForgotPasswordHTML({
+                    token: args?.token ?? '',
+                    user: {
+                        email: String(args?.user?.email ?? ''),
+                        name: args?.user?.name ? String(args.user.name) : undefined,
+                    },
+                }),
         },
     },
     access: {

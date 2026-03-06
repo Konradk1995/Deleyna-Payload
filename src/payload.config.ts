@@ -12,7 +12,7 @@ import { buildConfig, type Field } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { resendAdapter } from '@payloadcms/email-resend'
+import { dynamicResendAdapter } from './utilities/dynamicEmailAdapter'
 
 // Collections
 import { Users } from './collections/Users'
@@ -762,15 +762,9 @@ export default buildConfig({
     // Security: Cookie settings
     cookiePrefix: 'payload',
 
-    // Email Setup
-    email:
-        process.env.RESEND_API_KEY && process.env.RESEND_FROM_ADDRESS
-            ? resendAdapter({
-                  defaultFromAddress: process.env.RESEND_FROM_ADDRESS,
-                  defaultFromName: process.env.RESEND_FROM_NAME || 'Deleyna',
-                  apiKey: process.env.RESEND_API_KEY,
-              })
-            : undefined,
+    // Email: Dynamic adapter reads credentials from CMS (form-settings) with .env fallback.
+    // Always active so verify/forgotPassword work when configured via admin panel.
+    email: dynamicResendAdapter,
 
     // Telemetry disabled
     telemetry: false,

@@ -175,9 +175,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<Subscribe
             }
         }
 
-        // Default: Log subscription (for development/testing)
+        // No provider configured — don't pretend it worked
         if (process.env.NODE_ENV === 'development') {
-            console.log('Newsletter subscription:', {
+            console.log('Newsletter subscription (no provider configured):', {
                 email: normalizedEmail,
                 firstName: body.firstName,
                 lastName: body.lastName,
@@ -187,10 +187,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<Subscribe
             })
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Erfolgreich für den Newsletter angemeldet!',
-        })
+        return NextResponse.json(
+            {
+                success: false,
+                message:
+                    'Newsletter-Anmeldung ist derzeit nicht verfügbar. Bitte versuche es später erneut.',
+            },
+            { status: 503 },
+        )
     } catch (error) {
         console.error('Newsletter subscription error:', error)
 
