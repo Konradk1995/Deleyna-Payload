@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 import { link } from '../../fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const MediaContent: Block = {
     slug: 'mediaContent',
@@ -35,32 +36,47 @@ export const MediaContent: Block = {
                 description: { de: 'Bild oder Video (autoplay)', en: 'Image or video (autoplay)' },
             },
         },
-        {
-            name: 'tagline',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Kleines Label über der Überschrift',
-                    en: 'Small label above the headline',
-                },
-            },
-        },
-        {
-            name: 'headline',
-            type: 'text',
-            required: true,
-            localized: true,
-        },
+        ...sectionHeaderFields({ headingLevel: true, description: false }),
         {
             name: 'body',
             type: 'richText',
             localized: true,
+            label: { de: 'Fließtext', en: 'Body text' },
+            admin: {
+                description: {
+                    de: 'Fließtext neben dem Medium',
+                    en: 'Body text beside the media',
+                },
+            },
+        },
+        {
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
         },
         {
             name: 'links',
             type: 'array',
             maxRows: 2,
+            labels: {
+                singular: { de: 'Link', en: 'Link' },
+                plural: { de: 'Links', en: 'Links' },
+            },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#LinkRowLabel',
+                },
+            },
             fields: [
                 link({
                     appearances: ['primary-pill', 'outline', 'secondary-glass'],

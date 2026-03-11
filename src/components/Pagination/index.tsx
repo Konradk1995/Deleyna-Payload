@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { resolveLocale, withLocalePath } from '@/utilities/locale'
 import { cn } from '@/utilities/ui'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ export const Pagination: React.FC<{
 }> = ({ basePath = '/blog', className, page, totalPages }) => {
     const router = useRouter()
     const params = useParams()
+    const searchParams = useSearchParams()
     const paramLocale = typeof params?.locale === 'string' ? params.locale : undefined
     const locale = resolveLocale(paramLocale)
 
@@ -24,13 +25,20 @@ export const Pagination: React.FC<{
 
     const getPageHref = (pageNumber: number) => {
         const localizedPath = withLocalePath(basePath, locale)
-        return pageNumber <= 1 ? localizedPath : `${localizedPath}/page/${pageNumber}`
+        const newParams = new URLSearchParams(searchParams.toString())
+        if (pageNumber <= 1) {
+            newParams.delete('page')
+        } else {
+            newParams.set('page', String(pageNumber))
+        }
+        const qs = newParams.toString()
+        return qs ? `${localizedPath}?${qs}` : localizedPath
     }
 
     if (totalPages <= 1) return null
 
     return (
-        <nav className={cn('my-12 flex items-center justify-center gap-1', className)} aria-label="Pagination">
+        <nav className={cn('my-12 flex items-center justify-center gap-1', className)} aria-label={locale === 'en' ? 'Pagination' : 'Seitennavigation'}>
             {/* Previous */}
             <Button
                 disabled={!hasPrevPage}
@@ -44,7 +52,7 @@ export const Pagination: React.FC<{
             </Button>
 
             {hasExtraPrevPages && (
-                <span className="flex h-10 w-10 items-center justify-center text-sm text-muted-foreground">&hellip;</span>
+                <span className="flex h-10 w-10 items-center justify-center text-sm text-muted-foreground" aria-hidden="true">&hellip;</span>
             )}
 
             {hasPrevPage && (
@@ -53,6 +61,7 @@ export const Pagination: React.FC<{
                     variant="outline"
                     size="icon"
                     className="h-10 w-10"
+                    aria-label={locale === 'en' ? `Page ${page - 1}` : `Seite ${page - 1}`}
                 >
                     {page - 1}
                 </Button>
@@ -65,6 +74,8 @@ export const Pagination: React.FC<{
                 size="icon"
                 className="h-10 w-10"
                 aria-current="page"
+                aria-label={locale === 'en' ? `Page ${page}, current page` : `Seite ${page}, aktuelle Seite`}
+                disabled
             >
                 {page}
             </Button>
@@ -75,13 +86,14 @@ export const Pagination: React.FC<{
                     variant="outline"
                     size="icon"
                     className="h-10 w-10"
+                    aria-label={locale === 'en' ? `Page ${page + 1}` : `Seite ${page + 1}`}
                 >
                     {page + 1}
                 </Button>
             )}
 
             {hasExtraNextPages && (
-                <span className="flex h-10 w-10 items-center justify-center text-sm text-muted-foreground">&hellip;</span>
+                <span className="flex h-10 w-10 items-center justify-center text-sm text-muted-foreground" aria-hidden="true">&hellip;</span>
             )}
 
             {/* Next */}

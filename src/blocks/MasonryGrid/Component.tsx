@@ -3,7 +3,7 @@ import React, { useId } from 'react'
 import { Media } from '@/components/Media'
 import { CMSLink } from '@/components/CMSLink'
 import { ScrollFadeIn } from '@/components/ScrollFadeIn'
-import { renderHighlightedHeadline } from '@/components/SectionHeader'
+import { SectionHeader } from '@/components/SectionHeader'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/utilities/ui'
 import { AudienceVariant } from './AudienceVariant'
@@ -27,8 +27,9 @@ type MasonryGridBlockProps = {
     id?: string | null
     variant?: 'benefits' | 'audience' | null
     badge?: string | null
-    heading?: string | null
-    headlineHighlight?: string | null
+    title?: string | null
+    titleHighlight?: string | null
+    headingLevel?: string | null
     backgroundColor?: 'white' | 'muted' | null
     sectionTone?: 'light' | 'dark' | null
     audienceCards?: AudienceCard[] | null
@@ -40,9 +41,10 @@ type MasonryGridBlockProps = {
 
 export const MasonryGridBlock: React.FC<MasonryGridBlockProps> = ({
     id: blockId,
-    heading,
+    title,
     badge,
-    headlineHighlight,
+    titleHighlight,
+    headingLevel,
     backgroundColor = 'white',
     variant = 'benefits',
     sectionTone,
@@ -55,14 +57,15 @@ export const MasonryGridBlock: React.FC<MasonryGridBlockProps> = ({
     const fallbackId = useId()
     const headingId = `masonry-grid-heading-${blockId ?? fallbackId}`
     const bgClass = backgroundColor === 'muted' ? 'bg-muted/40' : 'bg-background'
-    const hasHeader = badge || heading
+    const hasHeader = badge || title
 
     if (variant === 'audience' && audienceCards?.length) {
         return (
             <AudienceVariant
                 badge={badge}
-                heading={heading}
-                headlineHighlight={headlineHighlight}
+                heading={title}
+                headlineHighlight={titleHighlight}
+                headingLevel={headingLevel}
                 sectionTone={sectionTone}
                 cards={audienceCards}
             />
@@ -83,28 +86,22 @@ export const MasonryGridBlock: React.FC<MasonryGridBlockProps> = ({
     return (
         <section
             className={cn('relative section-padding-lg section-atmosphere', bgClass)}
-            {...(heading
+            {...(title
                 ? { 'aria-labelledby': headingId }
                 : { 'aria-label': badge || 'Masonry Grid' })}
         >
             <div className="container relative">
                 {hasHeader && (
-                    <ScrollFadeIn className="mb-10 md:mb-14 text-center">
-                        {badge && (
-                            <div className="mb-4 md:mb-5">
-                                <span className="font-subtext-semibold text-copper lowercase tracking-widest">
-                                    {badge}
-                                </span>
-                            </div>
-                        )}
-                        {heading && (
-                            <h2
-                                id={headingId}
-                                className="font-display-tight font-heading-3-bold text-foreground text-balance leading-none tracking-tight hyphens-auto [overflow-wrap:anywhere] pb-1"
-                            >
-                                {renderHighlightedHeadline(heading, headlineHighlight)}
-                            </h2>
-                        )}
+                    <ScrollFadeIn>
+                        <SectionHeader
+                            overline={badge}
+                            title={title}
+                            titleHighlight={titleHighlight}
+                            as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
+                            centered
+                            titleClassName="chrome-text"
+                            id={headingId}
+                        />
                     </ScrollFadeIn>
                 )}
 
@@ -174,12 +171,12 @@ export const MasonryGridBlock: React.FC<MasonryGridBlockProps> = ({
                         </Card>
                     </ScrollFadeIn>
 
-                    <div className="grid grid-cols-1 block-grid-gap-lg lg:grid-cols-2">
-                        <ScrollFadeIn delay={140} animation="fade-up">
+                    <div className="grid grid-cols-1 block-grid-gap-lg lg:grid-cols-2 [&>*]:h-full">
+                        <ScrollFadeIn delay={140} animation="fade-up" className="h-full">
                             <TabsCardClient tabsCard={tabsCard} tone={tabsTone} />
                         </ScrollFadeIn>
 
-                        <ScrollFadeIn delay={200} animation="fade-up">
+                        <ScrollFadeIn delay={200} animation="fade-up" className="h-full">
                             <Card
                                 className={cn(
                                     masonryCardLayoutClass,

@@ -226,14 +226,15 @@ export async function GET(
         }) as React.ReactElement<DocumentProps>
         const pdfBuffer = await renderToBuffer(pdfElement)
 
-        // Sanitize filename
+        // Sanitize filename: Name + Date for easy identification
         const safeName = talent.name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_')
+        const dateStr = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
 
         return new NextResponse(pdfBuffer, {
             status: 200,
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': `attachment; filename="Sedcard_${safeName}.pdf"`,
+                'Content-Disposition': `attachment; filename="Sedcard_${safeName}_${dateStr}.pdf"`,
                 'Cache-Control': 'no-store',
             },
         })

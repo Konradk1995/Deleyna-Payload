@@ -1,5 +1,6 @@
 import type { Page, Post, Talent } from '@/payload-types'
 import { Link } from '@/i18n/navigation'
+import { toHref } from '@/utilities/typedHref'
 import { type ButtonProps, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
 import { resolveLocale, withLocalePath } from '@/utilities/locale'
@@ -209,7 +210,9 @@ export function CMSLink({
     if (!href) return null
 
     const isExternal = typeof href === 'string' && href.startsWith('http')
-    const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' as const } : {}
+    const newTabProps = newTab
+        ? { rel: 'noopener noreferrer', target: '_blank' as const, 'aria-label': label ? `${label} (opens in new tab)` : undefined }
+        : {}
     const style = getLinkAppearanceClass(appearance, size)
     const trackingHref =
         typeof href === 'string'
@@ -243,7 +246,7 @@ export function CMSLink({
 
     return (
         <Link
-            href={href as never}
+            href={toHref(href)}
             className={cn(style, className)}
             onClick={onClick}
             {...newTabProps}

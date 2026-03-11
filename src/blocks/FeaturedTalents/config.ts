@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const FeaturedTalentsBlock: Block = {
     slug: 'featuredTalents',
@@ -6,17 +7,26 @@ export const FeaturedTalentsBlock: Block = {
     imageURL: '/block-previews/featured-talents.svg',
     imageAltText: 'Featured talents carousel or grid',
     labels: {
-        singular: { de: 'Featured Talents', en: 'Featured talents' },
-        plural: { de: 'Featured Talents', en: 'Featured talents' },
+        singular: { de: 'Talente im Fokus', en: 'Featured talents' },
+        plural: { de: 'Talente im Fokus', en: 'Featured talents' },
     },
     fields: [
+        ...sectionHeaderFields({ headingLevel: true, cta: true }),
         {
-            name: 'overline',
-            type: 'text',
-            localized: true,
-            label: { de: 'Overline', en: 'Overline' },
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
         },
-        { name: 'title', type: 'text', localized: true, label: { de: 'Titel', en: 'Title' } },
         {
             name: 'layout',
             type: 'select',

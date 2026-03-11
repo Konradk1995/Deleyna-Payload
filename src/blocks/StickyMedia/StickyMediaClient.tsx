@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
 import type { Media as MediaType } from '@/payload-types'
 import { Media } from '@/components/Media'
@@ -11,6 +12,7 @@ type StickyMediaClientProps = {
     badge?: string
     headline?: string
     headlineHighlight?: string
+    headingLevel?: 'h1' | 'h2' | 'h3'
     subtitle?: string
     media: MediaType | string | number | null // Pass full resource to Media component
     overlayOpacity: number
@@ -22,12 +24,14 @@ export const StickyMediaClient: React.FC<StickyMediaClientProps> = ({
     badge,
     headline,
     headlineHighlight,
+    headingLevel = 'h2',
     subtitle,
     media,
     overlayOpacity,
     scrollLabel = 'Scroll',
     backgroundColor = 'white',
 }) => {
+    const Heading = headingLevel
     const containerRef = useRef<HTMLDivElement>(null)
     const shouldReduceMotion = useReducedMotion()
 
@@ -81,20 +85,18 @@ export const StickyMediaClient: React.FC<StickyMediaClientProps> = ({
                         <div className="surface-on-media mx-auto max-w-4xl padding-large text-center">
                             {badge && (
                                 <div className="mb-4 md:mb-5">
-                                    <span className="badge-pill badge-pill-sm border border-on-media-soft bg-on-media-muted text-on-media-soft backdrop-blur-sm sm:px-4 sm:py-1.5 sm:text-xs">
-                                        <span
-                                            className="h-1.5 w-1.5 rounded-full bg-accent"
-                                            aria-hidden
-                                        />
+                                    <span className="font-subtext-semibold inline-flex items-center gap-3 text-copper">
+                                        <span className="h-px w-8 bg-copper/60" aria-hidden />
                                         {badge}
+                                        <span className="h-px w-8 bg-copper/60" aria-hidden />
                                     </span>
                                 </div>
                             )}
 
                             {headline && (
-                                <h2 className="mb-4 font-display-tight font-heading-2-bold leading-[1.08] tracking-tight text-balance text-on-media hyphens-auto [overflow-wrap:anywhere] pb-[0.04em] md:mb-5">
+                                <Heading className="mb-4 font-display-tight font-heading-2-bold tracking-tight text-balance text-on-media hyphens-auto [overflow-wrap:anywhere] md:mb-5">
                                     {renderHighlightedHeadline(headline, headlineHighlight)}
-                                </h2>
+                                </Heading>
                             )}
 
                             {subtitle && (
@@ -118,16 +120,10 @@ export const StickyMediaClient: React.FC<StickyMediaClientProps> = ({
                     <span className="text-label-small text-on-media-medium md:text-xs">
                         {scrollLabel}
                     </span>
-                    <svg
-                        className="h-5 w-5 animate-bounce text-on-media-medium md:h-6 md:w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+                    <ChevronDown
+                        className={cn('h-5 w-5 text-on-media-medium md:h-6 md:w-6', !shouldReduceMotion && 'animate-bounce')}
                         aria-hidden="true"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    />
                 </motion.div>
             </div>
         </div>

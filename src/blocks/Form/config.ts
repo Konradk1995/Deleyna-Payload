@@ -7,52 +7,71 @@ import {
     lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
+import { sectionHeaderFields } from '@/fields/sectionHeader'
+
 export const FormBlock: Block = {
     slug: 'formBlock',
     interfaceName: 'FormBlock',
     imageURL: '/block-previews/form-block.svg',
     imageAltText: 'Form block with optional intro content',
+    labels: {
+        singular: { de: 'Formular-Block', en: 'Form block' },
+        plural: { de: 'Formular-Blöcke', en: 'Form blocks' },
+    },
+    graphQL: {
+        singularName: 'FormBlock',
+    },
     fields: [
         {
             name: 'form',
             type: 'relationship',
             relationTo: 'forms',
             required: true,
+            label: { de: 'Formular', en: 'Form' },
+            admin: {
+                description: {
+                    de: 'Welches Formular angezeigt werden soll',
+                    en: 'Which form to display',
+                },
+            },
         },
+        ...sectionHeaderFields({ headingLevel: true }),
         {
-            name: 'overline',
-            type: 'text',
-            localized: true,
-            label: { de: 'Overline (optional)', en: 'Overline (optional)' },
-        },
-        {
-            name: 'titleLine1',
-            type: 'text',
-            localized: true,
-            label: { de: 'Headline (optional)', en: 'Headline (optional)' },
-        },
-        {
-            name: 'titleHighlight',
-            type: 'text',
-            localized: true,
-            label: { de: 'Headline Highlight (optional)', en: 'Headline highlight (optional)' },
-        },
-        {
-            name: 'description',
-            type: 'textarea',
-            localized: true,
-            label: { de: 'Beschreibung (optional)', en: 'Description (optional)' },
+            name: 'backgroundColor',
+            type: 'select',
+            label: { de: 'Hintergrundfarbe', en: 'Background colour' },
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrundfarbe der Section',
+                    en: 'Background colour of the section',
+                },
+            },
         },
         {
             name: 'enableIntro',
             type: 'checkbox',
             label: { de: 'Intro-Text anzeigen', en: 'Enable intro content' },
+            admin: {
+                description: {
+                    de: 'Optionalen RichText-Block über dem Formular anzeigen',
+                    en: 'Show optional RichText block above the form',
+                },
+            },
         },
         {
             name: 'introContent',
             type: 'richText',
             admin: {
                 condition: (_, { enableIntro }) => Boolean(enableIntro),
+                description: {
+                    de: 'Freitext-Inhalt über dem Formular',
+                    en: 'Free-form content above the form',
+                },
             },
             editor: lexicalEditor({
                 features: ({ rootFeatures }) => {
@@ -67,11 +86,4 @@ export const FormBlock: Block = {
             label: { de: 'Intro-Text', en: 'Intro content' },
         },
     ],
-    graphQL: {
-        singularName: 'FormBlock',
-    },
-    labels: {
-        singular: { de: 'Formular-Block', en: 'Form block' },
-        plural: { de: 'Formular-Blöcke', en: 'Form blocks' },
-    },
 }

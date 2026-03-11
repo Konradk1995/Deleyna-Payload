@@ -12,6 +12,7 @@ import { talentsSeeder } from './seeders/talents.seeder'
 import { pagesSeeder } from './seeders/pages.seeder'
 import { talentsArchiveSeeder } from './seeders/talentsArchive.seeder'
 import { postsArchiveSeeder } from './seeders/postsArchive.seeder'
+import { jobsArchiveSeeder } from './seeders/jobsArchive.seeder'
 import { headerSeeder } from './seeders/header.seeder'
 import { footerSeeder } from './seeders/footer.seeder'
 import { formsSeeder } from './seeders/forms.seeder'
@@ -72,6 +73,8 @@ export async function seed() {
         await talentsArchiveSeeder(payload)
         console.log('')
         await postsArchiveSeeder(payload)
+        console.log('')
+        await jobsArchiveSeeder(payload)
         console.log('')
 
         // Seed admin user
@@ -187,7 +190,7 @@ export async function seed() {
         console.log(
             `   - Pages: ${pagesResult.created} created, ${pagesResult.skipped} skipped (home)`,
         )
-        console.log('   - Talents Archive & Posts Archive: defaults set (DE)')
+        console.log('   - Talents Archive, Posts Archive & Jobs Archive: defaults set (DE/EN)')
         console.log(
             `   - Admin User: ${adminResult.created ? 'created' : adminResult.skipped ? 'already exists' : 'failed'}`,
         )

@@ -18,6 +18,7 @@ export const Categories: CollectionConfig = {
         group: { de: 'Blog', en: 'Blog' },
         description: { de: 'Kategorien für Blog-Beiträge (z. B. News, Kampagnen). Optional: Bild und Farbe.', en: 'Categories for blog posts (e.g. News, Campaigns). Optional: image and colour.' },
     },
+    defaultSort: 'title',
     access: {
         read: anyone,
         create: adminOrEditor,

@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const Slider: Block = {
     slug: 'slider',
@@ -6,8 +7,8 @@ export const Slider: Block = {
     imageURL: '/block-previews/slider.svg',
     imageAltText: 'Slider: compact or featured cards from a collection',
     labels: {
-        singular: { de: 'Slider', en: 'Slider' },
-        plural: { de: 'Sliders', en: 'Sliders' },
+        singular: { de: 'Karussell', en: 'Slider' },
+        plural: { de: 'Karussells', en: 'Sliders' },
     },
     fields: [
         {
@@ -73,45 +74,21 @@ export const Slider: Block = {
                 },
             },
         },
+        ...sectionHeaderFields({ headingLevel: true, cta: true }),
         {
-            name: 'header',
-            type: 'group',
-            fields: [
-                {
-                    name: 'eyebrow',
-                    type: 'text',
-                    localized: true,
-                    admin: {
-                        description: {
-                            de: 'Kleiner Text über der Überschrift (z.B. "Feature", "Products")',
-                            en: 'Small text above the heading (e.g. "Feature", "Products")',
-                        },
-                    },
-                },
-                {
-                    name: 'heading',
-                    type: 'text',
-                    required: true,
-                    localized: true,
-                    admin: {
-                        description: {
-                            de: 'Hauptüberschrift der Section',
-                            en: 'Main section heading',
-                        },
-                    },
-                },
-                {
-                    name: 'description',
-                    type: 'textarea',
-                    localized: true,
-                    admin: {
-                        description: {
-                            de: 'Unterstützender Text unter der Überschrift',
-                            en: 'Supporting text below the heading',
-                        },
-                    },
-                },
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
             ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
         },
         {
             name: 'itemsLimit',

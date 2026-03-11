@@ -4,10 +4,15 @@
  * Reads config from the NotionSettings global (CMS Admin Panel).
  * Falls back to env vars NOTION_API_KEY / NOTION_TALENTS_DB_ID if CMS fields are empty.
  * Silently skips if sync is disabled or credentials are missing.
+ *
+ * NOTE: The syncTalentToNotion module was removed. These hooks are kept as stubs
+ * so they can be restored when the Notion integration is re-implemented.
+ * The hooks gracefully no-op until the module is available.
  */
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, Payload } from 'payload'
 import { after } from 'next/server'
-import type { NotionConfig } from '../lib/notion/syncTalentToNotion'
+
+type NotionConfig = { apiKey: string; databaseId: string }
 
 type NotionSettingsData = {
     enabled?: boolean
@@ -52,8 +57,10 @@ export const notionAfterChange: CollectionAfterChangeHook = ({ doc, req: { conte
             const notion = await getNotionConfig(payload)
             if (!notion || !notion.syncOnPublish) return
 
-            const { syncTalentToNotion } = await import('../lib/notion/syncTalentToNotion')
-            await syncTalentToNotion(doc, notion.config)
+            // TODO: Re-enable when Notion integration is re-implemented
+            // const mod = await import('../lib/notion/syncTalentToNotion')
+            // await mod.syncTalentToNotion(doc, notion.config)
+            void notion
         } catch (error) {
             console.error('[Notion] afterChange sync error:', error)
         }
@@ -70,8 +77,10 @@ export const notionAfterDelete: CollectionAfterDeleteHook = ({ doc, req: { conte
             const notion = await getNotionConfig(payload)
             if (!notion || !notion.archiveOnDelete) return
 
-            const { archiveTalentInNotion } = await import('../lib/notion/syncTalentToNotion')
-            await archiveTalentInNotion(doc.id, notion.config)
+            // TODO: Re-enable when Notion integration is re-implemented
+            // const mod = await import('../lib/notion/syncTalentToNotion')
+            // await mod.archiveTalentInNotion(doc.id, notion.config)
+            void notion
         } catch (error) {
             console.error('[Notion] afterDelete sync error:', error)
         }

@@ -25,6 +25,6 @@ export const getToneStyles = (tone: TextTone | null | undefined) => {
         ? 'border border-border/40 bg-background/82 backdrop-blur-md'
         : 'border border-on-media/18 bg-media-overlay/42 backdrop-blur-md',
     fallback:
-      usesDarkText ? 'bg-card' : 'bg-surface-inverse',
+      usesDarkText ? 'bg-card' : 'bg-[rgb(10_10_10)] dark:bg-[rgb(10_10_10)]',
   }
 }

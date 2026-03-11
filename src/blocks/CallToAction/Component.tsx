@@ -34,8 +34,8 @@ export function CallToActionBlockComponent({
     if (isSplit) {
         return (
             <section className="section-padding-lg section-atmosphere relative">
-                <div className="pointer-events-none absolute -left-20 top-1/3 size-72 rounded-full bg-copper/8 blur-3xl" />
-                <div className="pointer-events-none absolute -right-24 bottom-1/4 size-72 rounded-full bg-copper/8 blur-3xl" />
+                <div className="pointer-events-none absolute -left-20 top-1/3 size-72 rounded-full bg-copper/8 blur-3xl" aria-hidden="true" />
+                <div className="pointer-events-none absolute -right-24 bottom-1/4 size-72 rounded-full bg-copper/8 blur-3xl" aria-hidden="true" />
                 <div className="container relative">
                     <div className="surface-pill overflow-hidden border border-border/70 bg-muted/30 shadow-copper-glow">
                         <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
@@ -49,7 +49,7 @@ export function CallToActionBlockComponent({
                             </div>
                             <div className="padding-large text-left">
                                 {headline && (
-                                <h2 className="mb-4 font-display-tight font-heading-3-bold leading-none tracking-tight text-balance text-foreground hyphens-auto overflow-wrap-anywhere pb-1">
+                                <h2 className="mb-4 font-display-tight font-heading-3-bold tracking-tight text-balance text-foreground hyphens-auto overflow-wrap-anywhere">
                                         {headline}
                                     </h2>
                                 )}
@@ -78,8 +78,8 @@ export function CallToActionBlockComponent({
         >
             {!isBanner && (
                 <>
-                    <div className="pointer-events-none absolute -left-20 top-1/3 size-64 rounded-full bg-copper/8 blur-3xl" />
-                    <div className="pointer-events-none absolute -right-20 bottom-1/4 size-64 rounded-full bg-copper/7 blur-3xl" />
+                    <div className="pointer-events-none absolute -left-20 top-1/3 size-64 rounded-full bg-copper/8 blur-3xl" aria-hidden="true" />
+                    <div className="pointer-events-none absolute -right-20 bottom-1/4 size-64 rounded-full bg-copper/7 blur-3xl" aria-hidden="true" />
                 </>
             )}
             {hasBackgroundMedia && (
@@ -90,7 +90,7 @@ export function CallToActionBlockComponent({
                         imgClassName="object-cover w-full h-full"
                         fill
                     />
-                    <div className="absolute inset-0 hero-overlay" aria-hidden />
+                    <div className="absolute inset-0 hero-overlay" aria-hidden="true" />
                 </>
             )}
 
@@ -107,7 +107,7 @@ export function CallToActionBlockComponent({
                     {headline && (
                                 <h2
                                     className={cn(
-                                        'font-display-tight leading-none tracking-tight text-balance hyphens-auto overflow-wrap-anywhere pb-1',
+                                        'font-display-tight tracking-tight text-balance hyphens-auto overflow-wrap-anywhere',
                                         isBanner && 'font-heading-5-bold text-primary-foreground',
                                         !isBanner && 'mb-4 font-heading-3-bold text-balance',
                                         !isBanner && !hasBackgroundMedia && 'text-foreground',

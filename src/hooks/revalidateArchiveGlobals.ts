@@ -1,9 +1,9 @@
 import type { GlobalAfterChangeHook } from 'payload'
 
 type ArchiveRevalidateConfig = {
-    basePath: '/blog' | '/talents'
-    deLocalizedPath: '/magazin' | '/talente'
-    logLabel: 'posts archive' | 'talents archive'
+    basePath: '/blog' | '/talents' | '/jobs'
+    deLocalizedPath: '/magazin' | '/talente' | '/jobs'
+    logLabel: 'posts archive' | 'talents archive' | 'jobs archive'
 }
 
 const LOCALES = ['de', 'en'] as const
@@ -48,4 +48,10 @@ export const revalidateTalentsArchive = createArchiveRevalidateHook({
     basePath: '/talents',
     deLocalizedPath: '/talente',
     logLabel: 'talents archive',
+})
+
+export const revalidateJobsArchive = createArchiveRevalidateHook({
+    basePath: '/jobs',
+    deLocalizedPath: '/jobs',
+    logLabel: 'jobs archive',
 })

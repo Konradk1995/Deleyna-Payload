@@ -36,6 +36,24 @@ async function gotoPath(page: import('@playwright/test').Page, path: string) {
 test.describe('Frontend – kritische Pfade (Deleyna)', () => {
     test.describe.configure({ timeout: 240000 })
 
+    test('Health-API: GET /api/health liefert 200 und status ok', async ({ request }) => {
+        const res = await request.get('/api/health')
+        expect(res.status()).toBe(200)
+        const body = await res.json()
+        expect(body).toHaveProperty('status', 'ok')
+        expect(body).toHaveProperty('timestamp')
+        expect(body).toHaveProperty('database')
+        expect(body.database).toHaveProperty('connected', true)
+    })
+
+    test('Admin: /admin ohne Login zeigt Login-Seite oder Redirect', async ({ page }) => {
+        await page.goto('/admin', { waitUntil: 'domcontentloaded', timeout: 15000 })
+        await expect(page).toHaveURL(/\/admin(\/)?$/)
+        const loginForm = page.locator('form').filter({ has: page.locator('input[type="password"]') })
+        const loginHeading = page.getByRole('heading', { name: /log in|sign in|anmelden/i })
+        await expect(loginForm.or(loginHeading)).toBeVisible({ timeout: 5000 })
+    })
+
     test('Home: Locale-Redirect und Hauptinhalt', async ({ page }) => {
         await gotoPath(page, '/')
         // Middleware leitet auf /de oder /en um

@@ -1,70 +1,45 @@
-import React from 'react'
+import React, { Fragment } from 'react'
+import dynamic from 'next/dynamic'
+
 import type { Page } from '@/payload-types'
 
-// Block Components (Server Components)
-import { ContentBlockComponent } from './Content/Component'
-import { CallToActionBlockComponent } from './CallToAction/Component'
-import { GalleryBlockComponent } from './Gallery/Component'
-import { FAQBlockComponent } from './FAQ/Component'
+const BlockSkeleton = () => (
+    <div
+        className="min-h-[280px] animate-pulse rounded-2xl bg-muted/50"
+        aria-hidden
+    />
+)
 
-// Curated WEESS Blocks
-import { StickyMediaBlock } from './StickyMedia/Component'
-import { MasonryGridBlock } from './MasonryGrid/Component'
-import { SliderBlock } from './Slider/Component'
-import { FormBlock } from './Form/Component'
-import { BigTextBlockComponent } from './BigTextBlock/Component'
-import { StepSectionBlock } from './StepSection/Component'
-import { InfoCardsBlock } from './InfoCards/Component'
-import { MediaContentBlock } from './MediaContent/Component'
-import { ImpressumBlock } from './Impressum/Component'
-import { LegalContentBlock } from './LegalContent/Component'
+const blockComponents = {
+    // Core blocks
+    content: dynamic(() => import('./Content/Component').then((m) => m.ContentBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    cta: dynamic(() => import('./CallToAction/Component').then((m) => m.CallToActionBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    gallery: dynamic(() => import('./Gallery/Component').then((m) => m.GalleryBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    faq: dynamic(() => import('./FAQ/Component').then((m) => m.FAQBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    stickyMedia: dynamic(() => import('./StickyMedia/Component').then((m) => m.StickyMediaBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    mediaContent: dynamic(() => import('./MediaContent/Component').then((m) => m.MediaContentBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    masonryGrid: dynamic(() => import('./MasonryGrid/Component').then((m) => m.MasonryGridBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    slider: dynamic(() => import('./Slider/Component').then((m) => m.SliderBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    formBlock: dynamic(() => import('./Form/Component').then((m) => m.FormBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    bigText: dynamic(() => import('./BigTextBlock/Component').then((m) => m.BigTextBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    stepSection: dynamic(() => import('./StepSection/Component').then((m) => m.StepSectionBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    infoCards: dynamic(() => import('./InfoCards/Component').then((m) => m.InfoCardsBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    impressum: dynamic(() => import('./Impressum/Component').then((m) => m.ImpressumBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    legalContent: dynamic(() => import('./LegalContent/Component').then((m) => m.LegalContentBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
 
-// Homepage / Startseiten-Blocks
-import { ServicesBlockComponent } from './Services/Component'
-import { EducationBlockComponent } from './Education/Component'
-import { CoachingBlockComponent } from './Coaching/Component'
-import { ContactBlockComponent } from './Contact/Component'
-import { StatsBlockComponent } from './Stats/Component'
-import { FeaturedTalentsBlockComponent } from './FeaturedTalents/Component'
-import { TeamBlockComponent } from './Team/Component'
-
-// New Feature Blocks
-import { LogoGridBlockComponent } from './LogoGrid/Component'
-import { ScheduleBlockComponent } from './Schedule/Component'
-import { TestimonialBlockComponent } from './Testimonial/Component'
-import { MapBlock } from './Map/Component'
-import { MarqueeBannerBlock } from './MarqueeBanner/Component'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const blockComponents: Record<string, React.FC<any>> = {
-    content: ContentBlockComponent,
-    cta: CallToActionBlockComponent,
-    gallery: GalleryBlockComponent,
-    faq: FAQBlockComponent,
-
-    stickyMedia: StickyMediaBlock,
-    mediaContent: MediaContentBlock,
-    masonryGrid: MasonryGridBlock,
-    slider: SliderBlock,
-    formBlock: FormBlock,
-    bigText: BigTextBlockComponent,
-    stepSection: StepSectionBlock,
-    infoCards: InfoCardsBlock,
-    impressum: ImpressumBlock,
-    legalContent: LegalContentBlock,
-
-    services: ServicesBlockComponent,
-    education: EducationBlockComponent,
-    coaching: CoachingBlockComponent,
-    contact: ContactBlockComponent,
-    stats: StatsBlockComponent,
-    featuredTalents: FeaturedTalentsBlockComponent,
-    team: TeamBlockComponent,
-    logoGrid: LogoGridBlockComponent,
-    schedule: ScheduleBlockComponent,
-    testimonial: TestimonialBlockComponent,
-    map: MapBlock,
-    marqueeBanner: MarqueeBannerBlock,
+    // Extended blocks
+    services: dynamic(() => import('./Services/Component').then((m) => m.ServicesBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    education: dynamic(() => import('./Education/Component').then((m) => m.EducationBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    coaching: dynamic(() => import('./Coaching/Component').then((m) => m.CoachingBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    contact: dynamic(() => import('./Contact/Component').then((m) => m.ContactBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    stats: dynamic(() => import('./Stats/Component').then((m) => m.StatsBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    featuredTalents: dynamic(() => import('./FeaturedTalents/Component').then((m) => m.FeaturedTalentsBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    team: dynamic(() => import('./Team/Component').then((m) => m.TeamBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    logoGrid: dynamic(() => import('./LogoGrid/Component').then((m) => m.LogoGridBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    schedule: dynamic(() => import('./Schedule/Component').then((m) => m.ScheduleBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    testimonial: dynamic(() => import('./Testimonial/Component').then((m) => m.TestimonialBlockComponent), { ssr: true, loading: () => <BlockSkeleton /> }),
+    map: dynamic(() => import('./Map/Component').then((m) => m.MapBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
+    marqueeBanner: dynamic(() => import('./MarqueeBanner/Component').then((m) => m.MarqueeBannerBlock), { ssr: true, loading: () => <BlockSkeleton /> }),
 }
 
 interface RenderBlocksProps {
@@ -77,27 +52,28 @@ export function RenderBlocks({ blocks, locale }: RenderBlocksProps) {
 
     return (
         <div className="relative flex flex-col overflow-x-clip">
-            {/* Subtle ambient copper glow after hero */}
             <div
                 className="pointer-events-none absolute inset-0 z-0 radial-copper-sheen"
                 aria-hidden
             />
-            {blocks.map((block, index) => {
-                const BlockComponent = blockComponents[block.blockType]
+            <Fragment>
+                {blocks.map((block, index) => {
+                    const { blockType } = block
 
-                if (!BlockComponent) {
-                    return (
-                        <div
-                            key={index}
-                            className="padding-large border border-dashed border-border text-center text-muted-foreground"
-                        >
-                            Block: {block.blockType} - nicht implementiert
-                        </div>
-                    )
-                }
+                    if (blockType && blockType in blockComponents) {
+                        const Block =
+                            blockComponents[blockType as keyof typeof blockComponents] as React.ComponentType<Record<string, unknown>>
 
-                return <BlockComponent key={index} {...block} locale={locale} />
-            })}
+                        return (
+                            <div key={index}>
+                                <Block {...block} locale={locale} />
+                            </div>
+                        )
+                    }
+
+                    return null
+                })}
+            </Fragment>
         </div>
     )
 }

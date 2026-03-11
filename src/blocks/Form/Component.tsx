@@ -7,11 +7,12 @@ import { getIntegrationCredentials } from '@/utilities/getIntegrationCredentials
 import { FormClient } from './FormClient'
 import { FormSkeleton } from './FormSkeleton'
 import { SectionHeader } from '@/components/SectionHeader'
+import { cn } from '@/utilities/ui'
 
 export type FormBlockProps = FormBlockType
 
 export const FormBlock: React.FC<FormBlockProps> = async (props) => {
-    const { enableIntro, form, introContent, overline, titleLine1, titleHighlight, description } =
+    const { enableIntro, form, introContent, badge, title, titleHighlight, headingLevel, description, backgroundColor = 'white' } =
         props
 
     if (!form || typeof form !== 'object') {
@@ -28,22 +29,23 @@ export const FormBlock: React.FC<FormBlockProps> = async (props) => {
             Boolean(creds.turnstile.secretKey.trim())
         turnstileSiteKey = creds.turnstile.siteKey
     } catch {
-        // Fallback: Form ohne Turnstile
+        // Fallback: form without Turnstile
     }
 
     return (
-        <section className="section-padding section-atmosphere relative" aria-label="Formular">
-            <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-copper/8 blur-[105px]" />
-            <div className="pointer-events-none absolute -right-20 bottom-1/4 h-64 w-64 rounded-full bg-copper/7 blur-[95px]" />
+        <section className={cn('section-padding-lg section-atmosphere relative', backgroundColor === 'muted' ? 'bg-muted' : 'bg-background')} aria-label="Form">
+            <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-copper/8 blur-[105px]" aria-hidden="true" />
+            <div className="pointer-events-none absolute -right-20 bottom-1/4 h-64 w-64 rounded-full bg-copper/7 blur-[95px]" aria-hidden="true" />
             <div className="container relative">
-                {(overline || titleLine1 || description) && (
+                {(badge || title || description) && (
                     <SectionHeader
-                        overline={overline || undefined}
-                        title={titleLine1 || ''}
-                        titleHighlight={titleHighlight}
+                        overline={badge || undefined}
+                        title={title || ''}
+                        titleHighlight={titleHighlight ?? undefined}
                         description={description || undefined}
+                        as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                         centered={true}
-                        className="mb-12"
+                        titleClassName="chrome-text"
                     />
                 )}
                 <Suspense fallback={<FormSkeleton fieldCount={form.fields?.length || 3} />}>

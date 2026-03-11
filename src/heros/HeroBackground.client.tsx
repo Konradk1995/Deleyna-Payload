@@ -1,38 +1,19 @@
 'use client'
 
 import React from 'react'
-import { motion, useReducedMotion } from 'motion/react'
 
 export const HeroBackground: React.FC = () => {
-    const shouldReduceMotion = useReducedMotion()
-
     return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {/* Animated background blobs */}
-            <motion.div
-                animate={
-                    shouldReduceMotion
-                        ? { x: 0, y: 0, scale: 1 }
-                        : { x: [0, 30, -20, 0], y: [0, -20, 20, 0], scale: [1, 1.06, 0.96, 1] }
-                }
-                transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute top-1/4 -left-24 size-80 rounded-full bg-copper/28 blur-3xl md:size-128 md:blur-3xl"
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+            {/* Animated background blobs — CSS-only for GPU efficiency */}
+            <div
+                className="absolute top-1/4 -left-24 size-48 rounded-full bg-copper/28 blur-2xl md:size-128 md:blur-3xl motion-safe:animate-[blob-1_13s_ease-in-out_infinite] motion-reduce:animate-none"
             />
-            <motion.div
-                animate={
-                    shouldReduceMotion
-                        ? { x: 0, y: 0, scale: 1 }
-                        : { x: [0, -20, 30, 0], y: [0, 30, -10, 0], scale: [1, 0.95, 1.06, 1] }
-                }
-                transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-                className="absolute top-1/3 -right-20 w-64 h-64 rounded-full bg-accent/25 blur-3xl md:w-96 md:h-96 md:blur-3xl"
+            <div
+                className="absolute top-1/3 -right-20 size-40 rounded-full bg-accent/25 blur-2xl md:w-96 md:h-96 md:blur-3xl motion-safe:animate-[blob-2_15s_ease-in-out_2s_infinite] motion-reduce:animate-none"
             />
-            <motion.div
-                animate={
-                    shouldReduceMotion ? { x: 0, y: 0 } : { x: [0, 20, -30, 0], y: [0, -10, 30, 0] }
-                }
-                transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
-                className="absolute bottom-1/4 left-1/3 hidden size-80 rounded-full bg-secondary/16 blur-3xl md:block"
+            <div
+                className="absolute bottom-1/4 left-1/3 hidden size-80 rounded-full bg-secondary/16 blur-3xl md:block motion-safe:animate-[blob-3_18s_ease-in-out_4s_infinite] motion-reduce:animate-none"
             />
 
             {/* Noise texture overlay */}

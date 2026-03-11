@@ -2,7 +2,7 @@ import { cn } from '@/utilities/ui'
 import React from 'react'
 
 /**
- * Rendert eine Headline mit optional hervorgehobenem Teilstück (z. B. für Akzentfarbe).
+ * Renders a headline with an optionally highlighted segment in accent colour.
  */
 export function renderHighlightedHeadline(
     headline: string,
@@ -19,29 +19,56 @@ export function renderHighlightedHeadline(
     )
 }
 
-interface SectionHeaderProps {
-    overline?: string
-    title: string
-    /** Optional: Teilstück von title, das mit text-accent hervorgehoben wird */
+export interface SectionHeaderProps {
+    /** Small label/badge above the headline */
+    badge?: string | null
+    /** Overline text (alternative to badge — elegant line-style) */
+    overline?: string | null
+    /** Main section heading — leave empty to hide entire header */
+    title?: string | null
+    /** Word/phrase highlighted in accent colour inside the title */
     titleHighlight?: string | null
-    description?: string
+    /** Description text below the title */
+    description?: string | null
+    /** Centre-align everything (default: true) */
     centered?: boolean
     className?: string
+    /** Override title classes */
     titleClassName?: string
-    size?: 'sm' | 'md' | 'lg'
-    /** HTML heading level (default: h2). Use h1 for page-level headings. */
+    /** HTML heading level (default: h2) */
     as?: 'h1' | 'h2' | 'h3'
+    /** Typography size variant */
+    size?: 'sm' | 'md' | 'lg'
+    /** HTML id for aria-labelledby */
+    id?: string
 }
 
+const sizeClasses = {
+    sm: {
+        title: 'font-heading-4-bold',
+        description: 'font-small-text-regular md:font-normal-text-regular',
+    },
+    md: {
+        title: 'font-heading-3-bold',
+        description: 'font-normal-text-regular text-muted-foreground md:font-medium-text-regular',
+    },
+    lg: {
+        title: 'font-heading-2-bold',
+        description: 'font-normal-text-regular text-muted-foreground md:font-medium-text-regular',
+    },
+} as const
+
 /**
- * SectionHeader – Wiederverwendbare Sektion-Überschrift
+ * SectionHeader — Unified section header for all blocks.
  *
- * Besteht aus:
- * - Overline (optional): Kleine Überschrift in Accent-Farbe
- * - Title: Hauptüberschrift (h2), optional mit titleHighlight hervorgehoben
- * - Description (optional): Beschreibungstext
+ * Supports two label styles above the headline:
+ * - **badge**: Pill-style label with accent dot (modern / CTA-heavy)
+ * - **overline**: Elegant copper line-style (editorial / luxury)
+ *
+ * Anti-clipping: hyphens-auto, overflow-wrap, padding for descenders.
  */
 export function SectionHeader({
+    badge,
     overline,
     title,
     titleHighlight,
@@ -49,26 +76,31 @@ export function SectionHeader({
     centered = true,
     className,
     titleClassName,
-    size = 'md',
     as: Heading = 'h2',
+    size = 'md',
+    id,
 }: SectionHeaderProps) {
-    const sizeClasses = {
-        sm: {
-            title: 'font-heading-4-bold',
-            description: 'font-small-text-regular md:font-normal-text-regular',
-        },
-        md: {
-            title: 'font-heading-3-bold leading-[1.1]',
-            description: 'font-normal-text-regular md:font-medium-text-regular',
-        },
-        lg: {
-            title: 'font-heading-2-bold leading-[1.1]',
-            description: 'font-normal-text-regular md:font-medium-text-regular',
-        },
-    }
+    if (!badge && !overline && !title && !description) return null
 
     return (
-        <div className={cn('mb-12 md:mb-18', centered && 'text-center', className)}>
+        <div
+            className={cn(
+                'mb-12 md:mb-16',
+                centered ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl',
+                className,
+            )}
+        >
+            {/* Badge — pill style */}
+            {badge && !overline && (
+                <div className="mb-4 md:mb-5">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/60 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                        <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+                        {badge}
+                    </span>
+                </div>
+            )}
+
+            {/* Overline — elegant line style */}
             {overline && (
                 <span
                     className={cn(
@@ -81,19 +113,26 @@ export function SectionHeader({
                     <span className="h-px w-8 bg-copper/60" aria-hidden />
                 </span>
             )}
-            <Heading
-                className={cn(
-                    'font-display-tight tracking-tight text-foreground text-balance hyphens-auto [overflow-wrap:anywhere] pt-[0.02em] pb-[0.06em]',
-                    sizeClasses[size].title,
-                    titleClassName,
-                )}
-            >
-                {renderHighlightedHeadline(title, titleHighlight)}
-            </Heading>
+
+            {/* Headline — anti-clipping, highlighted word */}
+            {title && (
+                <Heading
+                    id={id}
+                    className={cn(
+                        'font-display-tight tracking-tight text-foreground text-balance hyphens-auto [overflow-wrap:anywhere]',
+                        sizeClasses[size].title,
+                        titleClassName,
+                    )}
+                >
+                    {renderHighlightedHeadline(title, titleHighlight)}
+                </Heading>
+            )}
+
+            {/* Description */}
             {description && (
                 <p
                     className={cn(
-                        'mt-6 max-w-4xl hyphens-auto text-balance text-muted-foreground',
+                        'mt-4 max-w-2xl hyphens-auto text-balance text-muted-foreground',
                         sizeClasses[size].description,
                         centered && 'mx-auto',
                     )}

@@ -16,6 +16,7 @@ interface TalentCardProps {
     imageAlt?: string
     /** Hintergrund-Stil der Karte (chrome-grace-talent: talent-bg-sage/peach/cream) */
     cardStyle?: TalentCardStyle
+    isCoach?: boolean
     className?: string
     priority?: boolean
 }
@@ -52,6 +53,7 @@ export function TalentCard({
     imageUrl,
     imageAlt,
     cardStyle,
+    isCoach,
     className,
     priority = false,
 }: TalentCardProps) {
@@ -65,8 +67,9 @@ export function TalentCard({
     return (
         <Link
             href={{ pathname: '/talents/[slug]', params: { slug } }}
+            aria-label={`${name} – ${labels[category]}`}
             className={cn(
-                'talent-card group block cursor-pointer rounded-2xl border border-transparent transition duration-300 hover:border-copper/25 hover:shadow-lg hover:shadow-foreground/10 dark:hover:border-copper/30 dark:hover:shadow-foreground/20',
+                'talent-card group block cursor-pointer rounded-2xl border border-transparent transition duration-300 hover:border-copper/25 hover:shadow-lg hover:shadow-foreground/10 focus-visible:border-copper/25 focus-visible:shadow-lg dark:hover:border-copper/30 dark:hover:shadow-foreground/20',
                 className,
             )}
         >
@@ -98,8 +101,13 @@ export function TalentCard({
                     <h3 className="font-display-tight font-heading-5-bold text-on-media drop-shadow-md">
                         {name}
                     </h3>
-                    <p className="mt-1 text-sm uppercase tracking-widest text-on-media-muted">
+                    <p className="mt-1 flex items-center gap-2 text-sm uppercase tracking-widest text-on-media-muted">
                         {labels[category]}
+                        {isCoach && (
+                            <span className="rounded-full bg-copper/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background normal-case">
+                                Coach
+                            </span>
+                        )}
                     </p>
                 </div>
             </div>

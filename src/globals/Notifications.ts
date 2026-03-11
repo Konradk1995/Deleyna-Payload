@@ -1,5 +1,5 @@
 import type { GlobalConfig } from 'payload'
-import { authenticated } from '../access'
+import { adminOrEditor } from '../access'
 
 /**
  * Notifications Global - tracks unread form submissions per locale.
@@ -10,8 +10,8 @@ export const Notifications: GlobalConfig = {
     slug: 'notifications',
     label: { de: 'Benachrichtigungen', en: 'Notifications' },
     access: {
-        read: authenticated,
-        update: authenticated,
+        read: adminOrEditor,
+        update: adminOrEditor,
     },
     admin: {
         group: { de: 'Admin', en: 'Admin' },

@@ -19,7 +19,7 @@ import {
 
 import { CMSLink } from '@/components/CMSLink'
 import { Logo } from '@/components/Logo'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { ThemeToggle } from '@/components/ThemeToggle/index'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { getFooter, getCookieBanner, getHeader } from '@/utilities/getGlobals'
 import { CookieSettingsButton } from '@/components/CookieBanner/SettingsButton'
@@ -238,7 +238,7 @@ export async function Footer({ locale }: { locale: string }) {
                         <div className="flex items-center gap-3 pt-1">
                             {showThemeToggleInFooter && <ThemeToggle />}
                             {showLanguageSwitcherInFooter && (
-                                <Suspense fallback={<span className="h-9 w-9" aria-hidden />}>
+                                <Suspense fallback={<span className="h-9 w-9" aria-hidden="true" />}>
                                     <LanguageSwitcher size="sm" variant="minimal" />
                                 </Suspense>
                             )}
@@ -256,7 +256,7 @@ export async function Footer({ locale }: { locale: string }) {
                                         href={social.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        aria-label={social.platform}
+                                        aria-label={locale === 'de' ? `Folge uns auf ${social.platform.charAt(0).toUpperCase() + social.platform.slice(1)}` : `Follow us on ${social.platform.charAt(0).toUpperCase() + social.platform.slice(1)}`}
                                         className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/30 text-foreground/60 transition duration-300 hover:border-copper/50 hover:bg-copper/12 hover:text-copper hover:shadow-md hover:shadow-copper/25 hover:scale-105 active:scale-95"
                                     >
                                         <social.Icon className="h-4 w-4" aria-hidden="true" />
@@ -272,7 +272,7 @@ export async function Footer({ locale }: { locale: string }) {
                             <p className="mb-4 text-label-small text-foreground/90">
                                 {col.title}
                             </p>
-                            <nav className="flex flex-col gap-2">
+                            <nav aria-label={locale === 'de' ? 'Fußzeilennavigation' : 'Footer navigation'} className="flex flex-col gap-2">
                                 {(col.links ?? []).map((link, idx) => {
                                     const resolved = resolveLinkHref(link, locale)
                                     if (!resolved) return null

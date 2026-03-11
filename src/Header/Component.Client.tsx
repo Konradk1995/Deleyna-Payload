@@ -7,7 +7,7 @@ import type { Post, Header, Media as MediaType } from '@/payload-types'
 import { Logo } from '@/components/Logo'
 import { CMSLink } from '@/components/CMSLink'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { ThemeToggle } from '@/components/ThemeToggle/index'
 import { HeaderSelectionTrigger } from '@/components/Dancefloor/HeaderDancefloorTrigger'
 import { CardNav } from './CardNav'
 import { buildLocalizedCollectionPath, getLocalizedSlug } from '@/utilities/collectionPaths'
@@ -15,59 +15,49 @@ import localization from '@/i18n/localization'
 
 function resolveMediaResource(media: unknown): MediaType | null {
     if (!media || typeof media === 'number') return null
-    if (typeof media === 'object') {
-        const mediaObj = media as Record<string, unknown>
-        if ('value' in mediaObj && mediaObj.value && typeof mediaObj.value === 'object') {
-            return mediaObj.value as MediaType
-        }
-        return media as MediaType
+    if (typeof media !== 'object') return null
+    const obj = media as Record<string, unknown>
+    if ('value' in obj && obj.value && typeof obj.value === 'object') {
+        return obj.value as MediaType
     }
-    return null
+    return media as MediaType
 }
 
 function getLocalizedString(value: unknown, localeCode: string): string {
     if (!value) return ''
     if (typeof value === 'string') return value
-    if (typeof value === 'object') {
-        const localized = (value as Record<string, string | null | undefined>)[localeCode]
-        if (localized) return localized
-        const fallback = (value as Record<string, string | null | undefined>)[
-            localization.defaultLocale
-        ]
-        if (fallback) return fallback
-        const first = Object.values(value as Record<string, string | null | undefined>).find(
-            Boolean,
-        )
-        if (first) return first as string
-    }
-    return ''
+    if (typeof value !== 'object') return ''
+    const map = value as Record<string, string | null | undefined>
+    return map[localeCode] || map[localization.defaultLocale] || ''
 }
+
+// Nav labels from CMS may arrive in a single locale — map common labels for the other language.
+// This avoids showing German labels on the English site when CMS depth doesn't include localized fields.
+const NAV_LABEL_MAP: Record<string, string> = {
+    'Kontakt aufnehmen': 'Get in touch',
+    'Jetzt bewerben': 'Apply now',
+    'Als Talent bewerben': 'Apply as talent',
+    'Projekt anfragen': 'Project request',
+    'Für Kunden': 'For Clients',
+    'Für Talente': 'For Talents',
+    'Über uns': 'About us',
+    'Über Deleyna': 'About Deleyna',
+    'Alle Talents': 'All talents',
+    Tänzer: 'Dancers',
+    'Tänzer & Models': 'Dancers & Models',
+    'Unsere Services': 'Our services',
+    'Booking-Anfrage': 'Booking request',
+    Leistungen: 'Services',
+    Partnerschaften: 'Partnerships',
+}
+const NAV_LABEL_MAP_REVERSE: Record<string, string> = Object.fromEntries(
+    Object.entries(NAV_LABEL_MAP).map(([de, en]) => [en, de]),
+)
 
 function getHeaderLabelFallback(label: string | null | undefined, localeCode: string): string {
     if (!label) return ''
-    const deToEn: Record<string, string> = {
-        'Kontakt aufnehmen': 'Get in touch',
-        'Jetzt bewerben': 'Apply now',
-        'Als Talent bewerben': 'Apply as talent',
-        'Projekt anfragen': 'Project request',
-        'Für Kunden': 'For Clients',
-        'Für Talente': 'For Talents',
-        'Über uns': 'About us',
-        'Über Deleyna': 'About Deleyna',
-        'Alle Talents': 'All talents',
-        Tänzer: 'Dancers',
-        'Tänzer & Models': 'Dancers & Models',
-        'Unsere Services': 'Our services',
-        'Booking-Anfrage': 'Booking request',
-        Leistungen: 'Services',
-        Partnerschaften: 'Partnerships',
-    }
-    const enToDe: Record<string, string> = Object.fromEntries(
-        Object.entries(deToEn).map(([de, en]) => [en, de]),
-    )
-
-    if (localeCode === 'en') return deToEn[label] ?? label
-    if (localeCode === 'de') return enToDe[label] ?? label
+    if (localeCode === 'en') return NAV_LABEL_MAP[label] ?? label
+    if (localeCode === 'de') return NAV_LABEL_MAP_REVERSE[label] ?? label
     return label
 }
 
@@ -182,7 +172,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, latestBlog }) 
                 })}
                 languageSwitcher={
                     hasLanguageSwitcher ? (
-                        <Suspense fallback={<span className="h-9 w-9" aria-hidden />}>
+                        <Suspense fallback={<span className="h-9 w-9" aria-hidden="true" />}>
                             <LanguageSwitcher size="sm" variant="minimal" />
                         </Suspense>
                     ) : undefined

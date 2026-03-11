@@ -82,7 +82,7 @@ export function StatsCounter({
             <div className="absolute inset-0 bg-gradient-to-b from-copper/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
             <div className="relative z-10">
-                <div className="font-heading-3-bold chrome-text md:font-heading-2-bold mb-2 leading-none">
+                <div className="font-heading-3-bold chrome-text md:font-heading-2-bold mb-2">
                     {count}
                     {suffix && <span className="chrome-text ml-0.5">{suffix}</span>}
                 </div>

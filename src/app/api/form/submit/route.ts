@@ -67,14 +67,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<FormRespo
         let requiresTurnstile = false
         try {
             const formSettings = await getFormSettings('de')
-            requiresTurnstile = Boolean(formSettings.enableTurnstile) && (await isTurnstileEnabled())
+            requiresTurnstile =
+                Boolean(formSettings.enableTurnstile) && (await isTurnstileEnabled())
         } catch {
             requiresTurnstile = false
         }
 
         if (requiresTurnstile) {
-            const token =
-                typeof body.turnstileToken === 'string' ? body.turnstileToken.trim() : ''
+            const token = typeof body.turnstileToken === 'string' ? body.turnstileToken.trim() : ''
             if (!token || token.length < 10) {
                 return NextResponse.json(
                     {
@@ -170,7 +170,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<FormRespo
                     {
                         success: false,
                         message: 'Ungültige E-Mail-Adresse',
-                        errors: [{ field: 'email', message: 'Bitte gib eine gültige E-Mail-Adresse ein' }],
+                        errors: [
+                            {
+                                field: 'email',
+                                message: 'Bitte gib eine gültige E-Mail-Adresse ein',
+                            },
+                        ],
                     },
                     { status: 400, headers: rateLimit.headers },
                 )
@@ -210,12 +215,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<FormRespo
         }))
 
         // Save to form-submissions
+        const submissionPayload: { submissionData: typeof submissionData; form?: number } = {
+            submissionData,
+        }
+        if (formDocId != null) {
+            submissionPayload.form = formDocId
+        }
+
         const submission = await payload.create({
             collection: 'form-submissions',
-            data: {
-                form: formDocId ?? (undefined as unknown as number),
-                submissionData,
-            },
+            data: submissionPayload as any,
+            draft: false,
         })
 
         return NextResponse.json(

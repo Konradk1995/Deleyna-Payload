@@ -5,14 +5,17 @@ import { notFound } from 'next/navigation'
 import { getCachedDocument } from '@/utilities/getDocument'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { ArrowLeft, CalendarDays, Clock3, ExternalLink, MapPin, Users } from 'lucide-react'
+import { CalendarDays, Clock3, ExternalLink, MapPin, Users } from 'lucide-react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { ArticleSchema } from '@/components/seo'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import { generateMeta } from '@/utilities/generateMeta'
 
 import type { Metadata } from 'next'
 import type { Post, Media, Category, Talent } from '@/payload-types'
+
+export const revalidate = 3600
 
 const ALLOWED_MAP_ORIGINS = [
     'https://www.google.com',
@@ -217,22 +220,69 @@ export default async function BlogPostPage({ params }: PageProps) {
               )
         : []
 
-    // Fetch related posts
+    // Fetch related posts — manual picks first, auto-fallback by category or recency
     let relatedPosts: Post[] = []
-    if (post.relatedPosts && post.relatedPosts.length > 0) {
-        const relatedIds = post.relatedPosts.map((r) => (typeof r === 'object' ? r.id : r))
+    const manualIds = (post.relatedPosts || []).map((r) => (typeof r === 'object' ? r.id : r))
+
+    if (manualIds.length > 0) {
         try {
             const relResult = await payload.find({
                 collection: 'posts',
                 locale: locale as 'de' | 'en',
                 depth: 1,
                 where: {
-                    id: { in: relatedIds },
+                    id: { in: manualIds },
                     _status: { equals: 'published' },
                 },
                 limit: 3,
             })
             relatedPosts = relResult.docs
+        } catch {
+            // ignore
+        }
+    }
+
+    // Auto-fallback: fill remaining slots with same-category or recent posts
+    if (relatedPosts.length < 3) {
+        const excludeIds = [post.id, ...relatedPosts.map((p) => p.id)]
+        const remaining = 3 - relatedPosts.length
+        const categoryIds = categories.map((c) => c.id)
+
+        try {
+            // Try same categories first
+            if (categoryIds.length > 0) {
+                const catResult = await payload.find({
+                    collection: 'posts',
+                    locale: locale as 'de' | 'en',
+                    depth: 1,
+                    where: {
+                        id: { not_in: excludeIds },
+                        _status: { equals: 'published' },
+                        categories: { in: categoryIds },
+                    },
+                    sort: '-publishedAt',
+                    limit: remaining,
+                })
+                relatedPosts = [...relatedPosts, ...catResult.docs]
+            }
+
+            // Fill any remaining with recent posts
+            if (relatedPosts.length < 3) {
+                const stillExclude = [post.id, ...relatedPosts.map((p) => p.id)]
+                const stillNeeded = 3 - relatedPosts.length
+                const recentResult = await payload.find({
+                    collection: 'posts',
+                    locale: locale as 'de' | 'en',
+                    depth: 1,
+                    where: {
+                        id: { not_in: stillExclude },
+                        _status: { equals: 'published' },
+                    },
+                    sort: '-publishedAt',
+                    limit: stillNeeded,
+                })
+                relatedPosts = [...relatedPosts, ...recentResult.docs]
+            }
         } catch {
             // ignore
         }
@@ -257,16 +307,20 @@ export default async function BlogPostPage({ params }: PageProps) {
                 categories={categories.map((c) => c.title).filter(Boolean) as string[]}
             />
 
+            {/* Breadcrumb */}
+            <div className="container mt-6 mb-2">
+                <Breadcrumb
+                    items={[
+                        { label: locale === 'de' ? 'Startseite' : 'Home', href: '/' },
+                        { label: locale === 'de' ? 'Magazin' : 'Blog', href: '/blog' },
+                        { label: post.title || '' },
+                    ]}
+                />
+            </div>
+
             {/* Hero */}
-            <section className="section-padding section-atmosphere">
-                <div className="container max-w-5xl">
-                    <Link
-                        href="/blog"
-                        className="overline mb-8 inline-flex items-center gap-2 text-copper hover:opacity-80 transition-opacity"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        {locale === 'de' ? 'Zurück zum Magazin' : 'Back to Blog'}
-                    </Link>
+            <section className="padding-section-hero-tight section-atmosphere">
+                <div className="container max-w-6xl">
 
                     {/* Categories */}
                     {(categories.length > 0 || showTypeBadge) && (
@@ -460,7 +514,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             {/* Content Blocks */}
             {post.content && (
                 <div className="section-atmosphere">
-                    <div className="container max-w-5xl">
+                    <div className="container max-w-6xl">
                         <RenderBlocks blocks={post.content} locale={locale} />
                     </div>
                 </div>
@@ -469,9 +523,11 @@ export default async function BlogPostPage({ params }: PageProps) {
             {/* Related Posts (chrome-grace style) */}
             {relatedPosts.length > 0 && (
                 <section className="section-padding section-atmosphere bg-muted/30 border-t border-border">
-                    <div className="container max-w-5xl">
+                    <div className="container max-w-6xl">
                         <h2 className="chrome-text text-2xl font-bold font-display mb-8">
-                            {locale === 'de' ? 'Ähnliche Beiträge' : 'Related Posts'}
+                            {manualIds.length > 0
+                                ? (locale === 'de' ? 'Ähnliche Beiträge' : 'Related Posts')
+                                : (locale === 'de' ? 'Weitere Beiträge' : 'More Posts')}
                         </h2>
                         <div className="grid gap-6 sm:grid-cols-3">
                             {relatedPosts.map((related) => {
@@ -486,6 +542,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                                             pathname: '/blog/[slug]',
                                             params: { slug: related.slug || '' },
                                         }}
+                                        aria-label={related.title || ''}
                                         className="group block rounded-[var(--block-radius)] overflow-hidden border border-border glass-morphism transition hover:border-copper/30 hover:bg-foreground/5"
                                     >
                                         <div className="relative aspect-[16/9] bg-muted overflow-hidden">

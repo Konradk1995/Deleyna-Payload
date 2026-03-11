@@ -73,6 +73,7 @@ export interface Config {
     categories: Category;
     talents: Talent;
     'talent-skills': TalentSkill;
+    jobs: Job;
     users: User;
     redirects: Redirect;
     forms: Form;
@@ -96,6 +97,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     talents: TalentsSelect<false> | TalentsSelect<true>;
     'talent-skills': TalentSkillsSelect<false> | TalentSkillsSelect<true>;
+    jobs: JobsSelect<false> | JobsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -114,6 +116,7 @@ export interface Config {
   globals: {
     'posts-archive': PostsArchive;
     'talents-archive': TalentsArchive;
+    'jobs-archive': JobsArchive;
     'sedcard-settings': SedcardSetting;
     'form-settings': FormSetting;
     header: Header;
@@ -127,6 +130,7 @@ export interface Config {
   globalsSelect: {
     'posts-archive': PostsArchiveSelect<false> | PostsArchiveSelect<true>;
     'talents-archive': TalentsArchiveSelect<false> | TalentsArchiveSelect<true>;
+    'jobs-archive': JobsArchiveSelect<false> | JobsArchiveSelect<true>;
     'sedcard-settings': SedcardSettingsSelect<false> | SedcardSettingsSelect<true>;
     'form-settings': FormSettingsSelect<false> | FormSettingsSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -308,93 +312,9 @@ export interface Page {
    */
   layout?:
     | (
-        | {
-            layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
-            backgroundColor?: ('white' | 'muted') | null;
-            content: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'content';
-          }
-        | {
-            variant?: ('default' | 'background' | 'split' | 'banner') | null;
-            /**
-             * Background image or side media
-             */
-            media?: (number | null) | Media;
-            headline: string;
-            text?: string | null;
-            backgroundImage?: (number | null) | Media;
-            button: {
-              type?: ('reference' | 'custom' | 'archive') | null;
-              newTab?: boolean | null;
-              reference?:
-                | ({
-                    relationTo: 'pages';
-                    value: number | Page;
-                  } | null)
-                | ({
-                    relationTo: 'posts';
-                    value: number | Post;
-                  } | null)
-                | ({
-                    relationTo: 'talents';
-                    value: number | Talent;
-                  } | null);
-              url?: string | null;
-              archive?: ('posts' | 'talents') | null;
-              label: string;
-              appearance?:
-                | (
-                    | 'primary'
-                    | 'secondary'
-                    | 'outline'
-                    | 'ghost'
-                    | 'link'
-                    | 'primary-pill'
-                    | 'secondary-glass'
-                    | 'copper'
-                  )
-                | null;
-              /**
-               * Sends an event to Rybbit Analytics when this link is clicked.
-               */
-              trackClicks?: boolean | null;
-              /**
-               * Default 'link_click' when left empty.
-               */
-              trackingEventName?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
-            columns?: ('2' | '3' | '4') | null;
-            images: {
-              image: number | Media;
-              caption?: string | null;
-              id?: string | null;
-            }[];
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
+        | ContentBlock
+        | CallToActionBlock
+        | GalleryBlock
         | FAQBlock
         | StickyMediaBlock
         | MediaContentBlock
@@ -416,18 +336,7 @@ export interface Page {
         | LogoGridBlock
         | ScheduleBlock
         | TestimonialBlock
-        | {
-            /**
-             * The address to display (e.g. "Friedrichstraße 43, Berlin")
-             */
-            location: string;
-            height?: ('small' | 'medium' | 'large') | null;
-            zoom?: number | null;
-            title?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'map';
-          }
+        | MapBlock
         | MarqueeBannerBlock
       )[]
     | null;
@@ -528,110 +437,7 @@ export interface Post {
    * Short summary for lists and SEO
    */
   excerpt?: string | null;
-  content?:
-    | (
-        | {
-            layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
-            backgroundColor?: ('white' | 'muted') | null;
-            content: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'content';
-          }
-        | {
-            variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
-            columns?: ('2' | '3' | '4') | null;
-            images: {
-              image: number | Media;
-              caption?: string | null;
-              id?: string | null;
-            }[];
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | FAQBlock
-        | {
-            variant?: ('default' | 'background' | 'split' | 'banner') | null;
-            /**
-             * Background image or side media
-             */
-            media?: (number | null) | Media;
-            headline: string;
-            text?: string | null;
-            backgroundImage?: (number | null) | Media;
-            button: {
-              type?: ('reference' | 'custom' | 'archive') | null;
-              newTab?: boolean | null;
-              reference?:
-                | ({
-                    relationTo: 'pages';
-                    value: number | Page;
-                  } | null)
-                | ({
-                    relationTo: 'posts';
-                    value: number | Post;
-                  } | null)
-                | ({
-                    relationTo: 'talents';
-                    value: number | Talent;
-                  } | null);
-              url?: string | null;
-              archive?: ('posts' | 'talents') | null;
-              label: string;
-              appearance?:
-                | (
-                    | 'primary'
-                    | 'secondary'
-                    | 'outline'
-                    | 'ghost'
-                    | 'link'
-                    | 'primary-pill'
-                    | 'secondary-glass'
-                    | 'copper'
-                  )
-                | null;
-              /**
-               * Sends an event to Rybbit Analytics when this link is clicked.
-               */
-              trackClicks?: boolean | null;
-              /**
-               * Default 'link_click' when left empty.
-               */
-              trackingEventName?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            /**
-             * The address to display (e.g. "Friedrichstraße 43, Berlin")
-             */
-            location: string;
-            height?: ('small' | 'medium' | 'large') | null;
-            zoom?: number | null;
-            title?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'map';
-          }
-      )[]
-    | null;
+  content?: (ContentBlock | GalleryBlock | FAQBlock | CallToActionBlock | MapBlock)[] | null;
   pageSettings?: {
     /**
      * Overrides the default title (max. 60 characters)
@@ -876,6 +682,77 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  /**
+   * Width of the content area (Default, Narrow, Wide or Full width)
+   */
+  layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Free-form content with rich text formatting
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
+  columns?: ('2' | '3' | '4') | null;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Optional description text below the headline
+   */
+  description?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  images: {
+    image: number | Media;
+    caption?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FAQBlock".
  */
 export interface FAQBlock {
@@ -883,8 +760,61 @@ export interface FAQBlock {
    * Optional. For in-page links, e.g. #faq
    */
   anchorId?: string | null;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
   title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
   description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   items?:
     | {
         question: string;
@@ -926,7 +856,7 @@ export interface Talent {
   name: string;
   category: 'dancer' | 'model' | 'both';
   /**
-   * Main image / cover (portrait, min. 800x1200px). Also used as sedcard cover. Please do NOT use a cutout image here.
+   * Main image / cover (portrait, min 1200×1600 px). Used as the large hero image on the left side of the sedcard. Please do NOT use a cutout image here.
    */
   featuredImage?: (number | null) | Media;
   /**
@@ -961,6 +891,10 @@ export interface Talent {
    * Select skills from the Talent Skills collection
    */
   skills?: (number | TalentSkill)[] | null;
+  /**
+   * Short description of coaching offering (e.g. dance styles, levels, private lessons)
+   */
+  coachingDescription?: string | null;
   languages?:
     | (
         | 'de'
@@ -1001,19 +935,19 @@ export interface Talent {
     website?: string | null;
   };
   /**
-   * Full body shot (portrait). Please do NOT use a cutout image here.
+   * Landscape recommended, min 1200×800 px. Appears top-right in the grid (large image). NO cutout.
    */
   sedcardImage1?: (number | null) | Media;
   /**
-   * Close-up / portrait. Please do NOT use a cutout image here.
+   * Square or portrait, min 800×800 px. Appears bottom-left in the grid. NO cutout.
    */
   sedcardImage2?: (number | null) | Media;
   /**
-   * Movement / dance / action. Please do NOT use a cutout image here.
+   * Square or portrait, min 800×800 px. Appears bottom-right in the grid. NO cutout.
    */
   sedcardImage3?: (number | null) | Media;
   /**
-   * Freely chosen image. Please do NOT use a cutout image here.
+   * Optional. Only used if image 3 is missing. Min 800×800 px. NO cutout.
    */
   sedcardImage4?: (number | null) | Media;
   /**
@@ -1022,13 +956,29 @@ export interface Talent {
   sedcardTemplate?: 'classic' | null;
   seo?: {
     /**
-     * Overrides the default title
+     * Overrides the default title (max. 60 characters)
      */
     metaTitle?: string | null;
     /**
      * Recommended for snippets: 140-160 characters. Up to 320 allowed for social/LLM context.
      */
     metaDescription?: string | null;
+    /**
+     * Comma-separated keywords
+     */
+    metaKeywords?: string | null;
+    /**
+     * Image for social media (recommended: 1200x630px). Fallback: featured image.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Exclude this page from search engines
+     */
+    noIndex?: boolean | null;
+    /**
+     * Optional canonical URL (for duplicate content)
+     */
+    canonicalUrl?: string | null;
   };
   /**
    * URL-friendly path
@@ -1038,6 +988,10 @@ export interface Talent {
    * Show on homepage
    */
   featured?: boolean | null;
+  /**
+   * This talent offers coaching or private lessons and can be selected in coaching inquiries.
+   */
+  isCoach?: boolean | null;
   /**
    * Lower numbers = higher in list
    */
@@ -1069,6 +1023,81 @@ export interface TalentSkill {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock".
+ */
+export interface CallToActionBlock {
+  variant?: ('default' | 'background' | 'split' | 'banner') | null;
+  /**
+   * Background image or side media
+   */
+  media?: (number | null) | Media;
+  /**
+   * Main headline of the CTA block
+   */
+  headline: string;
+  /**
+   * Optional description text below the headline
+   */
+  text?: string | null;
+  /**
+   * Background image (only for "With background" variant)
+   */
+  backgroundImage?: (number | null) | Media;
+  button: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label: string;
+    appearance?:
+      | ('primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'primary-pill' | 'secondary-glass' | 'copper')
+      | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock".
+ */
+export interface MapBlock {
+  /**
+   * The address to display (e.g. "Friedrichstraße 43, Berlin")
+   */
+  location: string;
+  height?: ('small' | 'medium' | 'large') | null;
+  zoom?: number | null;
+  title?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map';
+}
+/**
+ * Administrators, editors and users with roles and access permissions.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -1131,21 +1160,25 @@ export interface Category {
  */
 export interface StickyMediaBlock {
   /**
-   * Section background colour (adapts to dark mode)
-   */
-  backgroundColor?: ('white' | 'muted') | null;
-  /**
-   * Optional badge/tagline above the headline (e.g. "EINLEITUNG").
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
   badge?: string | null;
   /**
-   * Main headline (H2). Leave empty to hide.
+   * Section headline — leave empty to hide
    */
-  headline?: string | null;
+  title?: string | null;
   /**
-   * Word or phrase in the headline to highlight in accent colour.
+   * Heading level for SEO hierarchy (default: H2)
    */
-  headlineHighlight?: string | null;
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   /**
    * Text below the headline. Scrolls in Star Wars style.
    */
@@ -1176,10 +1209,24 @@ export interface MediaContentBlock {
    */
   media: number | Media;
   /**
-   * Small label above the headline
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
-  tagline?: string | null;
-  headline: string;
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Body text beside the media
+   */
   body?: {
     root: {
       type: string;
@@ -1195,6 +1242,10 @@ export interface MediaContentBlock {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   links?:
     | {
         link: {
@@ -1240,19 +1291,23 @@ export interface MediaContentBlock {
 export interface MasonryGridBlock {
   variant?: ('benefits' | 'audience') | null;
   /**
-   * Optional badge/tagline above the headline
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
   badge?: string | null;
   /**
-   * Optional heading for the section (H2)
+   * Section headline — leave empty to hide
    */
-  heading?: string | null;
+  title?: string | null;
   /**
-   * Optional phrase to emphasize in the headline (shown in primary color)
+   * Heading level for SEO hierarchy (default: H2)
    */
-  headlineHighlight?: string | null;
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
   /**
-   * Section background (Dark/Light mode applies automatically)
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
    */
   backgroundColor?: ('white' | 'muted') | null;
   /**
@@ -1477,20 +1532,61 @@ export interface SliderBlock {
    * Static badge text to show on all cards (e.g. "WEESS", "FEATURED")
    */
   staticBadge?: string | null;
-  header: {
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
+  description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
     /**
-     * Small text above the heading (e.g. "Feature", "Products")
+     * Sends an event to Rybbit Analytics when this link is clicked.
      */
-    eyebrow?: string | null;
+    trackClicks?: boolean | null;
     /**
-     * Main section heading
+     * Default 'link_click' when left empty.
      */
-    heading: string;
-    /**
-     * Supporting text below the heading
-     */
-    description?: string | null;
+    trackingEventName?: string | null;
   };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   /**
    * Maximum number of items to show in the slider
    */
@@ -1539,12 +1635,41 @@ export interface SliderBlock {
  * via the `definition` "FormBlock".
  */
 export interface FormBlock {
+  /**
+   * Which form to display
+   */
   form: number | Form;
-  overline?: string | null;
-  titleLine1?: string | null;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
   titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
   description?: string | null;
+  /**
+   * Background colour of the section
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Show optional RichText block above the form
+   */
   enableIntro?: boolean | null;
+  /**
+   * Free-form content above the form
+   */
   introContent?: {
     root: {
       type: string;
@@ -1698,6 +1823,15 @@ export interface Form {
         | {
             name: string;
             label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'classSelection';
+          }
+        | {
+            name: string;
+            label?: string | null;
             maxFiles?: number | null;
             maxFileSizeMB?: number | null;
             width?: number | null;
@@ -1769,7 +1903,7 @@ export interface Form {
   /**
    * Allows filtering submissions by type (e.g. talent requests vs. become a talent).
    */
-  formCategory?: ('contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'other') | null;
+  formCategory?: ('contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'class_inquiry' | 'other') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1816,21 +1950,25 @@ export interface StepSectionBlock {
    */
   cardDisplay?: ('number' | 'icon') | null;
   /**
-   * Section background colour (adapts to dark mode)
-   */
-  backgroundColor?: ('white' | 'muted') | null;
-  /**
-   * Small label above the headline
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
   badge?: string | null;
   /**
-   * Section headline (H2) — leave empty to hide
+   * Section headline — leave empty to hide
    */
-  headline?: string | null;
+  title?: string | null;
   /**
-   * Word or phrase to highlight in primary colour within the headline
+   * Heading level for SEO hierarchy (default: H2)
    */
-  headlineHighlight?: string | null;
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   /**
    * Optional intro text below the headline
    */
@@ -1882,7 +2020,7 @@ export interface StepSectionBlock {
   /**
    * Optional CTA button below the items
    */
-  cta: {
+  cta?: {
     type?: ('reference' | 'custom' | 'archive') | null;
     newTab?: boolean | null;
     reference?:
@@ -1900,7 +2038,7 @@ export interface StepSectionBlock {
         } | null);
     url?: string | null;
     archive?: ('posts' | 'talents') | null;
-    label: string;
+    label?: string | null;
     /**
      * Sends an event to Rybbit Analytics when this link is clicked.
      */
@@ -1992,17 +2130,25 @@ export interface InfoCardsBlock {
    */
   sideMedia?: (number | null) | Media;
   /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
    * Section background (dark/light mode adapts automatically)
    */
   backgroundColor?: ('white' | 'muted') | null;
-  /**
-   * Small label above the headline, e.g. "WHAT SETS US APART"
-   */
-  tagline?: string | null;
-  /**
-   * Main headline, e.g. "5+ disciplines. One goal."
-   */
-  title: string;
   /**
    * Cards with icon, title, short description and optional link (e.g. for "What We Offer")
    */
@@ -2083,83 +2229,83 @@ export interface InfoCardsBlock {
  */
 export interface ImpressumBlock {
   /**
-   * z.B. "Unternehmensangaben" / "Company Information"
+   * e.g. "Company Information"
    */
   headingCompany?: string | null;
   /**
-   * z.B. "Kontakt" / "Contact"
+   * e.g. "Contact"
    */
   headingContact?: string | null;
   /**
-   * z.B. "Vertretungsberechtigte" / "Authorized Representatives"
+   * e.g. "Authorized Representatives"
    */
   headingRepresentatives?: string | null;
   /**
-   * z.B. "Registereintrag" / "Register Entry"
+   * e.g. "Register Entry"
    */
   headingRegister?: string | null;
   /**
-   * z.B. "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV" (langer Titel)
+   * e.g. "Responsible for content according to § 55 para. 2 RStV"
    */
   headingContentResponsible?: string | null;
   /**
-   * z.B. "Haftungsausschluss" / "Disclaimer"
+   * e.g. "Disclaimer"
    */
   headingDisclaimer?: string | null;
   /**
-   * z.B. "Haftung für Inhalte" / "Liability for Content"
+   * e.g. "Liability for Content"
    */
   headingLiabilityContent?: string | null;
   /**
-   * z.B. "Haftung für Links" / "Liability for Links"
+   * e.g. "Liability for Links"
    */
   headingLiabilityLinks?: string | null;
   /**
-   * z.B. "Urheberrecht" / "Copyright"
+   * e.g. "Copyright"
    */
   headingCopyright?: string | null;
   /**
-   * z.B. "EU-Streitschlichtung" / "EU Dispute Resolution"
+   * e.g. "EU Dispute Resolution"
    */
   headingEuDispute?: string | null;
   /**
-   * Unternehmensangaben – Firmenname
+   * Company information – company name
    */
   companyName: string;
   /**
-   * Straße und Hausnummer
+   * Street and house number
    */
   street: string;
   /**
-   * PLZ
+   * Postal code
    */
   postalCode: string;
   /**
-   * Ort
+   * City / town
    */
   city: string;
   /**
-   * Land
+   * Country
    */
   country: string;
   /**
-   * Telefon (z.B. +49 30 123 456 789)
+   * Phone number (e.g. +49 30 123 456 789)
    */
   phone?: string | null;
   /**
-   * E-Mail
+   * Email address
    */
   email?: string | null;
   /**
-   * Website (z.B. www.weess.energy)
+   * Website (e.g. www.deleyna.com)
    */
   website?: string | null;
   /**
-   * Überschrift (z.B. Geschäftsführer:)
+   * Label (e.g. Managing Director:)
    */
   representativesLabel?: string | null;
   /**
-   * Namen der vertretungsberechtigten Personen
+   * Names of authorized representatives
    */
   representativesNames?:
     | {
@@ -2168,23 +2314,23 @@ export interface ImpressumBlock {
       }[]
     | null;
   /**
-   * Registergericht (z.B. Amtsgericht Charlottenburg)
+   * Register court (e.g. Amtsgericht Charlottenburg)
    */
   registerCourt?: string | null;
   /**
-   * Registernummer (z.B. HRB 123456 B)
+   * Register number (e.g. HRB 123456 B)
    */
   registerNumber?: string | null;
   /**
-   * USt-IdNr. (z.B. DE123456789)
+   * VAT ID (e.g. DE123456789)
    */
   vatId?: string | null;
   /**
-   * Name der verantwortlichen Person (Adresse wird aus Unternehmensangaben übernommen)
+   * Name of responsible person (address is taken from company info)
    */
   contentResponsibleName: string;
   /**
-   * Haftung für Inhalte
+   * Liability for content
    */
   liabilityContent?: {
     root: {
@@ -2202,7 +2348,7 @@ export interface ImpressumBlock {
     [k: string]: unknown;
   } | null;
   /**
-   * Haftung für Links
+   * Liability for links
    */
   liabilityLinks?: {
     root: {
@@ -2220,7 +2366,7 @@ export interface ImpressumBlock {
     [k: string]: unknown;
   } | null;
   /**
-   * Urheberrecht
+   * Copyright
    */
   copyright?: {
     root: {
@@ -2238,7 +2384,7 @@ export interface ImpressumBlock {
     [k: string]: unknown;
   } | null;
   /**
-   * Einleitungstext zur ODR-Plattform
+   * Introduction text about the ODR platform
    */
   euDisputeIntro?: {
     root: {
@@ -2256,11 +2402,11 @@ export interface ImpressumBlock {
     [k: string]: unknown;
   } | null;
   /**
-   * URL der EU-Streitschlichtungsplattform
+   * URL of the EU dispute resolution platform
    */
   euDisputeUrl?: string | null;
   /**
-   * Schlusstext (E-Mail im Impressum, keine Verpflichtung zur Teilnahme)
+   * Closing text (email in imprint, no obligation to participate)
    */
   euDisputeClosing?: {
     root: {
@@ -2278,7 +2424,7 @@ export interface ImpressumBlock {
     [k: string]: unknown;
   } | null;
   /**
-   * z.B. "Stand: Dezember 2024"
+   * e.g. "Last updated: December 2024"
    */
   dateLabel?: string | null;
   id?: string | null;
@@ -2291,23 +2437,23 @@ export interface ImpressumBlock {
  */
 export interface LegalContentBlock {
   /**
-   * Optionaler Seitentitel (z.B. "Datenschutz" oder "AGB")
+   * Optional page title (e.g. "Privacy Policy" or "Terms")
    */
   title?: string | null;
   /**
-   * Überschrift über der linken Navigation (z.B. "Inhaltsverzeichnis" / "Table of contents")
+   * Heading above the left navigation (e.g. "Table of contents")
    */
   tocLabel?: string | null;
   /**
-   * Nummerierte Abschnitte. Reihenfolge = Reihenfolge auf der Seite.
+   * Numbered sections. Order = order on the page.
    */
   sections: {
     /**
-     * Überschrift des Abschnitts (erscheint im Inhaltsverzeichnis und über dem Text)
+     * Section heading (appears in table of contents and above the text)
      */
     heading: string;
     /**
-     * Inhalt des Abschnitts
+     * Section content
      */
     content: {
       root: {
@@ -2327,7 +2473,7 @@ export interface LegalContentBlock {
     id?: string | null;
   }[];
   /**
-   * z.B. "Stand: Dezember 2024"
+   * e.g. "As of: December 2024"
    */
   dateLabel?: string | null;
   id?: string | null;
@@ -2340,13 +2486,82 @@ export interface LegalContentBlock {
  */
 export interface ServicesBlock {
   /**
-   * e.g. What We Offer
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
-  overline?: string | null;
-  title: string;
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
   description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   services: {
-    icon: 'users' | 'calendar' | 'handshake' | 'globe';
+    icon:
+      | 'users'
+      | 'calendar'
+      | 'handshake'
+      | 'globe'
+      | 'camera'
+      | 'megaphone'
+      | 'star'
+      | 'heart'
+      | 'lightbulb'
+      | 'rocket'
+      | 'shield'
+      | 'award'
+      | 'trending-up'
+      | 'briefcase'
+      | 'sparkles'
+      | 'headset'
+      | 'network'
+      | 'palette'
+      | 'music'
+      | 'target';
     title: string;
     description: string;
     id?: string | null;
@@ -2360,9 +2575,30 @@ export interface ServicesBlock {
  * via the `definition` "EducationBlock".
  */
 export interface EducationBlock {
-  overline?: string | null;
-  title: string;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
   description?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   programs: {
     icon: 'graduationCap' | 'users' | 'briefcase' | 'zap';
     title: string;
@@ -2411,9 +2647,30 @@ export interface EducationBlock {
  * via the `definition` "CoachingBlock".
  */
 export interface CoachingBlock {
-  overline?: string | null;
-  title: string;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
   description?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   benefitsSubheading?: string | null;
   benefits?:
     | {
@@ -2424,14 +2681,10 @@ export interface CoachingBlock {
       }[]
     | null;
   coachesSubheading?: string | null;
-  coaches?:
-    | {
-        name: string;
-        role: string;
-        available?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
+  /**
+   * Select talents with active coach status (only talents with "Coach" checkbox are shown)
+   */
+  coaches?: (number | Talent)[] | null;
   ctaText?: string | null;
   cta?: {
     type?: ('reference' | 'custom' | 'archive') | null;
@@ -2473,8 +2726,61 @@ export interface CoachingBlock {
  * via the `definition` "ContactBlock".
  */
 export interface ContactBlock {
-  overline?: string | null;
-  title: string;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
+  description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   /**
    * Choose the Payload form that should be rendered on the right side.
    */
@@ -2485,6 +2791,15 @@ export interface ContactBlock {
   phone?: string | null;
   addressLabel?: string | null;
   address?: string | null;
+  whatsappLabel?: string | null;
+  /**
+   * Number in international format without spaces. Displayed as wa.me link.
+   */
+  whatsappNumber?: string | null;
+  /**
+   * Optional message pre-filled in the chat.
+   */
+  whatsappText?: string | null;
   socialLabel?: string | null;
   socialUrl?: string | null;
   socialText?: string | null;
@@ -2497,10 +2812,30 @@ export interface ContactBlock {
  * via the `definition` "StatsBlock".
  */
 export interface StatsBlock {
-  overline?: string | null;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
   title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
   titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
   description?: string | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   cta?: {
     type?: ('reference' | 'custom' | 'archive') | null;
     newTab?: boolean | null;
@@ -2547,8 +2882,61 @@ export interface StatsBlock {
  * via the `definition` "FeaturedTalentsBlock".
  */
 export interface FeaturedTalentsBlock {
-  overline?: string | null;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
   title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
+  description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   /**
    * Carousel: one talent with navigation. Grid: multiple talents in a row.
    */
@@ -2571,15 +2959,77 @@ export interface FeaturedTalentsBlock {
  * via the `definition` "TeamBlock".
  */
 export interface TeamBlock {
-  overline?: string | null;
-  title: string;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
+  description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   members: {
+    /**
+     * Full name of the team member
+     */
     name: string;
+    /**
+     * Position or role within the team
+     */
     role: string;
     /**
      * Portrait (optional)
      */
     image?: (number | null) | Media;
+    /**
+     * Short biography or description (optional)
+     */
     bio?: string | null;
     id?: string | null;
   }[];
@@ -2592,15 +3042,39 @@ export interface TeamBlock {
  * via the `definition` "LogoGridBlock".
  */
 export interface LogoGridBlock {
-  variant?: ('logos' | 'text') | null;
   /**
-   * Optional headline, e.g. "Trusted by"
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
-  headline?: string | null;
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Display style: logos as images or text names only
+   */
+  variant?: ('logos' | 'text') | null;
   clients?:
     | {
+        /**
+         * Client or partner name
+         */
         name: string;
+        /**
+         * Logo image (recommended: SVG or transparent PNG)
+         */
         logo?: (number | null) | Media;
+        /**
+         * Optional link to the client website
+         */
         link?: string | null;
         id?: string | null;
       }[]
@@ -2614,16 +3088,90 @@ export interface LogoGridBlock {
  * via the `definition` "ScheduleBlock".
  */
 export interface ScheduleBlock {
-  headline?: string | null;
-  subtitle?: string | null;
+  /**
+   * Small label above the headline (e.g. "HOW IT WORKS")
+   */
+  badge?: string | null;
+  /**
+   * Section headline — leave empty to hide
+   */
+  title?: string | null;
+  /**
+   * Heading level for SEO hierarchy (default: H2)
+   */
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional description text below the headline
+   */
+  description?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
+  /**
+   * Display as list or card grid
+   */
   layout?: ('list' | 'grid') | null;
   classes?:
     | {
+        /**
+         * Name of the class (e.g. "Hip Hop Basics")
+         */
         title: string;
+        /**
+         * Name of the coach / instructor
+         */
         coach?: string | null;
+        /**
+         * Day of week or date info (e.g. "Monday" or "From Mar 15")
+         */
         dateText?: string | null;
+        /**
+         * Class time (e.g. "18:00 – 19:30")
+         */
         time?: string | null;
+        /**
+         * Difficulty level (e.g. "Beginner", "Advanced")
+         */
         level?: string | null;
+        /**
+         * Venue or studio name
+         */
         location?: string | null;
         /**
          * For example: *NO STREET SHOES*
@@ -2646,17 +3194,56 @@ export interface ScheduleBlock {
  */
 export interface TestimonialBlock {
   /**
-   * Small label above the headline, e.g. "WHAT OUR CLIENTS SAY"
+   * Small label above the headline (e.g. "HOW IT WORKS")
    */
   badge?: string | null;
   /**
-   * Main headline, e.g. "Industry voices"
+   * Section headline — leave empty to hide
    */
-  headline?: string | null;
+  title?: string | null;
   /**
-   * Part of the headline to highlight in accent color
+   * Heading level for SEO hierarchy (default: H2)
    */
-  headlineHighlight?: string | null;
+  headingLevel?: ('h1' | 'h2' | 'h3') | null;
+  /**
+   * Word or phrase to highlight in accent colour
+   */
+  titleHighlight?: string | null;
+  /**
+   * Optional button below the section
+   */
+  cta?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  /**
+   * Section background (dark/light mode adapts automatically)
+   */
+  backgroundColor?: ('white' | 'muted') | null;
   items: {
     /**
      * Quote text
@@ -2688,10 +3275,6 @@ export interface TestimonialBlock {
     logo?: (number | null) | Media;
     id?: string | null;
   }[];
-  /**
-   * Section background
-   */
-  backgroundColor?: ('white' | 'muted') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'testimonial';
@@ -2718,6 +3301,165 @@ export interface MarqueeBannerBlock {
   blockType: 'marqueeBanner';
 }
 /**
+ * Job listings and postings for talents and staff.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs".
+ */
+export interface Job {
+  id: number;
+  title: string;
+  /**
+   * Short summary for listings and SEO
+   */
+  excerpt?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  requirements?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  benefits?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  pageSettings?: {
+    /**
+     * Overrides the default title (max. 60 characters)
+     */
+    metaTitle?: string | null;
+    /**
+     * Description for search engines (max. 160 characters)
+     */
+    metaDescription?: string | null;
+    /**
+     * Comma-separated keywords
+     */
+    metaKeywords?: string | null;
+    /**
+     * Title for social media sharing
+     */
+    ogTitle?: string | null;
+    /**
+     * Description for social media
+     */
+    ogDescription?: string | null;
+    /**
+     * Image for social media (recommended: 1200x630px)
+     */
+    ogImage?: (number | null) | Media;
+    schemaType?:
+      | (
+          | 'WebPage'
+          | 'Article'
+          | 'BlogPosting'
+          | 'FAQPage'
+          | 'ContactPage'
+          | 'AboutPage'
+          | 'CollectionPage'
+          | 'Service'
+          | 'Product'
+        )
+      | null;
+    includeBreadcrumbs?: boolean | null;
+    includeOrganization?: boolean | null;
+    /**
+     * Custom JSON-LD schema markup (optional). Inserted as <script type="application/ld+json">.
+     */
+    schemaMarkup?: string | null;
+    /**
+     * Exclude this page from search engines
+     */
+    noIndex?: boolean | null;
+    /**
+     * Do not follow links on this page
+     */
+    noFollow?: boolean | null;
+    /**
+     * Exclude from sitemap
+     */
+    excludeFromSitemap?: boolean | null;
+    /**
+     * Exclude from llms.txt
+     */
+    excludeFromLLM?: boolean | null;
+    /**
+     * Optional canonical URL (for duplicate content)
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Sitemap priority (0.0 - 1.0)
+     */
+    priority?: number | null;
+  };
+  /**
+   * URL-friendly path
+   */
+  slug: string;
+  featuredImage?: (number | null) | Media;
+  jobType?: ('fulltime' | 'parttime' | 'freelance' | 'internship' | 'minijob') | null;
+  /**
+   * e.g. "Berlin" or "Remote"
+   */
+  location?: string | null;
+  /**
+   * Leave empty if Deleyna itself
+   */
+  company?: string | null;
+  /**
+   * e.g. "negotiable" or amount
+   */
+  compensation?: string | null;
+  applicationDeadline?: string | null;
+  /**
+   * External application link (optional, otherwise contact form)
+   */
+  applicationUrl?: string | null;
+  /**
+   * Categories for this job
+   */
+  categories?: (number | Category)[] | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -2738,6 +3480,10 @@ export interface Redirect {
       | ({
           relationTo: 'talents';
           value: number | Talent;
+        } | null)
+      | ({
+          relationTo: 'jobs';
+          value: number | Job;
         } | null);
     url?: string | null;
   };
@@ -2763,7 +3509,7 @@ export interface FormSubmission {
   /**
    * Set automatically from the form category. Filter e.g. talent requests vs. become a talent.
    */
-  category?: ('contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'other') | null;
+  category?: ('contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'class_inquiry' | 'other') | null;
   locale?: ('de' | 'en') | null;
   read?: boolean | null;
   applicationStatus?: ('pending' | 'approved' | 'rejected') | null;
@@ -2917,6 +3663,10 @@ export interface PayloadLockedDocument {
         value: number | TalentSkill;
       } | null)
     | ({
+        relationTo: 'jobs';
+        value: number | Job;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -3038,54 +3788,9 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        content?:
-          | T
-          | {
-              layout?: T;
-              backgroundColor?: T;
-              content?: T;
-              id?: T;
-              blockName?: T;
-            };
-        cta?:
-          | T
-          | {
-              variant?: T;
-              media?: T;
-              headline?: T;
-              text?: T;
-              backgroundImage?: T;
-              button?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    archive?: T;
-                    label?: T;
-                    appearance?: T;
-                    trackClicks?: T;
-                    trackingEventName?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              variant?: T;
-              columns?: T;
-              images?:
-                | T
-                | {
-                    image?: T;
-                    caption?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
+        content?: T | ContentBlockSelect<T>;
+        cta?: T | CallToActionBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
         stickyMedia?: T | StickyMediaBlockSelect<T>;
         mediaContent?: T | MediaContentBlockSelect<T>;
@@ -3107,16 +3812,7 @@ export interface PagesSelect<T extends boolean = true> {
         logoGrid?: T | LogoGridBlockSelect<T>;
         schedule?: T | ScheduleBlockSelect<T>;
         testimonial?: T | TestimonialBlockSelect<T>;
-        map?:
-          | T
-          | {
-              location?: T;
-              height?: T;
-              zoom?: T;
-              title?: T;
-              id?: T;
-              blockName?: T;
-            };
+        map?: T | MapBlockSelect<T>;
         marqueeBanner?: T | MarqueeBannerBlockSelect<T>;
       };
   pageSettings?:
@@ -3149,12 +3845,87 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock_select".
+ */
+export interface ContentBlockSelect<T extends boolean = true> {
+  layout?: T;
+  backgroundColor?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock_select".
+ */
+export interface CallToActionBlockSelect<T extends boolean = true> {
+  variant?: T;
+  media?: T;
+  headline?: T;
+  text?: T;
+  backgroundImage?: T;
+  button?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        appearance?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  variant?: T;
+  columns?: T;
+  badge?: T;
+  title?: T;
+  headingLevel?: T;
+  description?: T;
+  backgroundColor?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FAQBlock_select".
  */
 export interface FAQBlockSelect<T extends boolean = true> {
   anchorId?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
   description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   items?:
     | T
     | {
@@ -3172,10 +3943,11 @@ export interface FAQBlockSelect<T extends boolean = true> {
  * via the `definition` "StickyMediaBlock_select".
  */
 export interface StickyMediaBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
   badge?: T;
-  headline?: T;
-  headlineHighlight?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  backgroundColor?: T;
   subtitle?: T;
   media?: T;
   overlayOpacity?: T;
@@ -3189,9 +3961,12 @@ export interface StickyMediaBlockSelect<T extends boolean = true> {
 export interface MediaContentBlockSelect<T extends boolean = true> {
   layout?: T;
   media?: T;
-  tagline?: T;
-  headline?: T;
+  badge?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
   body?: T;
+  backgroundColor?: T;
   links?:
     | T
     | {
@@ -3220,8 +3995,9 @@ export interface MediaContentBlockSelect<T extends boolean = true> {
 export interface MasonryGridBlockSelect<T extends boolean = true> {
   variant?: T;
   badge?: T;
-  heading?: T;
-  headlineHighlight?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
   backgroundColor?: T;
   highlightCard?:
     | T
@@ -3344,13 +4120,24 @@ export interface SliderBlockSelect<T extends boolean = true> {
   sourceCollection?: T;
   badgeField?: T;
   staticBadge?: T;
-  header?:
+  badge?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  description?: T;
+  cta?:
     | T
     | {
-        eyebrow?: T;
-        heading?: T;
-        description?: T;
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
       };
+  backgroundColor?: T;
   itemsLimit?: T;
   sortBy?: T;
   manualSelection?: T;
@@ -3374,10 +4161,12 @@ export interface SliderBlockSelect<T extends boolean = true> {
  */
 export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
-  overline?: T;
-  titleLine1?: T;
+  badge?: T;
+  title?: T;
+  headingLevel?: T;
   titleHighlight?: T;
   description?: T;
+  backgroundColor?: T;
   enableIntro?: T;
   introContent?: T;
   id?: T;
@@ -3403,10 +4192,11 @@ export interface BigTextBlockSelect<T extends boolean = true> {
 export interface StepSectionBlockSelect<T extends boolean = true> {
   layout?: T;
   cardDisplay?: T;
-  backgroundColor?: T;
   badge?: T;
-  headline?: T;
-  headlineHighlight?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  backgroundColor?: T;
   intro?: T;
   steps?:
     | T
@@ -3465,9 +4255,11 @@ export interface InfoCardsBlockSelect<T extends boolean = true> {
         id?: T;
       };
   sideMedia?: T;
-  backgroundColor?: T;
-  tagline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  backgroundColor?: T;
   cards?:
     | T
     | {
@@ -3560,9 +4352,24 @@ export interface LegalContentBlockSelect<T extends boolean = true> {
  * via the `definition` "ServicesBlock_select".
  */
 export interface ServicesBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
   description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   services?:
     | T
     | {
@@ -3579,9 +4386,12 @@ export interface ServicesBlockSelect<T extends boolean = true> {
  * via the `definition` "EducationBlock_select".
  */
 export interface EducationBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
   description?: T;
+  backgroundColor?: T;
   programs?:
     | T
     | {
@@ -3613,9 +4423,12 @@ export interface EducationBlockSelect<T extends boolean = true> {
  * via the `definition` "CoachingBlock_select".
  */
 export interface CoachingBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
   description?: T;
+  backgroundColor?: T;
   benefitsSubheading?: T;
   benefits?:
     | T
@@ -3626,14 +4439,7 @@ export interface CoachingBlockSelect<T extends boolean = true> {
         id?: T;
       };
   coachesSubheading?: T;
-  coaches?:
-    | T
-    | {
-        name?: T;
-        role?: T;
-        available?: T;
-        id?: T;
-      };
+  coaches?: T;
   ctaText?: T;
   cta?:
     | T
@@ -3656,8 +4462,24 @@ export interface CoachingBlockSelect<T extends boolean = true> {
  * via the `definition` "ContactBlock_select".
  */
 export interface ContactBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   form?: T;
   emailLabel?: T;
   email?: T;
@@ -3665,6 +4487,9 @@ export interface ContactBlockSelect<T extends boolean = true> {
   phone?: T;
   addressLabel?: T;
   address?: T;
+  whatsappLabel?: T;
+  whatsappNumber?: T;
+  whatsappText?: T;
   socialLabel?: T;
   socialUrl?: T;
   socialText?: T;
@@ -3676,10 +4501,12 @@ export interface ContactBlockSelect<T extends boolean = true> {
  * via the `definition` "StatsBlock_select".
  */
 export interface StatsBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
   titleHighlight?: T;
   description?: T;
+  backgroundColor?: T;
   cta?:
     | T
     | {
@@ -3709,8 +4536,24 @@ export interface StatsBlockSelect<T extends boolean = true> {
  * via the `definition` "FeaturedTalentsBlock_select".
  */
 export interface FeaturedTalentsBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   layout?: T;
   randomize?: T;
   size?: T;
@@ -3723,8 +4566,24 @@ export interface FeaturedTalentsBlockSelect<T extends boolean = true> {
  * via the `definition` "TeamBlock_select".
  */
 export interface TeamBlockSelect<T extends boolean = true> {
-  overline?: T;
+  badge?: T;
   title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   members?:
     | T
     | {
@@ -3742,8 +4601,11 @@ export interface TeamBlockSelect<T extends boolean = true> {
  * via the `definition` "LogoGridBlock_select".
  */
 export interface LogoGridBlockSelect<T extends boolean = true> {
+  badge?: T;
+  title?: T;
+  headingLevel?: T;
+  backgroundColor?: T;
   variant?: T;
-  headline?: T;
   clients?:
     | T
     | {
@@ -3760,8 +4622,24 @@ export interface LogoGridBlockSelect<T extends boolean = true> {
  * via the `definition` "ScheduleBlock_select".
  */
 export interface ScheduleBlockSelect<T extends boolean = true> {
-  headline?: T;
-  subtitle?: T;
+  badge?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   layout?: T;
   classes?:
     | T
@@ -3785,8 +4663,22 @@ export interface ScheduleBlockSelect<T extends boolean = true> {
  */
 export interface TestimonialBlockSelect<T extends boolean = true> {
   badge?: T;
-  headline?: T;
-  headlineHighlight?: T;
+  title?: T;
+  headingLevel?: T;
+  titleHighlight?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  backgroundColor?: T;
   items?:
     | T
     | {
@@ -3799,7 +4691,18 @@ export interface TestimonialBlockSelect<T extends boolean = true> {
         logo?: T;
         id?: T;
       };
-  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock_select".
+ */
+export interface MapBlockSelect<T extends boolean = true> {
+  location?: T;
+  height?: T;
+  zoom?: T;
+  title?: T;
   id?: T;
   blockName?: T;
 }
@@ -3931,65 +4834,11 @@ export interface PostsSelect<T extends boolean = true> {
   content?:
     | T
     | {
-        content?:
-          | T
-          | {
-              layout?: T;
-              backgroundColor?: T;
-              content?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              variant?: T;
-              columns?: T;
-              images?:
-                | T
-                | {
-                    image?: T;
-                    caption?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
+        content?: T | ContentBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
-        cta?:
-          | T
-          | {
-              variant?: T;
-              media?: T;
-              headline?: T;
-              text?: T;
-              backgroundImage?: T;
-              button?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    archive?: T;
-                    label?: T;
-                    appearance?: T;
-                    trackClicks?: T;
-                    trackingEventName?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        map?:
-          | T
-          | {
-              location?: T;
-              height?: T;
-              zoom?: T;
-              title?: T;
-              id?: T;
-              blockName?: T;
-            };
+        cta?: T | CallToActionBlockSelect<T>;
+        map?: T | MapBlockSelect<T>;
       };
   pageSettings?:
     | T
@@ -4082,6 +4931,7 @@ export interface TalentsSelect<T extends boolean = true> {
         eyes?: T;
       };
   skills?: T;
+  coachingDescription?: T;
   languages?: T;
   experience?:
     | T
@@ -4108,9 +4958,14 @@ export interface TalentsSelect<T extends boolean = true> {
     | {
         metaTitle?: T;
         metaDescription?: T;
+        metaKeywords?: T;
+        ogImage?: T;
+        noIndex?: T;
+        canonicalUrl?: T;
       };
   slug?: T;
   featured?: T;
+  isCoach?: T;
   sortOrder?: T;
   cardStyle?: T;
   heightNum?: T;
@@ -4128,6 +4983,50 @@ export interface TalentSkillsSelect<T extends boolean = true> {
   skillGroup?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs_select".
+ */
+export interface JobsSelect<T extends boolean = true> {
+  title?: T;
+  excerpt?: T;
+  description?: T;
+  requirements?: T;
+  benefits?: T;
+  pageSettings?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        metaKeywords?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        schemaType?: T;
+        includeBreadcrumbs?: T;
+        includeOrganization?: T;
+        schemaMarkup?: T;
+        noIndex?: T;
+        noFollow?: T;
+        excludeFromSitemap?: T;
+        excludeFromLLM?: T;
+        canonicalUrl?: T;
+        priority?: T;
+      };
+  slug?: T;
+  featuredImage?: T;
+  jobType?: T;
+  location?: T;
+  company?: T;
+  compensation?: T;
+  applicationDeadline?: T;
+  applicationUrl?: T;
+  categories?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4298,6 +5197,16 @@ export interface FormsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        classSelection?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
         imageUpload?:
           | T
           | {
@@ -4460,8 +5369,49 @@ export interface PostsArchive {
   showCta?: boolean | null;
   ctaHeadline?: string | null;
   ctaDescription?: string | null;
+  ctaLink?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    appearance?: ('primary' | 'secondary' | 'outline' | 'copper') | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
   metaTitle?: string | null;
   metaDescription?: string | null;
+  /**
+   * Comma-separated keywords for SEO
+   */
+  metaKeywords?: string | null;
+  /**
+   * Ask search engines not to index this page.
+   */
+  noIndex?: boolean | null;
+  /**
+   * Image for social media (1200x630px). Fallback: global logo.
+   */
+  ogImage?: (number | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4495,93 +5445,9 @@ export interface TalentsArchive {
    */
   layout?:
     | (
-        | {
-            layout?: ('default' | 'narrow' | 'wide' | 'full') | null;
-            backgroundColor?: ('white' | 'muted') | null;
-            content: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'content';
-          }
-        | {
-            variant?: ('default' | 'background' | 'split' | 'banner') | null;
-            /**
-             * Background image or side media
-             */
-            media?: (number | null) | Media;
-            headline: string;
-            text?: string | null;
-            backgroundImage?: (number | null) | Media;
-            button: {
-              type?: ('reference' | 'custom' | 'archive') | null;
-              newTab?: boolean | null;
-              reference?:
-                | ({
-                    relationTo: 'pages';
-                    value: number | Page;
-                  } | null)
-                | ({
-                    relationTo: 'posts';
-                    value: number | Post;
-                  } | null)
-                | ({
-                    relationTo: 'talents';
-                    value: number | Talent;
-                  } | null);
-              url?: string | null;
-              archive?: ('posts' | 'talents') | null;
-              label: string;
-              appearance?:
-                | (
-                    | 'primary'
-                    | 'secondary'
-                    | 'outline'
-                    | 'ghost'
-                    | 'link'
-                    | 'primary-pill'
-                    | 'secondary-glass'
-                    | 'copper'
-                  )
-                | null;
-              /**
-               * Sends an event to Rybbit Analytics when this link is clicked.
-               */
-              trackClicks?: boolean | null;
-              /**
-               * Default 'link_click' when left empty.
-               */
-              trackingEventName?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            variant?: ('grid' | 'masonry' | 'slider' | 'lightbox') | null;
-            columns?: ('2' | '3' | '4') | null;
-            images: {
-              image: number | Media;
-              caption?: string | null;
-              id?: string | null;
-            }[];
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
+        | ContentBlock
+        | CallToActionBlock
+        | GalleryBlock
         | FAQBlock
         | StickyMediaBlock
         | MediaContentBlock
@@ -4603,18 +5469,7 @@ export interface TalentsArchive {
         | LogoGridBlock
         | ScheduleBlock
         | TestimonialBlock
-        | {
-            /**
-             * The address to display (e.g. "Friedrichstraße 43, Berlin")
-             */
-            location: string;
-            height?: ('small' | 'medium' | 'large') | null;
-            zoom?: number | null;
-            title?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'map';
-          }
+        | MapBlock
         | MarqueeBannerBlock
       )[]
     | null;
@@ -4671,6 +5526,85 @@ export interface TalentsArchive {
     | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  /**
+   * Comma-separated keywords for SEO
+   */
+  metaKeywords?: string | null;
+  /**
+   * Ask search engines not to index this page.
+   */
+  noIndex?: boolean | null;
+  /**
+   * Image for social media (1200x630px). Fallback: global logo.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Configure jobs overview page content
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs-archive".
+ */
+export interface JobsArchive {
+  id: number;
+  heroOverline?: string | null;
+  heroHeadline?: string | null;
+  heroDescription?: string | null;
+  /**
+   * Disable to take the jobs page offline (404).
+   */
+  enabled?: boolean | null;
+  jobsPerPage?: number | null;
+  emptyStateText?: string | null;
+  showCta?: boolean | null;
+  ctaBadge?: string | null;
+  ctaHeadline?: string | null;
+  ctaDescription?: string | null;
+  ctaLink?: {
+    type?: ('reference' | 'custom' | 'archive') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'talents';
+          value: number | Talent;
+        } | null);
+    url?: string | null;
+    archive?: ('posts' | 'talents') | null;
+    label?: string | null;
+    appearance?: ('primary' | 'secondary' | 'outline' | 'copper') | null;
+    /**
+     * Sends an event to Rybbit Analytics when this link is clicked.
+     */
+    trackClicks?: boolean | null;
+    /**
+     * Default 'link_click' when left empty.
+     */
+    trackingEventName?: string | null;
+  };
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  /**
+   * Comma-separated keywords for SEO
+   */
+  metaKeywords?: string | null;
+  /**
+   * Ask search engines not to index this page.
+   */
+  noIndex?: boolean | null;
+  /**
+   * Image for social media (1200x630px). Fallback: global logo.
+   */
+  ogImage?: (number | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -5203,8 +6137,24 @@ export interface PostsArchiveSelect<T extends boolean = true> {
   showCta?: T;
   ctaHeadline?: T;
   ctaDescription?: T;
+  ctaLink?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        appearance?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
   metaTitle?: T;
   metaDescription?: T;
+  metaKeywords?: T;
+  noIndex?: T;
+  ogImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -5225,54 +6175,9 @@ export interface TalentsArchiveSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        content?:
-          | T
-          | {
-              layout?: T;
-              backgroundColor?: T;
-              content?: T;
-              id?: T;
-              blockName?: T;
-            };
-        cta?:
-          | T
-          | {
-              variant?: T;
-              media?: T;
-              headline?: T;
-              text?: T;
-              backgroundImage?: T;
-              button?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    archive?: T;
-                    label?: T;
-                    appearance?: T;
-                    trackClicks?: T;
-                    trackingEventName?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              variant?: T;
-              columns?: T;
-              images?:
-                | T
-                | {
-                    image?: T;
-                    caption?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
+        content?: T | ContentBlockSelect<T>;
+        cta?: T | CallToActionBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
         stickyMedia?: T | StickyMediaBlockSelect<T>;
         mediaContent?: T | MediaContentBlockSelect<T>;
@@ -5294,16 +6199,7 @@ export interface TalentsArchiveSelect<T extends boolean = true> {
         logoGrid?: T | LogoGridBlockSelect<T>;
         schedule?: T | ScheduleBlockSelect<T>;
         testimonial?: T | TestimonialBlockSelect<T>;
-        map?:
-          | T
-          | {
-              location?: T;
-              height?: T;
-              zoom?: T;
-              title?: T;
-              id?: T;
-              blockName?: T;
-            };
+        map?: T | MapBlockSelect<T>;
         marqueeBanner?: T | MarqueeBannerBlockSelect<T>;
       };
   showFilters?: T;
@@ -5340,6 +6236,46 @@ export interface TalentsArchiveSelect<T extends boolean = true> {
       };
   metaTitle?: T;
   metaDescription?: T;
+  metaKeywords?: T;
+  noIndex?: T;
+  ogImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs-archive_select".
+ */
+export interface JobsArchiveSelect<T extends boolean = true> {
+  heroOverline?: T;
+  heroHeadline?: T;
+  heroDescription?: T;
+  enabled?: T;
+  jobsPerPage?: T;
+  emptyStateText?: T;
+  showCta?: T;
+  ctaBadge?: T;
+  ctaHeadline?: T;
+  ctaDescription?: T;
+  ctaLink?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        archive?: T;
+        label?: T;
+        appearance?: T;
+        trackClicks?: T;
+        trackingEventName?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  metaKeywords?: T;
+  noIndex?: T;
+  ogImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -5717,6 +6653,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'talents';
           value: number | Talent;
+        } | null)
+      | ({
+          relationTo: 'jobs';
+          value: number | Job;
         } | null);
     global?: string | null;
     user?: (number | null) | User;

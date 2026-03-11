@@ -111,11 +111,13 @@ async function getUpstashCredentials(): Promise<{ url: string; token: string } |
     try {
         const { getIntegrationCredentials } = await import('./getIntegrationCredentials')
         const { upstash } = await getIntegrationCredentials()
+        // Respect the admin panel toggle — if disabled, don't use Upstash even with env vars
+        if (!upstash.enabled) return null
         if (upstash.url && upstash.token) {
             return { url: upstash.url, token: upstash.token }
         }
     } catch {
-        // Fallback to env-only
+        // Fallback to env-only (no admin panel available)
     }
     const url = process.env.UPSTASH_REDIS_REST_URL
     const token = process.env.UPSTASH_REDIS_REST_TOKEN
@@ -192,24 +194,36 @@ export async function checkRateLimitDistributed(
     }
 }
 
+const IP_PATTERN = /^[\d.a-fA-F:]+$/
+
+function isValidIP(ip: string): boolean {
+    return IP_PATTERN.test(ip) && ip.length <= 45
+}
+
 /**
- * Get client IP from request headers
+ * Get client IP from request headers.
+ * Priority: Cloudflare (trusted infra) > x-real-ip (reverse proxy) > x-forwarded-for (least trusted).
  */
 export function getClientIP(headers: Headers): string {
-    // Check various proxy headers
-    const forwardedFor = headers.get('x-forwarded-for')
-    if (forwardedFor) {
-        return forwardedFor.split(',')[0].trim()
+    // Cloudflare sets this — cannot be spoofed when behind CF
+    const cfConnectingIP = headers.get('cf-connecting-ip')?.trim()
+    if (cfConnectingIP && isValidIP(cfConnectingIP)) {
+        return cfConnectingIP
     }
 
-    const realIP = headers.get('x-real-ip')
-    if (realIP) {
+    // Set by trusted reverse proxy (Nginx/Caddy)
+    const realIP = headers.get('x-real-ip')?.trim()
+    if (realIP && isValidIP(realIP)) {
         return realIP
     }
 
-    const cfConnectingIP = headers.get('cf-connecting-ip')
-    if (cfConnectingIP) {
-        return cfConnectingIP
+    // x-forwarded-for: take rightmost (closest to our infra), not leftmost (client-spoofable)
+    const forwardedFor = headers.get('x-forwarded-for')
+    if (forwardedFor) {
+        const ips = forwardedFor.split(',').map((ip) => ip.trim()).filter(isValidIP)
+        if (ips.length > 0) {
+            return ips[ips.length - 1]
+        }
     }
 
     return 'unknown'

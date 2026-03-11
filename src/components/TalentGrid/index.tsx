@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { AdvancedFilters, type FilterState } from '@/components/AdvancedFilters'
 import { TalentCard } from '@/components/TalentCard'
 import type { TalentCardStyle } from '@/components/TalentCard'
@@ -21,6 +21,7 @@ interface Talent {
     hair?: string[]
     eyes?: string[]
     skills?: string[]
+    isCoach?: boolean
 }
 
 interface TalentGridProps {
@@ -48,6 +49,8 @@ export function TalentGrid({
     eyeOptions = [],
     skillOptions = [],
 }: TalentGridProps) {
+    const hasCoaches = useMemo(() => talents.some((t) => t.isCoach), [talents])
+
     const [filters, setFilters] = useState<FilterState>({
         category: 'all',
         hair: [],
@@ -57,7 +60,9 @@ export function TalentGrid({
 
     const filteredTalents = useMemo(() => {
         return talents.filter((t) => {
-            if (filters.category !== 'all') {
+            if (filters.category === 'coach') {
+                if (!t.isCoach) return false
+            } else if (filters.category !== 'all') {
                 const cat = filters.category
                 if (cat === 'dancer' && t.category !== 'dancer' && t.category !== 'both')
                     return false
@@ -77,6 +82,8 @@ export function TalentGrid({
         })
     }, [talents, filters])
 
+    const shouldReduceMotion = useReducedMotion()
+
     const emptyMessage = locale === 'de' ? 'Keine Talente gefunden.' : 'No talents found.'
 
     const gridHeading = locale === 'de' ? 'Talent-Roster' : 'Talent Roster'
@@ -94,6 +101,7 @@ export function TalentGrid({
                         showHairFilter={showHairFilter}
                         showEyeFilter={showEyeFilter}
                         showSkillsFilter={showSkillsFilter}
+                        showCoachFilter={hasCoaches}
                         value={filters}
                         onChange={setFilters}
                         locale={locale}
@@ -109,10 +117,10 @@ export function TalentGrid({
                         {filteredTalents.map((talent, index) => (
                             <motion.div
                                 key={talent.id}
-                                initial={{ opacity: 0, y: 8 }}
+                                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.97 }}
-                                transition={{ duration: 0.2 }}
+                                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
+                                transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                                 className="h-full"
                             >
                                 <TalentCard
@@ -123,6 +131,7 @@ export function TalentGrid({
                                     locale={locale}
                                     imageUrl={talent.imageUrl}
                                     cardStyle={talent.cardStyle}
+                                    isCoach={talent.isCoach}
                                     priority={index < 2}
                                 />
                             </motion.div>

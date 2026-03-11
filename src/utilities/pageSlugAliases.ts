@@ -3,9 +3,18 @@ import { resolveLocale } from '@/utilities/locale'
 const localizedPageSlugByCanonical = {
     about: { de: 'ueber-uns', en: 'about' },
     contact: { de: 'kontakt', en: 'contact' },
+    services: { de: 'leistungen', en: 'services' },
     'talent-werden': { de: 'talent-werden', en: 'become-talent' },
+    booking: { de: 'buchung', en: 'booking' },
+    education: { de: 'ausbildung', en: 'education' },
+    coaching: { de: 'coaching', en: 'coaching' },
+    privacy: { de: 'datenschutz', en: 'privacy' },
+    imprint: { de: 'impressum', en: 'imprint' },
     agb: { de: 'agb', en: 'terms' },
+    faq: { de: 'faq', en: 'faq' },
     testimonials: { de: 'erfahrungen', en: 'testimonials' },
+    'job-anfrage': { de: 'job-anfrage', en: 'job-inquiry' },
+    'kurs-anfrage': { de: 'kurs-anfrage', en: 'class-inquiry' },
 } as const
 
 type CanonicalPageSlug = keyof typeof localizedPageSlugByCanonical

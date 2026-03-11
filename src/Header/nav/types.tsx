@@ -74,5 +74,5 @@ export const renderLinkIcon = (icon?: string | null, className?: string) => {
     const IconComponent = iconMap[normalized]
     if (!IconComponent) return null
 
-    return <IconComponent className={className} aria-hidden />
+    return <IconComponent className={className} aria-hidden="true" />
 }

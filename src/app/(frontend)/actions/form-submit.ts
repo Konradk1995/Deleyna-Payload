@@ -18,7 +18,7 @@ interface SubmitFormResult {
   errors?: string[]
 }
 
-// In-Memory Rate Limiter (Server Action). Für strenge Limits: Form-Submit über POST /api/form/submit nutzen (rateLimit.ts).
+// Simple in-memory rate limiter for server actions (for stricter limits use POST /api/form/submit)
 const rateLimitMap = new Map<string, number[]>()
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 5

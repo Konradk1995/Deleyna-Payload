@@ -29,7 +29,7 @@ export async function GET(
     const authHeader = request.headers.get('authorization')
     const secretToken = process.env.SECURITY_CHECK_TOKEN
 
-    if (!isDev && authHeader !== `Bearer ${secretToken}`) {
+    if (!isDev && (!secretToken || authHeader !== `Bearer ${secretToken}`)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

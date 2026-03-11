@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 import { link } from '@/fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const StatsBlock: Block = {
     slug: 'stats',
@@ -7,36 +8,25 @@ export const StatsBlock: Block = {
     imageURL: '/block-previews/stats.svg',
     imageAltText: 'Stats counters block',
     labels: {
-        singular: { de: 'Stats / About', en: 'Stats / About' },
-        plural: { de: 'Stats / About', en: 'Stats / About' },
+        singular: { de: 'Zahlen & Fakten', en: 'Stats / About' },
+        plural: { de: 'Zahlen & Fakten', en: 'Stats / About' },
     },
     fields: [
+        ...sectionHeaderFields({ headingLevel: true }),
         {
-            name: 'overline',
-            type: 'text',
-            localized: true,
-            label: { de: 'Overline (z. B. About Us)', en: 'Overline (e.g. About Us)' },
-        },
-        {
-            name: 'title',
-            type: 'text',
-            localized: true,
-            label: { de: 'Haupttitel', en: 'Main title' },
-        },
-        {
-            name: 'titleHighlight',
-            type: 'text',
-            localized: true,
-            label: {
-                de: 'Titel hervorgehoben (Akzent)',
-                en: 'Title highlight (accent)',
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
             },
-        },
-        {
-            name: 'description',
-            type: 'textarea',
-            localized: true,
-            label: { de: 'Beschreibung', en: 'Description' },
         },
         link({
             overrides: {
@@ -52,6 +42,11 @@ export const StatsBlock: Block = {
             minRows: 1,
             maxRows: 6,
             labels: { singular: { de: 'Stat', en: 'Stat' }, plural: { de: 'Stats', en: 'Stats' } },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#StatRowLabel',
+                },
+            },
             fields: [
                 {
                     name: 'value',

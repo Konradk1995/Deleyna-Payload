@@ -14,11 +14,11 @@ const handleI18nRouting = createMiddleware(routing)
 export default function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
-    // Pathname an Layout weitergeben, damit Root-Layout für /admin kein doppeltes Document rendert
+    // Pass pathname to layout so root layout skips duplicate Document for /admin
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-pathname', pathname)
 
-    // Admin: keine i18n-Umleitung, nur Header setzen und durchlassen
+    // Admin: skip i18n routing, just set headers and pass through
     if (pathname.startsWith('/admin')) {
         return NextResponse.next({ request: { headers: requestHeaders } })
     }

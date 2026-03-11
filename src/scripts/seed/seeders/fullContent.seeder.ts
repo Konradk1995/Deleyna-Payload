@@ -131,6 +131,8 @@ const pageTopicBySlug: Record<string, { de: string; en: string }> = {
     agb: { de: 'den AGB', en: 'the terms & conditions' },
     faq: { de: 'allgemeinen Fragen zu Deleyna', en: 'general questions about Deleyna' },
     testimonials: { de: 'Erfahrungen mit Deleyna', en: 'experiences with Deleyna' },
+    'job-anfrage': { de: 'Job-Anfragen und Kooperationen', en: 'job inquiries and collaborations' },
+    'kurs-anfrage': { de: 'Kurs-Anfragen und Workshops', en: 'class inquiries and workshops' },
 }
 
 function createDefaultFaqBlock(slug: string, locale: SeedLocale, pageTitle?: string) {
@@ -400,30 +402,30 @@ export async function fullContentSeeder(payload: Payload) {
     console.log('📦 Seeding full website content (DE/EN)...')
     console.log('')
 
-    // Get contact form for form blocks
-    const contactForms = await payload.find({
-        collection: 'forms',
-        where: { title: { equals: 'Kontakt / Allgemein' } },
-        limit: 1,
-        depth: 0,
-    })
-    const contactFormId = contactForms.docs[0]?.id
+    // Get forms by category (locale-independent) so the lookup never fails
+    const findFormByCategory = async (category: string) => {
+        const result = await payload.find({
+            collection: 'forms',
+            where: { formCategory: { equals: category } },
+            limit: 1,
+            depth: 0,
+        })
+        return result.docs[0]?.id
+    }
 
-    const becomeTalentForms = await payload.find({
-        collection: 'forms',
-        where: { title: { equals: 'Talent werden' } },
-        limit: 1,
-        depth: 0,
-    })
-    const becomeTalentFormId = becomeTalentForms.docs[0]?.id
+    const contactFormId = await findFormByCategory('contact')
+    const becomeTalentFormId = await findFormByCategory('become_talent')
+    const bookingFormId = await findFormByCategory('talent_booking')
 
-    const bookingForms = await payload.find({
-        collection: 'forms',
-        where: { title: { equals: 'Talent-Anfrage / Buchung' } },
-        limit: 1,
+    // Resolve coach talent IDs for coaching block
+    const coachTalents = await payload.find({
+        collection: 'talents',
+        where: { isCoach: { equals: true } },
+        limit: 10,
         depth: 0,
+        select: { name: true },
     })
-    const bookingFormId = bookingForms.docs[0]?.id
+    const coachIds = coachTalents.docs.map((t) => t.id)
 
     const seededMedia = await payload.find({
         collection: 'media',
@@ -503,7 +505,8 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'logoGrid',
                     variant: 'text',
-                    headline: 'Vertrauen von Brands, Produktionen und Kreativteams',
+                    badge: 'Unsere Partner',
+                    title: 'Vertrauen von Brands, Produktionen und Kreativteams',
                     clients: [
                         { name: 'Campaign Teams' },
                         { name: 'Fashion Productions' },
@@ -515,7 +518,7 @@ export async function fullContentSeeder(payload: Payload) {
                 // Stats block
                 {
                     blockType: 'stats',
-                    overline: 'Deleyna in Zahlen',
+                    badge: 'Deleyna in Zahlen',
                     title: 'Seit 2020 verbinden wir',
                     titleHighlight: 'Talent mit Erfolg',
                     description:
@@ -530,7 +533,7 @@ export async function fullContentSeeder(payload: Payload) {
                 // Featured Talents
                 {
                     blockType: 'featuredTalents',
-                    overline: 'Unsere Talente',
+                    badge: 'Unsere Talente',
                     title: 'Ausgewählte Persönlichkeiten',
                     layout: 'premium',
                 },
@@ -540,8 +543,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(0),
-                              tagline: 'Portfolio',
-                              headline: 'Editorial-Ästhetik mit klarer Handschrift',
+                              badge: 'Portfolio',
+                              title: 'Editorial-Ästhetik mit klarer Handschrift',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Wir inszenieren Talente modern, reduziert und mit einer starken visuellen Identität zwischen Fashion, Dance und Campaign Work.',
@@ -551,7 +554,7 @@ export async function fullContentSeeder(payload: Payload) {
                                   {
                                       link: {
                                           type: 'custom',
-                                          url: '/talente',
+                                          url: '/talents',
                                           label: 'Portfolio ansehen',
                                           appearance: 'primary-pill',
                                       },
@@ -566,8 +569,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'masonryGrid' as const,
                               variant: 'benefits' as const,
                               badge: 'Client Flow',
-                              heading: 'Von Vision zu Booking in wenigen Tagen',
-                              headlineHighlight: 'Booking',
+                              title: 'Von Vision zu Booking in wenigen Tagen',
+                              titleHighlight: 'Booking',
                               backgroundColor: 'white' as const,
                               highlightCard: {
                                   title: 'In 48h erste Talentauswahl',
@@ -631,7 +634,7 @@ export async function fullContentSeeder(payload: Payload) {
                     : []),
                 {
                     blockType: 'infoCards',
-                    tagline: 'Unsere Services',
+                    badge: 'Unsere Services',
                     title: 'Talent Management & Booking',
                     backgroundColor: 'muted',
                     cards: [
@@ -669,8 +672,8 @@ export async function fullContentSeeder(payload: Payload) {
                     cardDisplay: 'number',
                     backgroundColor: 'muted',
                     badge: 'So funktioniert es',
-                    headline: 'In 3 Schritten zum Projekt',
-                    headlineHighlight: 'Projekt',
+                    title: 'In 3 Schritten zum Projekt',
+                    titleHighlight: 'Projekt',
                     steps: [
                         {
                             number: '01',
@@ -707,8 +710,8 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'testimonial',
                     badge: 'Was unsere Partner sagen',
-                    headline: 'Stimmen aus der Branche',
-                    headlineHighlight: 'Branche',
+                    title: 'Stimmen aus der Branche',
+                    titleHighlight: 'Branche',
                     backgroundColor: 'muted',
                     items: [
                         {
@@ -739,8 +742,8 @@ export async function fullContentSeeder(payload: Payload) {
                           {
                               blockType: 'stickyMedia' as const,
                               badge: 'AGENTUR',
-                              headline: 'Bewegung trifft Haltung',
-                              headlineHighlight: 'Haltung',
+                              title: 'Bewegung trifft Haltung',
+                              titleHighlight: 'Haltung',
                               subtitle:
                                   'Deleyna steht für eine neue Generation von Talent-Repräsentation: persönlich, visuell und mit klarer Positionierung in der Kreativbranche.',
                               media: pickMedia(1),
@@ -765,6 +768,8 @@ export async function fullContentSeeder(payload: Payload) {
                     ? [
                           {
                               blockType: 'gallery' as const,
+                              badge: 'Impressionen' as const,
+                              title: 'Einblicke hinter die Kulissen' as const,
                               variant: 'lightbox' as const,
                               columns: '3' as const,
                               images: buildGalleryItems(
@@ -787,12 +792,10 @@ export async function fullContentSeeder(payload: Payload) {
                     cardStyle: 'featured',
                     sourceCollection: 'talents',
                     badgeField: 'category',
-                    header: {
-                        eyebrow: 'Talente',
-                        heading: 'Entdecke unser Roster',
-                        description:
-                            'Ausgewählte Persönlichkeiten aus Dance und Model für Kampagnen, Editorial und Live-Projekte.',
-                    },
+                    badge: 'Talente',
+                    title: 'Entdecke unser Roster',
+                    description:
+                        'Ausgewählte Persönlichkeiten aus Dance und Model für Kampagnen, Editorial und Live-Projekte.',
                     itemsLimit: 8,
                     sortBy: 'title',
                 },
@@ -802,12 +805,10 @@ export async function fullContentSeeder(payload: Payload) {
                     cardStyle: 'compact',
                     sourceCollection: 'posts',
                     badgeField: 'category',
-                    header: {
-                        eyebrow: 'Magazin',
-                        heading: 'Neueste Beiträge',
-                        description:
-                            'News, Insights und Dance Class Ankündigungen aus der Deleyna-Welt.',
-                    },
+                    badge: 'Magazin',
+                    title: 'Neueste Beiträge',
+                    description:
+                        'News, Insights und Dance Class Ankündigungen aus der Deleyna-Welt.',
                     itemsLimit: 6,
                     sortBy: 'publishedAt',
                 },
@@ -864,7 +865,8 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'logoGrid',
                     variant: 'text',
-                    headline: 'Trusted by brands, productions and creative teams',
+                    badge: 'Our partners',
+                    title: 'Trusted by brands, productions and creative teams',
                     clients: [
                         { name: 'Campaign Teams' },
                         { name: 'Fashion Productions' },
@@ -875,7 +877,7 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'stats',
-                    overline: 'Deleyna in numbers',
+                    badge: 'Deleyna in numbers',
                     title: 'Since 2020 we connect',
                     titleHighlight: 'talent with success',
                     description:
@@ -889,7 +891,7 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'featuredTalents',
-                    overline: 'Our talents',
+                    badge: 'Our talents',
                     title: 'Featured personalities',
                     layout: 'premium',
                 },
@@ -899,8 +901,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(0),
-                              tagline: 'Portfolio',
-                              headline: 'Editorial aesthetics with a clear signature',
+                              badge: 'Portfolio',
+                              title: 'Editorial aesthetics with a clear signature',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'We stage talent in a modern and focused way with a strong visual identity between fashion, dance and campaign work.',
@@ -925,8 +927,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'masonryGrid' as const,
                               variant: 'benefits' as const,
                               badge: 'Client Flow',
-                              heading: 'From vision to booking in just days',
-                              headlineHighlight: 'booking',
+                              title: 'From vision to booking in just days',
+                              titleHighlight: 'booking',
                               backgroundColor: 'white' as const,
                               highlightCard: {
                                   title: 'First curated shortlist in 48h',
@@ -990,7 +992,7 @@ export async function fullContentSeeder(payload: Payload) {
                     : []),
                 {
                     blockType: 'infoCards',
-                    tagline: 'What we offer',
+                    badge: 'What we offer',
                     title: 'Talent management & booking',
                     backgroundColor: 'muted',
                     cards: [
@@ -1027,8 +1029,8 @@ export async function fullContentSeeder(payload: Payload) {
                     cardDisplay: 'number',
                     backgroundColor: 'muted',
                     badge: 'How it works',
-                    headline: 'Your project in 3 steps',
-                    headlineHighlight: 'steps',
+                    title: 'Your project in 3 steps',
+                    titleHighlight: 'steps',
                     steps: [
                         {
                             number: '01',
@@ -1064,8 +1066,8 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'testimonial',
                     badge: 'What our partners say',
-                    headline: 'Industry voices',
-                    headlineHighlight: 'voices',
+                    title: 'Industry voices',
+                    titleHighlight: 'voices',
                     backgroundColor: 'muted',
                     items: [
                         {
@@ -1096,8 +1098,8 @@ export async function fullContentSeeder(payload: Payload) {
                           {
                               blockType: 'stickyMedia' as const,
                               badge: 'AGENCY',
-                              headline: 'Movement meets attitude',
-                              headlineHighlight: 'attitude',
+                              title: 'Movement meets attitude',
+                              titleHighlight: 'attitude',
                               subtitle:
                                   'Deleyna stands for a new generation of talent representation: personal, visual and with clear positioning in the creative industry.',
                               media: pickMedia(1),
@@ -1121,6 +1123,8 @@ export async function fullContentSeeder(payload: Payload) {
                     ? [
                           {
                               blockType: 'gallery' as const,
+                              badge: 'Impressions' as const,
+                              title: 'Behind the scenes' as const,
                               variant: 'lightbox' as const,
                               columns: '3' as const,
                               images: buildGalleryItems(
@@ -1142,12 +1146,10 @@ export async function fullContentSeeder(payload: Payload) {
                     cardStyle: 'featured',
                     sourceCollection: 'talents',
                     badgeField: 'category',
-                    header: {
-                        eyebrow: 'Talents',
-                        heading: 'Explore our roster',
-                        description:
-                            'Featured personalities from dance and model for campaigns, editorial work and live projects.',
-                    },
+                    badge: 'Talents',
+                    title: 'Explore our roster',
+                    description:
+                        'Featured personalities from dance and model for campaigns, editorial work and live projects.',
                     itemsLimit: 8,
                     sortBy: 'title',
                 },
@@ -1156,12 +1158,10 @@ export async function fullContentSeeder(payload: Payload) {
                     cardStyle: 'compact',
                     sourceCollection: 'posts',
                     badgeField: 'category',
-                    header: {
-                        eyebrow: 'Magazine',
-                        heading: 'Latest posts',
-                        description:
-                            'News, insights and dance class announcements from the Deleyna world.',
-                    },
+                    badge: 'Magazine',
+                    title: 'Latest posts',
+                    description:
+                        'News, insights and dance class announcements from the Deleyna world.',
                     itemsLimit: 6,
                     sortBy: 'publishedAt',
                 },
@@ -1221,8 +1221,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(7),
-                              tagline: 'Studio',
-                              headline: 'Kreative Entwicklung mit klarem Fokus',
+                              badge: 'Studio',
+                              title: 'Kreative Entwicklung mit klarem Fokus',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Unsere Arbeit verbindet Artist Development, visuelle Qualität und starke Positionierung für langfristige Karrierewege.',
@@ -1233,7 +1233,7 @@ export async function fullContentSeeder(payload: Payload) {
                     : []),
                 {
                     blockType: 'stats',
-                    overline: 'Deleyna in Zahlen',
+                    badge: 'Deleyna in Zahlen',
                     title: 'Unsere Ergebnisse',
                     titleHighlight: 'sprechen',
                     description:
@@ -1247,7 +1247,7 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'team',
-                    overline: 'Das Team',
+                    badge: 'Das Team',
                     title: 'Die Menschen hinter Deleyna',
                     members: [
                         {
@@ -1276,8 +1276,8 @@ export async function fullContentSeeder(payload: Payload) {
                           {
                               blockType: 'stickyMedia' as const,
                               badge: 'STUDIO',
-                              headline: 'Wo Kreativität zu Hause ist',
-                              headlineHighlight: 'Kreativität',
+                              title: 'Wo Kreativität zu Hause ist',
+                              titleHighlight: 'Kreativität',
                               subtitle:
                                   'Unser Studio in Berlin ist der Ort, an dem Ideen Gestalt annehmen – ob Shooting, Probe oder kreative Session.',
                               media: pickMedia(4),
@@ -1364,8 +1364,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(7),
-                              tagline: 'Studio',
-                              headline: 'Creative development with strong focus',
+                              badge: 'Studio',
+                              title: 'Creative development with strong focus',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Our approach combines artist development, visual quality and clear positioning for long-term careers.',
@@ -1376,7 +1376,7 @@ export async function fullContentSeeder(payload: Payload) {
                     : []),
                 {
                     blockType: 'stats',
-                    overline: 'Deleyna in numbers',
+                    badge: 'Deleyna in numbers',
                     title: 'Our results',
                     titleHighlight: 'speak',
                     description:
@@ -1390,7 +1390,7 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'team',
-                    overline: 'The team',
+                    badge: 'The team',
                     title: 'The people behind Deleyna',
                     members: [
                         {
@@ -1419,8 +1419,8 @@ export async function fullContentSeeder(payload: Payload) {
                           {
                               blockType: 'stickyMedia' as const,
                               badge: 'STUDIO',
-                              headline: 'Where creativity lives',
-                              headlineHighlight: 'creativity',
+                              title: 'Where creativity lives',
+                              titleHighlight: 'creativity',
                               subtitle:
                                   'Our Berlin studio is where ideas take shape – whether it is a shoot, rehearsal or creative session.',
                               media: pickMedia(4),
@@ -1496,31 +1496,31 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'services',
-                    overline: 'Leistungen',
+                    badge: 'Leistungen',
                     title: 'Unsere Kernservices',
                     description:
                         'Wir bieten ein vollständiges Spektrum an Dienstleistungen für Talente und Kunden – von der Vermittlung bis zur Produktion.',
                     services: [
                         {
-                            icon: 'users',
+                            icon: 'sparkles',
                             title: 'Talent Management',
                             description:
                                 'Individuelle Karriereplanung, Sedcard-Erstellung, Casting-Vorbereitung und persönliche Betreuung für jedes Talent in unserem Roster.',
                         },
                         {
-                            icon: 'calendar',
+                            icon: 'camera',
                             title: 'Booking & Vermittlung',
                             description:
                                 'Professionelle Vermittlung für Fotoshootings, Musikvideos, Werbekampagnen, Events, Fashion Shows und TV-Produktionen.',
                         },
                         {
-                            icon: 'handshake',
+                            icon: 'headset',
                             title: 'Kundenberatung',
                             description:
                                 'Wir beraten Sie bei der Talent-Auswahl und sorgen für einen reibungslosen Ablauf – vom ersten Gespräch bis zum Wrap.',
                         },
                         {
-                            icon: 'globe',
+                            icon: 'network',
                             title: 'Internationale Vermittlung',
                             description:
                                 'Dank unseres europäischen Netzwerks vermitteln wir Talente auch für internationale Projekte und Kampagnen.',
@@ -1532,8 +1532,8 @@ export async function fullContentSeeder(payload: Payload) {
                     layout: 'timeline',
                     backgroundColor: 'muted',
                     badge: 'Ablauf',
-                    headline: 'So läuft eine Buchung ab',
-                    headlineHighlight: 'Buchung',
+                    title: 'So läuft eine Buchung ab',
+                    titleHighlight: 'Buchung',
                     steps: [
                         {
                             number: '01',
@@ -1568,7 +1568,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'white',
-                    tagline: 'Für Kunden',
+                    badge: 'Für Kunden',
                     title: 'Warum Deleyna?',
                     cards: [
                         {
@@ -1599,8 +1599,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(3),
-                              tagline: 'Production',
-                              headline: 'Von Briefing bis Wrap professionell begleitet',
+                              badge: 'Production',
+                              title: 'Von Briefing bis Wrap professionell begleitet',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Wir liefern nicht nur Talente, sondern eine strukturierte Zusammenarbeit mit klaren Timelines, schnellen Abstimmungen und hoher Verlässlichkeit am Set.',
@@ -1671,31 +1671,31 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'services',
-                    overline: 'Services',
+                    badge: 'Services',
                     title: 'Our core services',
                     description:
                         'We offer a complete range of services for talents and clients – from placement to production.',
                     services: [
                         {
-                            icon: 'users',
+                            icon: 'sparkles',
                             title: 'Talent management',
                             description:
                                 'Individual career planning, sedcard creation, casting preparation and personal support for every talent in our roster.',
                         },
                         {
-                            icon: 'calendar',
+                            icon: 'camera',
                             title: 'Booking & placement',
                             description:
                                 'Professional placement for photoshoots, music videos, ad campaigns, events, fashion shows and TV productions.',
                         },
                         {
-                            icon: 'handshake',
+                            icon: 'headset',
                             title: 'Client advisory',
                             description:
                                 'We advise you on talent selection and ensure a smooth process – from the first conversation to wrap.',
                         },
                         {
-                            icon: 'globe',
+                            icon: 'network',
                             title: 'International placement',
                             description:
                                 'Thanks to our European network, we also place talents for international projects and campaigns.',
@@ -1707,8 +1707,8 @@ export async function fullContentSeeder(payload: Payload) {
                     layout: 'timeline',
                     backgroundColor: 'muted',
                     badge: 'Process',
-                    headline: 'How a booking works',
-                    headlineHighlight: 'booking',
+                    title: 'How a booking works',
+                    titleHighlight: 'booking',
                     steps: [
                         {
                             number: '01',
@@ -1743,7 +1743,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'white',
-                    tagline: 'For clients',
+                    badge: 'For clients',
                     title: 'Why Deleyna?',
                     cards: [
                         {
@@ -1774,8 +1774,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(3),
-                              tagline: 'Production',
-                              headline: 'Professionally guided from briefing to wrap',
+                              badge: 'Production',
+                              title: 'Professionally guided from briefing to wrap',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'We do not just provide talent. We build a structured workflow with clear timelines, fast alignment and reliable execution on set.',
@@ -1851,8 +1851,8 @@ export async function fullContentSeeder(payload: Payload) {
                     layout: 'flow',
                     backgroundColor: 'white',
                     badge: 'Der Weg zu Deleyna',
-                    headline: 'So wirst du Teil von uns',
-                    headlineHighlight: 'Teil',
+                    title: 'So wirst du Teil von uns',
+                    titleHighlight: 'Teil',
                     steps: [
                         {
                             number: '01',
@@ -1884,8 +1884,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(2),
-                              tagline: 'Showreel',
-                              headline: 'Zeig Präsenz in Bild und Bewegung',
+                              badge: 'Showreel',
+                              title: 'Zeig Präsenz in Bild und Bewegung',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Für starke Bewerbungen zählen Ausdruck, Haltung und Bildqualität. Wir helfen dir, dein Profil klar und professionell zu präsentieren.',
@@ -1897,7 +1897,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'muted',
-                    tagline: 'Was du bekommst',
+                    badge: 'Was du bekommst',
                     title: 'Deine Vorteile bei Deleyna',
                     cards: [
                         {
@@ -1960,8 +1960,8 @@ export async function fullContentSeeder(payload: Payload) {
                     layout: 'flow',
                     backgroundColor: 'white',
                     badge: 'The path to Deleyna',
-                    headline: 'How to join us',
-                    headlineHighlight: 'join',
+                    title: 'How to join us',
+                    titleHighlight: 'join',
                     steps: [
                         {
                             number: '01',
@@ -1992,8 +1992,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(2),
-                              tagline: 'Showreel',
-                              headline: 'Present presence through image and movement',
+                              badge: 'Showreel',
+                              title: 'Present presence through image and movement',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Strong applications are built on expression, camera presence and visual quality. We help you position your profile clearly and professionally.',
@@ -2005,7 +2005,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'muted',
-                    tagline: 'What you get',
+                    badge: 'What you get',
                     title: 'Your benefits at Deleyna',
                     cards: [
                         {
@@ -2084,8 +2084,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(1),
-                              tagline: 'Agency Contact',
-                              headline: 'Schnelle Abstimmung statt langer Wege',
+                              badge: 'Agency Contact',
+                              title: 'Schnelle Abstimmung statt langer Wege',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Ob Kunde oder Talent: Unser Team antwortet schnell, strukturiert und mit klaren nächsten Schritten für dein Anliegen.',
@@ -2105,20 +2105,67 @@ export async function fullContentSeeder(payload: Payload) {
                       ]
                     : []),
                 {
-                    blockType: 'contact',
-                    overline: 'Kontakt',
-                    title: 'Schreiben Sie uns',
-                    form: contactFormId || undefined,
-                    emailLabel: 'E-Mail',
-                    email: 'info@deleyna.com',
-                    phoneLabel: 'Telefon',
-                    phone: '+49 30 123 456 78',
-                    addressLabel: 'Adresse',
-                    address: 'Deleyna Talent Agency\nBerlin, Deutschland',
-                    socialLabel: 'Social Media',
-                    socialUrl: 'https://instagram.com/deleyna',
-                    socialText: '@deleyna',
-                },
+                    blockType: 'schedule',
+                    badge: 'KURSPLAN',
+                    title: 'Unsere Kurse',
+                    titleHighlight: 'Kurse',
+                    description: 'Finde den passenden Kurs für dich — von Anfänger bis Profi.',
+                    backgroundColor: 'muted',
+                    layout: 'grid',
+                    classes: [
+                        {
+                            title: 'Hip Hop Basics',
+                            coach: 'Sarah M.',
+                            dateText: 'Montag',
+                            time: '18:00 – 19:30',
+                            level: 'Anfänger',
+                            location: 'Studio A',
+                        },
+                        {
+                            title: 'Contemporary Dance',
+                            coach: 'Lena K.',
+                            dateText: 'Mittwoch',
+                            time: '19:00 – 20:30',
+                            level: 'Fortgeschritten',
+                            location: 'Studio B',
+                        },
+                        {
+                            title: 'Commercial Dance',
+                            coach: 'Max T.',
+                            dateText: 'Freitag',
+                            time: '17:00 – 18:30',
+                            level: 'Alle Level',
+                            location: 'Studio A',
+                            notes: 'KEINE STRASSENSCHUHE',
+                        },
+                    ],
+                } as any,
+                {
+                    blockType: 'map',
+                    location: 'Berlin, Friedrichstraße 43',
+                    height: 'medium',
+                    zoom: 14,
+                    title: 'Unser Standort',
+                } as any,
+                ...(contactFormId
+                    ? [
+                          {
+                              blockType: 'contact' as const,
+                              badge: 'Kontakt',
+                              title: 'Schreiben Sie uns',
+                              form: contactFormId,
+                              emailLabel: 'E-Mail',
+                              email: 'info@deleyna.com',
+                              phoneLabel: 'Telefon',
+                              phone: '+49 30 123 456 78',
+                              addressLabel: 'Adresse',
+                              address: 'Deleyna Talent Agency\nBerlin, Deutschland',
+                              socialLabel: 'Social Media',
+                              socialUrl: 'https://instagram.com/deleyna',
+                              socialText: '@deleyna',
+                          },
+                      ]
+                    : []),
                 {
                     blockType: 'faq',
                     anchorId: 'faq',
@@ -2201,8 +2248,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(1),
-                              tagline: 'Agency Contact',
-                              headline: 'Fast alignment, clear next steps',
+                              badge: 'Agency Contact',
+                              title: 'Fast alignment, clear next steps',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Whether client or talent, our team responds quickly with a structured process and clear recommendations.',
@@ -2222,20 +2269,67 @@ export async function fullContentSeeder(payload: Payload) {
                       ]
                     : []),
                 {
-                    blockType: 'contact',
-                    overline: 'Contact',
-                    title: 'Get in touch',
-                    form: contactFormId || undefined,
-                    emailLabel: 'Email',
-                    email: 'info@deleyna.com',
-                    phoneLabel: 'Phone',
-                    phone: '+49 30 123 456 78',
-                    addressLabel: 'Address',
-                    address: 'Deleyna Talent Agency\nBerlin, Germany',
-                    socialLabel: 'Social media',
-                    socialUrl: 'https://instagram.com/deleyna',
-                    socialText: '@deleyna',
-                },
+                    blockType: 'schedule',
+                    badge: 'SCHEDULE',
+                    title: 'Our Classes',
+                    titleHighlight: 'Classes',
+                    description: 'Find the right class for you — from beginner to professional.',
+                    backgroundColor: 'muted',
+                    layout: 'grid',
+                    classes: [
+                        {
+                            title: 'Hip Hop Basics',
+                            coach: 'Sarah M.',
+                            dateText: 'Monday',
+                            time: '18:00 – 19:30',
+                            level: 'Beginner',
+                            location: 'Studio A',
+                        },
+                        {
+                            title: 'Contemporary Dance',
+                            coach: 'Lena K.',
+                            dateText: 'Wednesday',
+                            time: '19:00 – 20:30',
+                            level: 'Advanced',
+                            location: 'Studio B',
+                        },
+                        {
+                            title: 'Commercial Dance',
+                            coach: 'Max T.',
+                            dateText: 'Friday',
+                            time: '17:00 – 18:30',
+                            level: 'All levels',
+                            location: 'Studio A',
+                            notes: 'NO STREET SHOES',
+                        },
+                    ],
+                } as any,
+                {
+                    blockType: 'map',
+                    location: 'Berlin, Friedrichstraße 43',
+                    height: 'medium',
+                    zoom: 14,
+                    title: 'Our Location',
+                } as any,
+                ...(contactFormId
+                    ? [
+                          {
+                              blockType: 'contact' as const,
+                              badge: 'Contact',
+                              title: 'Get in touch',
+                              form: contactFormId,
+                              emailLabel: 'Email',
+                              email: 'info@deleyna.com',
+                              phoneLabel: 'Phone',
+                              phone: '+49 30 123 456 78',
+                              addressLabel: 'Address',
+                              address: 'Deleyna Talent Agency\nBerlin, Germany',
+                              socialLabel: 'Social media',
+                              socialUrl: 'https://instagram.com/deleyna',
+                              socialText: '@deleyna',
+                          },
+                      ]
+                    : []),
                 {
                     blockType: 'faq',
                     anchorId: 'faq',
@@ -2327,7 +2421,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'muted',
-                    tagline: 'Für Kunden',
+                    badge: 'Für Kunden',
                     title: 'So läuft Ihre Anfrage ab',
                     cards: [
                         {
@@ -2353,8 +2447,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(3),
-                              tagline: 'Booking',
-                              headline: 'Klarer Casting-Prozess für schnelle Entscheidungen',
+                              badge: 'Booking',
+                              title: 'Klarer Casting-Prozess für schnelle Entscheidungen',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Du erhältst schnell kuratierte Vorschläge mit relevanten Profilen, Verfügbarkeiten und transparenter Kalkulation.',
@@ -2421,7 +2515,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'muted',
-                    tagline: 'For clients',
+                    badge: 'For clients',
                     title: 'How your request works',
                     cards: [
                         {
@@ -2447,8 +2541,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaRight' as const,
                               media: pickMedia(3),
-                              tagline: 'Booking',
-                              headline: 'A clear casting flow for fast decisions',
+                              badge: 'Booking',
+                              title: 'A clear casting flow for fast decisions',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'You receive curated options quickly with relevant profiles, availability and transparent budgeting.',
@@ -2522,7 +2616,7 @@ export async function fullContentSeeder(payload: Payload) {
             layout: [
                 {
                     blockType: 'education',
-                    overline: 'Programme',
+                    badge: 'Programme',
                     title: 'Unsere Education-Programme',
                     description:
                         'Von Einsteiger-Workshops bis zu intensiven Masterclasses – wir bieten Formate für jedes Level.',
@@ -2574,8 +2668,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'masonryGrid' as const,
                               variant: 'audience' as const,
                               badge: 'Für wen?',
-                              heading: 'Unsere Programme richten sich an',
-                              headlineHighlight: 'Programme',
+                              title: 'Unsere Programme richten sich an',
+                              titleHighlight: 'Programme',
                               sectionTone: 'dark' as const,
                               audienceCards: [
                                   {
@@ -2645,7 +2739,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'muted',
-                    tagline: 'Deleyna Academy',
+                    badge: 'Deleyna Academy',
                     title: 'Deine Vorteile',
                     cards: [
                         {
@@ -2671,8 +2765,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(2),
-                              tagline: 'Die Vision',
-                              headline: 'Wachse über dich hinaus',
+                              badge: 'Die Vision',
+                              title: 'Wachse über dich hinaus',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Wir glauben, dass Talent gefördert werden muss. Unsere Education-Programme sind darauf ausgerichtet, dir nicht nur die Technik, sondern auch das Mindset für eine erfolgreiche Karriere mitzugeben.',
@@ -2732,11 +2826,9 @@ export async function fullContentSeeder(payload: Payload) {
                     cardStyle: 'compact',
                     sourceCollection: 'posts',
                     badgeField: 'category',
-                    header: {
-                        eyebrow: 'Termine',
-                        heading: 'Aktuelle Classes',
-                        description: 'Die nächsten Dance Classes und Workshops in Berlin.',
-                    },
+                    badge: 'Termine',
+                    title: 'Aktuelle Classes',
+                    description: 'Die nächsten Dance Classes und Workshops in Berlin.',
                     itemsLimit: 4,
                     sortBy: 'publishedAt',
                 },
@@ -2768,7 +2860,7 @@ export async function fullContentSeeder(payload: Payload) {
             layout: [
                 {
                     blockType: 'education',
-                    overline: 'Programs',
+                    badge: 'Programs',
                     title: 'Our education programs',
                     description:
                         'From beginner workshops to intensive masterclasses – we offer formats for every level.',
@@ -2820,8 +2912,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'masonryGrid' as const,
                               variant: 'audience' as const,
                               badge: 'For whom?',
-                              heading: 'Our programs are designed for',
-                              headlineHighlight: 'programs',
+                              title: 'Our programs are designed for',
+                              titleHighlight: 'programs',
                               sectionTone: 'dark' as const,
                               audienceCards: [
                                   {
@@ -2891,7 +2983,7 @@ export async function fullContentSeeder(payload: Payload) {
                 {
                     blockType: 'infoCards',
                     backgroundColor: 'muted',
-                    tagline: 'Deleyna Academy',
+                    badge: 'Deleyna Academy',
                     title: 'Your benefits',
                     cards: [
                         {
@@ -2917,8 +3009,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(2),
-                              tagline: 'The vision',
-                              headline: 'Rise above yourself',
+                              badge: 'The vision',
+                              title: 'Rise above yourself',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'We believe that talent must be nurtured. Our education programs are designed to give you not only the technique but also the mindset for a successful career.',
@@ -2978,11 +3070,9 @@ export async function fullContentSeeder(payload: Payload) {
                     cardStyle: 'compact',
                     sourceCollection: 'posts',
                     badgeField: 'category',
-                    header: {
-                        eyebrow: 'Schedule',
-                        heading: 'Upcoming classes',
-                        description: 'The next dance classes and workshops in Berlin.',
-                    },
+                    badge: 'Schedule',
+                    title: 'Upcoming classes',
+                    description: 'The next dance classes and workshops in Berlin.',
                     itemsLimit: 4,
                     sortBy: 'publishedAt',
                 },
@@ -3022,7 +3112,7 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'coaching',
-                    overline: 'Coaching',
+                    badge: 'Coaching',
                     title: 'Personal Coaching bei Deleyna',
                     description:
                         'Ob Casting-Vorbereitung, Technik-Training oder Karriereberatung – unsere Coaches unterstützen dich individuell und praxisnah.',
@@ -3054,11 +3144,7 @@ export async function fullContentSeeder(payload: Payload) {
                         },
                     ],
                     coachesSubheading: 'Unsere Coaches',
-                    coaches: [
-                        { name: 'Leyna Müller', role: 'Performance & Karriere', available: true },
-                        { name: 'David Okafor', role: 'Industry & Booking', available: true },
-                        { name: 'Sarah Kim', role: 'Technik & Ausdruck', available: true },
-                    ],
+                    coaches: coachIds,
                     ctaText: 'Bereit für dein Coaching?',
                     cta: {
                         type: 'custom',
@@ -3073,8 +3159,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(6),
-                              tagline: 'Performance',
-                              headline: 'Technik, Ausdruck und Kamera-Präsenz gezielt ausbauen',
+                              badge: 'Performance',
+                              title: 'Technik, Ausdruck und Kamera-Präsenz gezielt ausbauen',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Unsere Coachings verbinden praktische Sessions mit konkretem Feedback für Castings, Set-Situationen und langfristige Entwicklung.',
@@ -3109,7 +3195,7 @@ export async function fullContentSeeder(payload: Payload) {
                 },
                 {
                     blockType: 'coaching',
-                    overline: 'Coaching',
+                    badge: 'Coaching',
                     title: 'Personal coaching at Deleyna',
                     description:
                         'Whether casting preparation, technique training or career advice – our coaches support you individually and practically.',
@@ -3141,11 +3227,7 @@ export async function fullContentSeeder(payload: Payload) {
                         },
                     ],
                     coachesSubheading: 'Our coaches',
-                    coaches: [
-                        { name: 'Leyna Müller', role: 'Performance & career', available: true },
-                        { name: 'David Okafor', role: 'Industry & booking', available: true },
-                        { name: 'Sarah Kim', role: 'Technique & expression', available: true },
-                    ],
+                    coaches: coachIds,
                     ctaText: 'Ready for your coaching?',
                     cta: {
                         type: 'custom',
@@ -3160,8 +3242,8 @@ export async function fullContentSeeder(payload: Payload) {
                               blockType: 'mediaContent' as const,
                               layout: 'mediaLeft' as const,
                               media: pickMedia(6),
-                              tagline: 'Performance',
-                              headline: 'Build technique, expression and camera presence',
+                              badge: 'Performance',
+                              title: 'Build technique, expression and camera presence',
                               body: lexicalRoot([
                                   lexicalParagraph(
                                       'Our coaching combines practical sessions with concrete feedback for castings, productions and long-term growth.',
@@ -3962,8 +4044,8 @@ export async function fullContentSeeder(payload: Payload) {
             layout: [
                 {
                     blockType: 'testimonial',
-                    headline: 'Stimmen aus der Branche',
-                    headlineHighlight: 'Branche',
+                    title: 'Stimmen aus der Branche',
+                    titleHighlight: 'Branche',
                     backgroundColor: 'white',
                     items: [
                         {
@@ -4013,7 +4095,7 @@ export async function fullContentSeeder(payload: Payload) {
                     text: 'Lassen Sie uns Ihr nächstes Projekt gemeinsam umsetzen.',
                     button: {
                         type: 'custom',
-                        url: '/contact',
+                        url: '/kontakt',
                         label: 'Kontakt aufnehmen',
                         appearance: 'primary',
                     },
@@ -4038,8 +4120,8 @@ export async function fullContentSeeder(payload: Payload) {
             layout: [
                 {
                     blockType: 'testimonial',
-                    headline: 'Industry voices',
-                    headlineHighlight: 'Industry',
+                    title: 'Industry voices',
+                    titleHighlight: 'Industry',
                     backgroundColor: 'white',
                     items: [
                         {
@@ -4335,10 +4417,548 @@ export async function fullContentSeeder(payload: Payload) {
     // Footer is seeded separately in footerSeeder (after full content) to avoid schema drift.
     console.log('  ℹ️  Footer update skipped here (handled in footerSeeder)')
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // JOBS
+    // ─────────────────────────────────────────────────────────────────────────
+    console.log('')
+    console.log('  💼 Seeding jobs...')
+
+    const jobSeeds: Array<{
+        slug: string
+        de: Record<string, any>
+        en: Record<string, any>
+        shared: Record<string, any>
+    }> = [
+        {
+            slug: 'social-media-manager',
+            shared: {
+                jobType: 'parttime',
+                location: 'Berlin',
+                compensation: '15–20 €/h',
+                applicationDeadline: '2026-06-30',
+            },
+            de: {
+                title: 'Social Media Manager (m/w/d)',
+                excerpt:
+                    'Unterstütze unser Team bei der Pflege und Weiterentwicklung unserer Social-Media-Kanäle.',
+                description: lexicalRoot([
+                    lexicalHeading('Über die Stelle', 'h2'),
+                    lexicalParagraph(
+                        'Wir suchen eine kreative Person, die unsere Social-Media-Kanäle (Instagram, TikTok, LinkedIn) betreut und mit ansprechendem Content bespielt.',
+                    ),
+                    lexicalParagraph(
+                        'Du arbeitest eng mit unserem Kreativteam zusammen, planst Inhalte und analysierst die Performance unserer Beiträge.',
+                    ),
+                ]),
+                requirements: lexicalRoot([
+                    lexicalHeading('Anforderungen', 'h2'),
+                    lexicalParagraph('• Erfahrung im Social-Media-Management (mind. 1 Jahr)'),
+                    lexicalParagraph('• Sicherer Umgang mit Canva, CapCut oder Adobe Suite'),
+                    lexicalParagraph('• Textsicherheit in Deutsch und Englisch'),
+                    lexicalParagraph('• Gespür für Trends in der Tanz- und Entertainment-Branche'),
+                ]),
+                benefits: lexicalRoot([
+                    lexicalHeading('Was wir bieten', 'h2'),
+                    lexicalParagraph('• Flexible Arbeitszeiten und Remote-Möglichkeit'),
+                    lexicalParagraph('• Zugang zu exklusiven Events und Shootings'),
+                    lexicalParagraph('• Junges, kreatives Team'),
+                ]),
+            },
+            en: {
+                title: 'Social Media Manager (f/m/d)',
+                excerpt:
+                    'Support our team in managing and growing our social media channels.',
+                description: lexicalRoot([
+                    lexicalHeading('About the role', 'h2'),
+                    lexicalParagraph(
+                        'We are looking for a creative individual to manage our social media channels (Instagram, TikTok, LinkedIn) and create engaging content.',
+                    ),
+                    lexicalParagraph(
+                        'You will work closely with our creative team, plan content calendars, and analyze post performance.',
+                    ),
+                ]),
+                requirements: lexicalRoot([
+                    lexicalHeading('Requirements', 'h2'),
+                    lexicalParagraph('• Experience in social media management (min. 1 year)'),
+                    lexicalParagraph('• Proficiency with Canva, CapCut, or Adobe Suite'),
+                    lexicalParagraph('• Strong writing skills in German and English'),
+                    lexicalParagraph('• Eye for trends in dance and entertainment industry'),
+                ]),
+                benefits: lexicalRoot([
+                    lexicalHeading('What we offer', 'h2'),
+                    lexicalParagraph('• Flexible working hours and remote options'),
+                    lexicalParagraph('• Access to exclusive events and shootings'),
+                    lexicalParagraph('• Young, creative team'),
+                ]),
+            },
+        },
+        {
+            slug: 'booking-assistant',
+            shared: {
+                jobType: 'fulltime',
+                location: 'Berlin',
+                compensation: 'Nach Vereinbarung',
+            },
+            de: {
+                title: 'Booking Assistant (m/w/d)',
+                excerpt:
+                    'Unterstütze unser Booking-Team bei der Koordination von Talent-Anfragen und Projekten.',
+                description: lexicalRoot([
+                    lexicalHeading('Über die Stelle', 'h2'),
+                    lexicalParagraph(
+                        'Als Booking Assistant bist du die Schnittstelle zwischen unseren Talenten und Kunden. Du koordinierst Anfragen, erstellst Angebote und sorgst für reibungslose Abläufe.',
+                    ),
+                ]),
+                requirements: lexicalRoot([
+                    lexicalHeading('Anforderungen', 'h2'),
+                    lexicalParagraph('• Organisationstalent und Liebe zum Detail'),
+                    lexicalParagraph('• Sehr gute Deutsch- und Englischkenntnisse'),
+                    lexicalParagraph('• Erfahrung in der Event- oder Agenturbranche von Vorteil'),
+                    lexicalParagraph('• Sicherer Umgang mit MS Office und Google Workspace'),
+                ]),
+                benefits: lexicalRoot([
+                    lexicalHeading('Was wir bieten', 'h2'),
+                    lexicalParagraph('• Fester Arbeitsplatz im Herzen Berlins'),
+                    lexicalParagraph('• Einblicke in die Talent- und Entertainment-Branche'),
+                    lexicalParagraph('• Teamevents und regelmäßige Weiterbildungen'),
+                ]),
+            },
+            en: {
+                title: 'Booking Assistant (f/m/d)',
+                excerpt:
+                    'Support our booking team in coordinating talent requests and projects.',
+                description: lexicalRoot([
+                    lexicalHeading('About the role', 'h2'),
+                    lexicalParagraph(
+                        'As a Booking Assistant, you are the link between our talents and clients. You coordinate requests, create offers, and ensure smooth operations.',
+                    ),
+                ]),
+                requirements: lexicalRoot([
+                    lexicalHeading('Requirements', 'h2'),
+                    lexicalParagraph('• Strong organizational skills and attention to detail'),
+                    lexicalParagraph('• Excellent German and English language skills'),
+                    lexicalParagraph('• Experience in event or agency industry is a plus'),
+                    lexicalParagraph('• Proficiency with MS Office and Google Workspace'),
+                ]),
+                benefits: lexicalRoot([
+                    lexicalHeading('What we offer', 'h2'),
+                    lexicalParagraph('• Office in the heart of Berlin'),
+                    lexicalParagraph('• Insights into the talent and entertainment industry'),
+                    lexicalParagraph('• Team events and regular training opportunities'),
+                ]),
+            },
+        },
+        {
+            slug: 'dance-instructor-freelance',
+            shared: {
+                jobType: 'freelance',
+                location: 'Berlin / Remote',
+                compensation: '40–60 €/h',
+            },
+            de: {
+                title: 'Tanzlehrer:in (Freelance)',
+                excerpt:
+                    'Gib Workshops und Klassen für unsere Community – von Hip-Hop bis Contemporary.',
+                description: lexicalRoot([
+                    lexicalHeading('Über die Stelle', 'h2'),
+                    lexicalParagraph(
+                        'Wir suchen erfahrene Tanzlehrer:innen, die Workshops und regelmäßige Klassen für unsere wachsende Community geben möchten.',
+                    ),
+                    lexicalParagraph(
+                        'Du bestimmst deinen Stil, dein Tempo und deine Klassen selbst – wir kümmern uns um Studio, Promotion und Teilnehmer-Management.',
+                    ),
+                ]),
+                requirements: lexicalRoot([
+                    lexicalHeading('Anforderungen', 'h2'),
+                    lexicalParagraph('• Mindestens 3 Jahre Unterrichtserfahrung'),
+                    lexicalParagraph('• Eigener Tanzstil und pädagogisches Geschick'),
+                    lexicalParagraph('• Zuverlässigkeit und Pünktlichkeit'),
+                ]),
+                benefits: lexicalRoot([
+                    lexicalHeading('Was wir bieten', 'h2'),
+                    lexicalParagraph('• Bereitgestellte Studios in Berlin'),
+                    lexicalParagraph('• Marketing und Promotion durch Deleyna'),
+                    lexicalParagraph('• Flexible Zeiteinteilung'),
+                    lexicalParagraph('• Zugang zu unserem Talent-Netzwerk'),
+                ]),
+            },
+            en: {
+                title: 'Dance Instructor (Freelance)',
+                excerpt:
+                    'Teach workshops and classes for our community – from Hip-Hop to Contemporary.',
+                description: lexicalRoot([
+                    lexicalHeading('About the role', 'h2'),
+                    lexicalParagraph(
+                        'We are looking for experienced dance instructors to teach workshops and regular classes for our growing community.',
+                    ),
+                    lexicalParagraph(
+                        'You choose your style, pace, and classes – we take care of the studio, promotion, and participant management.',
+                    ),
+                ]),
+                requirements: lexicalRoot([
+                    lexicalHeading('Requirements', 'h2'),
+                    lexicalParagraph('• At least 3 years of teaching experience'),
+                    lexicalParagraph('• Unique dance style and pedagogical skills'),
+                    lexicalParagraph('• Reliability and punctuality'),
+                ]),
+                benefits: lexicalRoot([
+                    lexicalHeading('What we offer', 'h2'),
+                    lexicalParagraph('• Studios provided in Berlin'),
+                    lexicalParagraph('• Marketing and promotion by Deleyna'),
+                    lexicalParagraph('• Flexible scheduling'),
+                    lexicalParagraph('• Access to our talent network'),
+                ]),
+            },
+        },
+    ]
+
+    for (const jobSeed of jobSeeds) {
+        try {
+            const existing = await payload.find({
+                collection: 'jobs' as any,
+                where: { slug: { equals: jobSeed.slug } },
+                limit: 1,
+                depth: 0,
+            })
+
+            if (existing.docs.length > 0) {
+                const id = existing.docs[0].id
+                await payload.update({
+                    collection: 'jobs' as any,
+                    id,
+                    locale: 'de',
+                    data: { ...jobSeed.de, ...jobSeed.shared, _status: 'published' },
+                    context: { disableRevalidate: true },
+                })
+                await payload.update({
+                    collection: 'jobs' as any,
+                    id,
+                    locale: 'en',
+                    data: { ...jobSeed.en, _status: 'published' },
+                    context: { disableRevalidate: true },
+                })
+                console.log(`  🔄 Updated job: ${jobSeed.slug}`)
+            } else {
+                const created = await payload.create({
+                    collection: 'jobs' as any,
+                    locale: 'de',
+                    data: {
+                        ...jobSeed.de,
+                        ...jobSeed.shared,
+                        slug: jobSeed.slug,
+                        _status: 'published',
+                    } as any,
+                    context: { disableRevalidate: true },
+                })
+                await payload.update({
+                    collection: 'jobs' as any,
+                    id: created.id,
+                    locale: 'en',
+                    data: { ...jobSeed.en, _status: 'published' },
+                    context: { disableRevalidate: true },
+                })
+                console.log(`  ✅ Created job: ${jobSeed.slug}`)
+            }
+        } catch (err: any) {
+            console.error(`  ❌ Error with job "${jobSeed.slug}":`, err?.data?.errors || err.message)
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // JOB INQUIRY PAGE
+    // ─────────────────────────────────────────────────────────────────────────
+    console.log('')
+    console.log('  📄 Job inquiry page...')
+
+    const jobInquiryForms = await payload.find({
+        collection: 'forms',
+        where: { formCategory: { equals: 'job_inquiry' } },
+        limit: 1,
+        depth: 0,
+    })
+    const jobInquiryFormId = jobInquiryForms.docs[0]?.id
+
+    await upsertPage(
+        payload,
+        'job-anfrage',
+        {
+            title: 'Job-Anfrage',
+            hero: {
+                type: 'lowImpact',
+                badge: 'Jobs',
+                headline: 'Stellenangebot oder Kooperation',
+                headlineHighlight: 'Kooperation',
+                subtext:
+                    'Sie haben eine offene Stelle oder suchen einen Kooperationspartner? Schicken Sie uns Ihre Anfrage.',
+            },
+            layout: [
+                {
+                    blockType: 'stepSection',
+                    layout: 'cards',
+                    cardDisplay: 'number',
+                    backgroundColor: 'muted',
+                    badge: 'So funktioniert es',
+                    title: 'In 3 Schritten zur Zusammenarbeit',
+                    titleHighlight: 'Zusammenarbeit',
+                    steps: [
+                        {
+                            number: '01',
+                            title: 'Anfrage senden',
+                            description:
+                                'Beschreiben Sie die Position, Konditionen und gewünschtes Profil im Formular.',
+                        },
+                        {
+                            number: '02',
+                            title: 'Prüfung & Feedback',
+                            description:
+                                'Unser Team prüft Ihre Anfrage und meldet sich mit Rückfragen oder Vorschlägen.',
+                        },
+                        {
+                            number: '03',
+                            title: 'Matching & Start',
+                            description:
+                                'Wir vermitteln passende Talente oder koordinieren die Zusammenarbeit direkt.',
+                        },
+                    ],
+                    cta: stepCta('/kontakt', 'Fragen? Kontaktiere uns'),
+                    ctaPosition: 'center',
+                },
+                ...(jobInquiryFormId
+                    ? [
+                          {
+                              blockType: 'formBlock' as const,
+                              form: jobInquiryFormId,
+                              enableIntro: false,
+                              badge: 'Job-Anfrage',
+                              title: 'Job-Anfrage senden',
+                              description:
+                                  'Bitte beschreiben Sie die Stelle oder Kooperation. Wir melden uns schnellstmöglich bei Ihnen.',
+                          },
+                      ]
+                    : []),
+            ],
+            pageSettings: {
+                metaTitle: 'Job-Anfrage – Deleyna Talent Agency',
+                metaDescription:
+                    'Stellenangebot oder Kooperationsanfrage an Deleyna. Wir freuen uns auf Ihre Nachricht.',
+                schemaType: 'ContactPage',
+            },
+        },
+        {
+            title: 'Job Inquiry',
+            hero: {
+                type: 'lowImpact',
+                badge: 'Jobs',
+                headline: 'Job Offer or Collaboration',
+                headlineHighlight: 'Collaboration',
+                subtext:
+                    'Have an open position or looking for a collaboration partner? Send us your inquiry.',
+            },
+            layout: [
+                {
+                    blockType: 'stepSection',
+                    layout: 'cards',
+                    cardDisplay: 'number',
+                    backgroundColor: 'muted',
+                    badge: 'How it works',
+                    title: 'Collaboration in 3 steps',
+                    titleHighlight: '3 steps',
+                    steps: [
+                        {
+                            number: '01',
+                            title: 'Send inquiry',
+                            description:
+                                'Describe the position, conditions, and desired profile in the form.',
+                        },
+                        {
+                            number: '02',
+                            title: 'Review & feedback',
+                            description:
+                                'Our team reviews your inquiry and responds with questions or suggestions.',
+                        },
+                        {
+                            number: '03',
+                            title: 'Matching & start',
+                            description:
+                                'We match suitable talents or coordinate the collaboration directly.',
+                        },
+                    ],
+                    cta: stepCta('/contact', 'Questions? Contact us'),
+                    ctaPosition: 'center',
+                },
+                ...(jobInquiryFormId
+                    ? [
+                          {
+                              blockType: 'formBlock' as const,
+                              form: jobInquiryFormId,
+                              enableIntro: false,
+                              badge: 'Job Inquiry',
+                              title: 'Send job inquiry',
+                              description:
+                                  'Please describe the position or collaboration. We will get back to you as soon as possible.',
+                          },
+                      ]
+                    : []),
+            ],
+            pageSettings: {
+                metaTitle: 'Job Inquiry – Deleyna Talent Agency',
+                metaDescription:
+                    'Job offer or collaboration request to Deleyna. We look forward to hearing from you.',
+                schemaType: 'ContactPage',
+            },
+        },
+    )
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CLASS / KURS INQUIRY PAGE
+    // ─────────────────────────────────────────────────────────────────────────
+    console.log('')
+    console.log('  📄 Class inquiry page...')
+
+    const classInquiryForms = await payload.find({
+        collection: 'forms',
+        where: { formCategory: { equals: 'class_inquiry' } },
+        limit: 1,
+        depth: 0,
+    })
+    const classInquiryFormId = classInquiryForms.docs[0]?.id
+
+    await upsertPage(
+        payload,
+        'kurs-anfrage',
+        {
+            title: 'Kurs-Anfrage',
+            hero: {
+                type: 'lowImpact',
+                badge: 'Classes',
+                headline: 'Kurs oder Workshop anfragen',
+                headlineHighlight: 'Workshop',
+                subtext:
+                    'Du möchtest an einer Klasse teilnehmen oder einen Workshop für dein Team buchen? Schick uns deine Anfrage.',
+            },
+            layout: [
+                {
+                    blockType: 'stepSection',
+                    layout: 'cards',
+                    cardDisplay: 'number',
+                    backgroundColor: 'muted',
+                    badge: 'So funktioniert es',
+                    title: 'In 3 Schritten zur Klasse',
+                    titleHighlight: 'Klasse',
+                    steps: [
+                        {
+                            number: '01',
+                            title: 'Klasse auswählen',
+                            description:
+                                'Wähle deine gewünschte Klasse, den Tanzstil und dein Level aus.',
+                        },
+                        {
+                            number: '02',
+                            title: 'Anfrage senden',
+                            description:
+                                'Fülle das Formular aus und wir reservieren deinen Platz.',
+                        },
+                        {
+                            number: '03',
+                            title: 'Bestätigung erhalten',
+                            description:
+                                'Du erhältst eine Bestätigung mit allen Details zu Ort, Zeit und Ablauf.',
+                        },
+                    ],
+                    cta: stepCta('/kontakt', 'Fragen? Schreib uns'),
+                    ctaPosition: 'center',
+                },
+                ...(classInquiryFormId
+                    ? [
+                          {
+                              blockType: 'formBlock' as const,
+                              form: classInquiryFormId,
+                              enableIntro: false,
+                              badge: 'Kurs-Anfrage',
+                              title: 'Kurs anfragen',
+                              description:
+                                  'Sag uns welche Klasse dich interessiert. Wir melden uns mit allen Details.',
+                          },
+                      ]
+                    : []),
+            ],
+            pageSettings: {
+                metaTitle: 'Kurs-Anfrage – Deleyna Talent Agency',
+                metaDescription:
+                    'Tanzkurse und Workshops bei Deleyna anfragen. Jetzt Platz sichern für Hip-Hop, Contemporary und mehr.',
+                schemaType: 'ContactPage',
+            },
+        },
+        {
+            title: 'Class Inquiry',
+            hero: {
+                type: 'lowImpact',
+                badge: 'Classes',
+                headline: 'Request a Class or Workshop',
+                headlineHighlight: 'Workshop',
+                subtext:
+                    'Want to join a class or book a workshop for your team? Send us your inquiry.',
+            },
+            layout: [
+                {
+                    blockType: 'stepSection',
+                    layout: 'cards',
+                    cardDisplay: 'number',
+                    backgroundColor: 'muted',
+                    badge: 'How it works',
+                    title: 'Your class in 3 steps',
+                    titleHighlight: '3 steps',
+                    steps: [
+                        {
+                            number: '01',
+                            title: 'Choose a class',
+                            description:
+                                'Select your desired class, dance style, and level.',
+                        },
+                        {
+                            number: '02',
+                            title: 'Send inquiry',
+                            description:
+                                'Fill out the form and we will reserve your spot.',
+                        },
+                        {
+                            number: '03',
+                            title: 'Get confirmation',
+                            description:
+                                'You will receive a confirmation with all details about location, time, and schedule.',
+                        },
+                    ],
+                    cta: stepCta('/contact', 'Questions? Write us'),
+                    ctaPosition: 'center',
+                },
+                ...(classInquiryFormId
+                    ? [
+                          {
+                              blockType: 'formBlock' as const,
+                              form: classInquiryFormId,
+                              enableIntro: false,
+                              badge: 'Class Inquiry',
+                              title: 'Request a class',
+                              description:
+                                  'Tell us which class interests you. We will get back to you with all the details.',
+                          },
+                      ]
+                    : []),
+            ],
+            pageSettings: {
+                metaTitle: 'Class Inquiry – Deleyna Talent Agency',
+                metaDescription:
+                    'Request dance classes and workshops at Deleyna. Secure your spot for Hip-Hop, Contemporary, and more.',
+                schemaType: 'ContactPage',
+            },
+        },
+    )
+
     console.log('')
     console.log('  🎉 Full content seeding complete!')
     console.log(
-        '  Pages created/updated: home, about, services, talent-werden, contact, booking, education, coaching, privacy, imprint, agb, faq, testimonials',
+        '  Pages created/updated: home, about, services, talent-werden, contact, booking, education, coaching, privacy, imprint, agb, faq, testimonials, job-anfrage, kurs-anfrage',
     )
+    console.log('  Jobs created/updated: social-media-manager, booking-assistant, dance-instructor-freelance')
     console.log('  Globals updated: TalentsArchive (DE/EN), PostsArchive (DE/EN)')
 }

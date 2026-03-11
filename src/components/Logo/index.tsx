@@ -1,6 +1,7 @@
 import { cn } from '@/utilities/ui'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
+import { toHref } from '@/utilities/typedHref'
 import React from 'react'
 
 interface LogoProps {
@@ -11,7 +12,6 @@ interface LogoProps {
     priority?: boolean
 }
 
-// Konsistente Größen nach dem Design System
 const logoSizes = {
     sm: { width: 60, height: 24 }, // Header/Footer
     md: { width: 80, height: 32 }, // Standard
@@ -19,10 +19,6 @@ const logoSizes = {
     hero: { width: 320, height: 128 }, // Hero Section
 }
 
-/**
- * Logo - Deleyna Logo Komponente
- * Die SVG-Farben werden natürlich beibehalten (keine Inversion)
- */
 export function Logo({
     href = '/',
     className,
@@ -45,7 +41,7 @@ export function Logo({
 
     if (href) {
         return (
-            <Link href={href as never} className={cn('inline-block', className)}>
+            <Link href={toHref(href)} className={cn('inline-block', className)}>
                 {logo}
             </Link>
         )

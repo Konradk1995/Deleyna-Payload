@@ -1,6 +1,6 @@
 import React from 'react'
 import type { StatsBlock as StatsBlockProps } from '@/payload-types'
-import { StatsGrid } from '@/components/StatsCounter'
+import { StatsGrid } from '@/components/StatsCounter/index'
 import { CMSLink } from '@/components/CMSLink'
 import { cn } from '@/utilities/ui'
 import { ScrollFadeIn } from '@/components/ScrollFadeIn'
@@ -13,7 +13,7 @@ type StatsBlockWithTitle = Omit<StatsBlockProps, 'titleLine1'> & {
 
 export const StatsBlockComponent: React.FC<
     StatsBlockWithTitle & { id?: string; className?: string }
-> = ({ overline, title, titleHighlight, description, cta, stats, className }) => {
+> = ({ badge, title, titleHighlight, description, headingLevel, cta, stats, backgroundColor = 'white', className }) => {
     if (!stats?.length) return null
 
     const statsMapped = stats.map((s) => ({
@@ -22,25 +22,28 @@ export const StatsBlockComponent: React.FC<
         label: s.label ?? '',
     }))
 
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
+
     return (
         <section
-            className={cn('section-padding-lg section-atmosphere bg-muted/40 relative', className)}
+            className={cn('section-padding-lg section-atmosphere relative', bgClass, className)}
         >
             <div
                 className="section-chrome pointer-events-none absolute inset-0 opacity-60"
-                aria-hidden
+                aria-hidden="true"
             />
             <div className="container relative z-10">
                 <div className="grid items-center block-grid-gap-lg lg:grid-cols-2">
                     <ScrollFadeIn animation="fade-up">
                         <div className="text-left">
                             <SectionHeader
-                                overline={overline ?? undefined}
+                                overline={badge ?? undefined}
                                 title={title ?? ''}
                                 titleHighlight={titleHighlight}
                                 description={description ?? undefined}
+                                as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                                 centered={false}
-                                className="mb-8 md:mb-10 text-left"
+                                className="text-left"
                             />
                             {cta?.label && (cta?.url || cta?.reference) && (
                                 <CMSLink {...cta} appearance="primary-pill" />

@@ -13,7 +13,7 @@ const LOCALES = ['de', 'en'] as const
 
 /** Localized path segments: next-intl rewrites these in middleware */
 const LOCALIZED_PATHS: Record<string, Record<string, string>> = {
-    de: { '/talents': '/talente', '/blog': '/magazin' },
+    de: { '/talents': '/talente', '/blog': '/magazin', '/jobs': '/jobs' },
     en: {},
 }
 

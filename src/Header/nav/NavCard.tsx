@@ -15,32 +15,44 @@ export const NavCard: React.FC<NavCardProps> = ({ item, variant, onClose }) => {
     const hasMedia =
         (item.mediaDisplay === 'latestBlog' && item.latestBlog && item.latestBlog.path) ||
         item.image
+    const hasBlog = item.mediaDisplay === 'latestBlog' && item.latestBlog && item.latestBlog.path
 
     if (variant === 'desktop') {
         return (
             <div
-                className="rounded-2xl border border-border/30 bg-background/90 p-4 text-foreground shadow-xl backdrop-blur-lg"
+                className={cn(
+                    'rounded-2xl bg-background/95 p-5 text-foreground shadow-xl backdrop-blur-xl',
+                    hasBlog ? 'min-w-[340px]' : 'min-w-[220px]',
+                )}
             >
+                {/* Section label */}
                 {item.labelLink ? (
                     <CMSLink
                         {...item.labelLink}
                         appearance="inline"
-                        className="text-xs font-semibold text-muted-foreground !no-underline hover:text-foreground transition-colors"
+                        className="font-subtext-semibold text-copper !no-underline hover:opacity-80 transition-opacity inline-flex items-center gap-2"
                     >
+                        <span className="h-px w-5 bg-copper/50" aria-hidden />
                         {item.label}
                     </CMSLink>
                 ) : (
-                    <div className="text-xs font-semibold text-muted-foreground">
+                    <div className="font-subtext-semibold text-copper inline-flex items-center gap-2">
+                        <span className="h-px w-5 bg-copper/50" aria-hidden />
                         {item.label}
                     </div>
                 )}
+
                 <div
                     className={cn(
-                        'mt-3 flex items-start',
-                        hasMedia ? 'gap-3' : 'flex-col gap-2',
+                        'mt-4 flex',
+                        hasBlog
+                            ? 'flex-col gap-4'
+                            : hasMedia
+                              ? 'items-start gap-4'
+                              : 'flex-col gap-1',
                     )}
                 >
-                    <NavCardMedia item={item} onClose={onClose} />
+                    <NavCardMedia item={item} onClose={onClose} variant="desktop" />
                     <NavCardLinks
                         links={item.links}
                         onClose={onClose}
@@ -55,7 +67,7 @@ export const NavCard: React.FC<NavCardProps> = ({ item, variant, onClose }) => {
     // Mobile variant — flex-col so image is ABOVE links
     return (
         <div
-            className="nav-card select-none relative flex w-full max-w-full min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-border/30 bg-background/90 p-[12px_16px] text-foreground backdrop-blur-lg"
+            className="nav-card select-none relative flex h-full w-full max-w-full min-w-0 flex-col gap-3 overflow-hidden rounded-xl bg-background/90 p-[12px_16px] text-foreground backdrop-blur-lg"
         >
             {item.labelLink ? (
                     <CMSLink
@@ -80,7 +92,7 @@ export const NavCard: React.FC<NavCardProps> = ({ item, variant, onClose }) => {
                         : 'flex-col gap-2',
                 )}
             >
-                <NavCardMedia item={item} onClose={onClose} />
+                <NavCardMedia item={item} onClose={onClose} variant="mobile" />
                 <NavCardLinks
                     links={item.links}
                     onClose={onClose}

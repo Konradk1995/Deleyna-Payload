@@ -21,3 +21,8 @@ vitest.config.mts
 vitest.setup.ts
 docker-compose.yml
 .tmp
+.env.*
+!.env.example
+.eslintcache
+*.log
+.vercel

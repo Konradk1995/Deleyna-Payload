@@ -1,6 +1,5 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { Link } from '@/i18n/navigation'
+import { toHref } from '@/utilities/typedHref'
 import Image from 'next/image'
 import { ArrowLeft, Sparkles, Star, Users } from 'lucide-react'
 
@@ -9,11 +8,13 @@ import { TalentsListSchema } from '@/components/seo'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { FeaturedTalentsBlockComponent } from '@/blocks/FeaturedTalents/Component'
 import { Button } from '@/components/ui/button'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import { resolveLink } from '@/utilities/resolveLink'
-import { HAIR_OPTIONS, EYE_OPTIONS, getEyeLabel, getHairLabel } from '@/lib/constants/talentOptions'
+import { getCachedGlobal } from '@/utilities/getGlobals'
+import { fetchTalentsData } from './page.data'
 import type { Metadata } from 'next'
 import type { Locale } from '@/i18n/config'
-import type { Media, Talent, TalentSkill } from '@/payload-types'
+import type { Media } from '@/payload-types'
 
 export const revalidate = 3600
 
@@ -21,43 +22,13 @@ type PageProps = {
     params: Promise<{ locale: string }>
 }
 
-type TalentListItem = {
-    id: string
-    name: string
-    slug: string
-    category: 'dancer' | 'model' | 'both'
-    imageUrl?: string
-    cutoutImageUrl?: string
-    cardStyle?: 'sage' | 'peach' | 'cream' | '' | null
-    hair?: string[]
-    eyes?: string[]
-    skills?: string[]
-    height?: string
-    featured?: boolean
-}
-
-function resolveLocalizedText(value: unknown, locale: 'de' | 'en'): string {
-    if (typeof value === 'string') return value
-    if (value && typeof value === 'object') {
-        const map = value as Record<string, unknown>
-        const localized = locale === 'en' ? map.en ?? map.de : map.de ?? map.en
-        return typeof localized === 'string' ? localized : ''
-    }
-    return ''
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { locale } = await params
-    const payloadConfig = await config
-    const payload = await getPayload({ config: payloadConfig })
     const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
     const canonical = `${baseUrl}/${locale}/${locale === 'de' ? 'talente' : 'talents'}`
 
     try {
-        const archive = await payload.findGlobal({
-            slug: 'talents-archive',
-            locale: locale as 'de' | 'en',
-        })
+        const archive = await getCachedGlobal('talents-archive', 1, locale)
 
         const title = archive?.metaTitle || (locale === 'de' ? 'Unsere Talente' : 'Our Talent')
         const description =
@@ -65,25 +36,40 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             (locale === 'de'
                 ? 'Entdecken Sie unsere kuratierten Talente'
                 : 'Discover our curated talent roster')
+        const keywords = (archive as any)?.metaKeywords as string | undefined
 
         let ogImageUrl: string | undefined
-        try {
-            const seo = await payload.findGlobal({ slug: 'seo', locale: locale as 'de' | 'en' })
-            const logo = seo?.socialMedia?.logo
-            if (logo && typeof logo === 'object') {
-                const url = (logo as Media).url
-                if (url) ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+        // Priority: archive ogImage > global logo
+        const archiveOg = archive?.ogImage
+        if (archiveOg && typeof archiveOg === 'object') {
+            const url = (archiveOg as Media).url
+            if (url) ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+        }
+        if (!ogImageUrl) {
+            try {
+                const seo = await getCachedGlobal('seo', 1, locale)
+                const logo = seo?.socialMedia?.logo
+                if (logo && typeof logo === 'object') {
+                    const url = (logo as Media).url
+                    if (url) ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+                }
+            } catch {
+                /* ignore */
             }
-        } catch { /* ignore */ }
+        }
 
         return {
             title,
             description,
+            ...(keywords ? { keywords } : {}),
+            authors: [{ name: 'Deleyna' }],
+            robots: { index: !((archive as any)?.noIndex === true), follow: true },
             alternates: {
                 canonical,
                 languages: {
                     de: `${baseUrl}/de/talente`,
                     en: `${baseUrl}/en/talents`,
+                    'x-default': `${baseUrl}/de/talente`,
                 },
             },
             openGraph: {
@@ -91,8 +77,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 title,
                 description,
                 url: canonical,
+                siteName: 'Deleyna',
                 locale: locale === 'de' ? 'de_DE' : 'en_US',
-                ...(ogImageUrl ? { images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }] } : {}),
+                ...(ogImageUrl
+                    ? { images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }] }
+                    : {}),
             },
             twitter: {
                 card: 'summary_large_image',
@@ -117,130 +106,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TalentsPage({ params }: PageProps) {
     const { locale } = await params
-    const payloadConfig = await config
-    const payload = await getPayload({ config: payloadConfig })
 
-    // Fetch archive global for CMS-controlled content
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let archive: any = null
-    try {
-        archive = await payload.findGlobal({
-            slug: 'talents-archive',
-            locale: locale as 'de' | 'en',
-            depth: 2,
-        })
-    } catch {
-        // Use defaults
-    }
-
-    // Fetch all published talents with measurements + skills for filtering
-    let talents: TalentListItem[] = []
-
-    try {
-        const talentsResult = await payload.find({
-            collection: 'talents',
-            locale: locale as 'de' | 'en',
-            depth: 1,
-            select: {
-                name: true,
-                slug: true,
-                category: true,
-                featuredImage: true,
-                cutoutImage: true,
-                cardStyle: true,
-                measurements: true,
-                skills: true,
-                featured: true,
-            },
-            where: {
-                _status: { equals: 'published' },
-            },
-            sort: 'sortOrder',
-            limit: 100,
-        })
-
-        talents = talentsResult.docs.map((talent) => {
-            // Resolve skills relationship to title strings
-            const skillTitles: string[] = []
-            if (Array.isArray(talent.skills)) {
-                for (const s of talent.skills) {
-                    if (typeof s === 'object' && s !== null && 'title' in s) {
-                        const localizedTitle = resolveLocalizedText(
-                            (s as TalentSkill).title,
-                            locale as 'de' | 'en',
-                        )
-                        if (localizedTitle) skillTitles.push(localizedTitle)
-                    }
-                }
-            }
-
-            return {
-                id: String(talent.id),
-                name: talent.name,
-                slug: talent.slug || '',
-                category: talent.category as 'dancer' | 'model' | 'both',
-                imageUrl:
-                    typeof talent.featuredImage === 'object' && talent.featuredImage?.url
-                        ? talent.featuredImage.url
-                        : undefined,
-                cutoutImageUrl:
-                    typeof talent.cutoutImage === 'object' && talent.cutoutImage?.url
-                        ? talent.cutoutImage.url
-                        : undefined,
-                cardStyle: talent.cardStyle ?? undefined,
-                hair: Array.isArray(talent.measurements?.hair)
-                    ? talent.measurements.hair
-                    : undefined,
-                eyes: Array.isArray(talent.measurements?.eyes)
-                    ? talent.measurements.eyes
-                    : undefined,
-                skills: skillTitles.length > 0 ? skillTitles : undefined,
-                height: talent.measurements?.height || undefined,
-                featured: talent.featured || false,
-            }
-        })
-    } catch (error) {
-        console.error('Error fetching talents:', error)
-    }
-
-    // Showcase talents
-    const showcaseEnabled = archive?.showcaseEnabled ?? true
-    const showcaseMode = archive?.showcaseMode || 'featured'
-    const showcaseMaxSlides = archive?.showcaseMaxSlides || 8
-
-    let showcaseTalents: TalentListItem[] = []
-    if (showcaseEnabled) {
-        if (showcaseMode === 'manual' && Array.isArray(archive?.showcaseTalents)) {
-            // Manual: resolve relationship IDs to talent data
-            const manualIds = archive.showcaseTalents.map((t: Talent | number) =>
-                typeof t === 'object' ? String(t.id) : String(t),
-            )
-            showcaseTalents = manualIds
-                .map((id: string) => talents.find((t) => t.id === id))
-                .filter(Boolean)
-                .slice(0, showcaseMaxSlides) as TalentListItem[]
-        } else {
-            // Auto: use featured talents
-            showcaseTalents = talents.filter((t) => t.featured).slice(0, showcaseMaxSlides)
-        }
-    }
-
-    // Derive unique hair and eye values for filter pills (using constants for labels)
-    const usedHairValues = new Set(talents.flatMap((t) => t.hair || []))
-    const hairFilterOptions = HAIR_OPTIONS.filter((o) => usedHairValues.has(o.value)).map((o) => ({
-        label: getHairLabel(o.value, locale === 'en' ? 'en' : 'de'),
-        value: o.value,
-    }))
-
-    const usedEyeValues = new Set(talents.flatMap((t) => t.eyes || []))
-    const eyeFilterOptions = EYE_OPTIONS.filter((o) => usedEyeValues.has(o.value)).map((o) => ({
-        label: getEyeLabel(o.value, locale === 'en' ? 'en' : 'de'),
-        value: o.value,
-    }))
-
-    // Derive unique skill values from talent data
-    const usedSkills = [...new Set(talents.flatMap((t) => t.skills || []))].sort()
-    const skillFilterOptions = usedSkills.map((s) => ({ label: s, value: s }))
+    const {
+        archive,
+        talents,
+        showcaseEnabled,
+        showcaseTalents,
+        hairFilterOptions,
+        eyeFilterOptions,
+        skillFilterOptions,
+        dancerCount,
+        modelCount,
+        heroSpotlights,
+    } = await fetchTalentsData(locale as 'de' | 'en')
 
     // CMS content with defaults
     const heroHeadline =
@@ -278,16 +156,6 @@ export default async function TalentsPage({ params }: PageProps) {
     // CMS blocks
     const layoutBlocks = archive?.layout || null
 
-    const dancerCount = talents.filter(
-        (talent) => talent.category === 'dancer' || talent.category === 'both',
-    ).length
-    const modelCount = talents.filter(
-        (talent) => talent.category === 'model' || talent.category === 'both',
-    ).length
-
-    const featuredSpotlights = talents.filter((talent) => talent.featured).slice(0, 2)
-    const heroSpotlights = featuredSpotlights.length >= 2 ? featuredSpotlights : talents.slice(0, 2)
-
     const formatCategory = (category: 'dancer' | 'model' | 'both') => {
         if (locale === 'de') {
             if (category === 'both') return 'Tänzer/in & Model'
@@ -304,6 +172,16 @@ export default async function TalentsPage({ params }: PageProps) {
             {/* Schema.org Structured Data */}
             <TalentsListSchema talents={talents} totalCount={talents.length} locale={locale} />
 
+            {/* ── Breadcrumb ── */}
+            <div className="container mt-6 mb-2">
+                <Breadcrumb
+                    items={[
+                        { label: locale === 'de' ? 'Startseite' : 'Home', href: '/' },
+                        { label: locale === 'de' ? 'Talente' : 'Talents' },
+                    ]}
+                />
+            </div>
+
             {/* 1. Talent Showcase (if enabled and has talents) */}
             {showcaseEnabled && showcaseTalents.length > 0 && (
                 <FeaturedTalentsBlockComponent
@@ -314,7 +192,7 @@ export default async function TalentsPage({ params }: PageProps) {
                     randomize={true}
                     locale={locale}
                     title={heroHeadline}
-                    overline={locale === 'de' ? 'Unsere Talente' : 'Our Talents'}
+                    badge={locale === 'de' ? 'Unsere Talente' : 'Our Talents'}
                 />
             )}
 
@@ -324,13 +202,13 @@ export default async function TalentsPage({ params }: PageProps) {
             )}
 
             {/* 3. Hero Section (intro to grid) */}
-            <section className="padding-section-hero section-atmosphere relative overflow-hidden">
+            <section className="padding-section-hero-tight section-atmosphere relative overflow-hidden">
                 <div className="hero-grid pointer-events-none absolute inset-0 opacity-25" />
-                <div className="pointer-events-none absolute -left-32 top-8 h-72 w-72 rounded-full bg-copper/10 blur-3xl" />
-                <div className="pointer-events-none absolute -right-32 bottom-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+                <div className="pointer-events-none absolute -left-32 top-8 h-72 w-72 rounded-full bg-copper/10 blur-3xl" aria-hidden="true" />
+                <div className="pointer-events-none absolute -right-32 bottom-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" aria-hidden="true" />
 
                 <div className="container">
-                        <div className="surface-pill relative overflow-hidden padding-large">
+                    <div className="surface-pill relative overflow-hidden padding-large">
                         <div className="hero-dots pointer-events-none absolute inset-0 opacity-20" />
 
                         <div className="relative z-10 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
@@ -339,16 +217,16 @@ export default async function TalentsPage({ params }: PageProps) {
                                     href="/"
                                     className="overline mb-6 inline-flex items-center gap-2 text-copper hover:opacity-80 transition-opacity"
                                 >
-                                    <ArrowLeft className="h-4 w-4" />
+                                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                                     {locale === 'de' ? 'Zurück' : 'Back'}
                                 </Link>
 
                                 <p className="overline-copper mb-4 inline-flex items-center gap-2">
-                                    <Sparkles className="h-3.5 w-3.5" />
+                                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                                     {locale === 'de' ? 'Unser Roster' : 'Our Roster'}
                                 </p>
 
-                                <h1 className="chrome-text font-display-tight font-heading-1-bold leading-[1.04] tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere] pb-[0.03em]">
+                                <h1 className="chrome-text font-display-tight font-heading-1-bold tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere]">
                                     {heroHeadline}
                                 </h1>
 
@@ -358,7 +236,7 @@ export default async function TalentsPage({ params }: PageProps) {
 
                                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
                                     <div className="surface-pill-soft flex items-center gap-3 px-4 py-3">
-                                        <Users className="h-4 w-4 text-copper" />
+                                        <Users className="h-4 w-4 shrink-0 text-copper" aria-hidden="true" />
                                         <div>
                                             <p className="badge-pill badge-pill-sm badge-pill-surface">
                                                 {locale === 'de' ? 'Talente' : 'Talents'}
@@ -370,7 +248,7 @@ export default async function TalentsPage({ params }: PageProps) {
                                     </div>
 
                                     <div className="surface-pill-soft flex items-center gap-3 px-4 py-3">
-                                        <Sparkles className="h-4 w-4 text-copper" />
+                                        <Sparkles className="h-4 w-4 shrink-0 text-copper" aria-hidden="true" />
                                         <div>
                                             <p className="badge-pill badge-pill-sm badge-pill-surface">
                                                 {locale === 'de' ? 'Tanz' : 'Dance'}
@@ -382,7 +260,7 @@ export default async function TalentsPage({ params }: PageProps) {
                                     </div>
 
                                     <div className="surface-pill-soft flex items-center gap-3 px-4 py-3">
-                                        <Star className="h-4 w-4 text-copper" />
+                                        <Star className="h-4 w-4 shrink-0 text-copper" aria-hidden="true" />
                                         <div>
                                             <p className="badge-pill badge-pill-sm badge-pill-surface">
                                                 {locale === 'de' ? 'Model' : 'Model'}
@@ -399,16 +277,17 @@ export default async function TalentsPage({ params }: PageProps) {
                                 <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/70 bg-card/70 shadow-xl">
                                     {heroImage ? (
                                         <Image
-                                            src={heroImage.url}
-                                            alt={heroImage.alt || heroHeadline}
+                                            src={heroImage.url as string}
+                                            alt={heroImage.alt || heroHeadline || 'Talent showcase'}
                                             fill
                                             className="object-cover"
                                             sizes="(max-width: 1024px) 100vw, 42vw"
+                                            priority
                                         />
                                     ) : (
                                         <div className="absolute inset-0 chrome-gradient opacity-45" />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-media-overlay/45 via-media-overlay/10 to-transparent" />
                                 </div>
 
                                 {heroSpotlights[0] && (
@@ -450,7 +329,7 @@ export default async function TalentsPage({ params }: PageProps) {
                     <TalentGrid
                         talents={talents}
                         showFilters={showFilters}
-                        filterLabels={filterLabels}
+                        filterLabels={filterLabels as { all?: string; dancers?: string; models?: string }}
                         locale={locale as Locale}
                         showHairFilter={showHairFilter}
                         showEyeFilter={showEyeFilter}
@@ -467,9 +346,7 @@ export default async function TalentsPage({ params }: PageProps) {
                 <section className="padding-large section-atmosphere bg-muted/30">
                     <div className="container">
                         <div className="mx-auto max-w-3xl text-center">
-                            <h2 className="chrome-text mb-4 font-heading-3-bold">
-                                {ctaHeadline}
-                            </h2>
+                            <h2 className="chrome-text mb-4 font-heading-3-bold">{ctaHeadline}</h2>
                             {ctaDescription && (
                                 <p className="text-muted-foreground mb-8 leading-relaxed">
                                     {ctaDescription}
@@ -481,7 +358,7 @@ export default async function TalentsPage({ params }: PageProps) {
                                 size="lg"
                                 className="rounded-full px-8"
                             >
-                                <Link href={ctaButtonHref as never}>{ctaButtonLabel}</Link>
+                                <Link href={toHref(ctaButtonHref)}>{ctaButtonLabel}</Link>
                             </Button>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 /**
  * FAQ Block mit automatischer Schema.org Generation
@@ -22,17 +23,21 @@ export const FAQBlock: Block = {
                 description: { de: 'Optional. Für In-Page-Links, z.B. #faq', en: 'Optional. For in-page links, e.g. #faq' },
             },
         },
+        ...sectionHeaderFields({ headingLevel: true, cta: true }),
         {
-            name: 'title',
-            type: 'text',
-            label: { de: 'Überschrift', en: 'Heading' },
-            localized: true,
-        },
-        {
-            name: 'description',
-            type: 'textarea',
-            label: { de: 'Beschreibung', en: 'Description' },
-            localized: true,
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
         },
         {
             name: 'items',
@@ -40,6 +45,11 @@ export const FAQBlock: Block = {
             label: { de: 'FAQ Einträge', en: 'FAQ items' },
             minRows: 1,
             maxRows: 30,
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#QuestionRowLabel',
+                },
+            },
             fields: [
                 {
                     name: 'question',

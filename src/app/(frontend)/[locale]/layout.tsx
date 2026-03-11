@@ -19,7 +19,6 @@ import { getCookieBanner, getThemeSettings } from '@/utilities/getGlobals'
 import { localizePageSlug } from '@/utilities/pageSlugAliases'
 import { Header } from '@/Header'
 import { Footer } from '@/Footer/Component'
-import { ThemeStyleInjector } from '@/components/ThemeStyleInjector'
 import { locales, type Locale } from '@/i18n/config'
 import type { Page, Media } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -80,7 +79,7 @@ async function getFrontendIcons(): Promise<Metadata['icons']> {
             }
         }
     } catch {
-        // Fallback unten
+        // use default icons below
     }
     return {
         icon: '/favicon.svg',
@@ -98,6 +97,18 @@ export async function generateMetadata({
     const baseUrl = getServerSideURL()
 
     const isDE = locale === 'de'
+
+    let ogImageUrl: string | undefined
+    try {
+        const seo = await getSEOSettings(locale as Locale)
+        const logo = seo?.socialMedia?.logo
+        if (logo && typeof logo === 'object') {
+            const url = (logo as Media).url
+            if (url) ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+        }
+    } catch {
+        // fallback: no OG image
+    }
 
     return {
         title: {
@@ -123,9 +134,13 @@ export async function generateMetadata({
             type: 'website',
             locale: isDE ? 'de_DE' : 'en_US',
             siteName: 'Deleyna',
+            ...(ogImageUrl
+                ? { images: [{ url: ogImageUrl, width: 1200, height: 630, alt: 'Deleyna' }] }
+                : {}),
         },
         twitter: {
             card: 'summary_large_image',
+            ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
         },
         robots: {
             index: true,
@@ -199,20 +214,27 @@ export default async function LocaleLayout({ children, params }: Props) {
                         __html: `(function(){try{var t=localStorage.getItem('theme');var d='${safeDefault}';var th=(t==='dark'||t==='light')?t:(d==='system'?(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):d);document.documentElement.classList.add(th);document.documentElement.setAttribute('data-theme',th)}catch(e){}})()`,
                     }}
                 />
+                <link rel="preconnect" href="https://www.googletagmanager.com" />
+                <link rel="preconnect" href="https://app.rybbit.io" />
             </head>
             <body
                 className={`${satoshi.variable} ${zodiak.variable} font-sans antialiased min-h-screen flex flex-col`}
                 suppressHydrationWarning
             >
                 <NextIntlClientProvider messages={messages} locale={resolvedLocale}>
-                    <ThemeStyleInjector />
                     {isDraftMode && <LivePreviewListener />}
+                    <a
+                        href="#main-content"
+                        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:shadow-lg focus:ring-2 focus:ring-copper/40"
+                    >
+                        {resolvedLocale === 'de' ? 'Zum Hauptinhalt springen' : 'Skip to main content'}
+                    </a>
                     <CookieConsentProvider>
                         <SelectionWithProvider>
                             <Header locale={resolvedLocale} />
                             <main
                                 id="main-content"
-                                className="flex-1 overflow-x-clip"
+                                className="flex-1 overflow-x-clip pt-[var(--header-h)]"
                                 tabIndex={-1}
                             >
                                 {children}

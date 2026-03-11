@@ -21,22 +21,24 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({
     mediaMobile,
 }) => {
     return (
-        <section className="relative overflow-hidden bg-background">
+        <section className="relative overflow-hidden bg-background padding-section-hero-tight">
             <HeroBackground />
 
-            <div className="container relative z-10 padding-section-hero-tight">
+            <div className="container relative z-10">
                 <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
                     {/* Content */}
                     <div>
                         {badge && (
-                            <p className="font-subtext-semibold mb-6 text-copper tracking-wide-hero">
+                            <span className="font-subtext-semibold mb-6 inline-flex items-center gap-3 text-copper">
+                                <span className="h-px w-8 bg-copper/60" aria-hidden />
                                 {badge}
-                            </p>
+                                <span className="h-px w-8 bg-copper/60" aria-hidden />
+                            </span>
                         )}
                         {(headline || subtext) && (
                             <div className="mb-6">
                                 {headline && (
-                                    <h1 className="font-display-tight font-heading-1-bold leading-none pb-1 tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere] drop-shadow-sm">
+                                    <h1 className="font-display-tight font-heading-1-bold tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere] drop-shadow-sm">
                                         {headline}
                                     </h1>
                                 )}

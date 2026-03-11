@@ -1,5 +1,6 @@
 'use client'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { cn } from '@/utilities/ui'
 import { CMSLink } from '@/components/CMSLink'
 import { NavCard } from './NavCard'
@@ -23,6 +24,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
     themeToggle,
     dancefloorTrigger,
 }) => {
+    const locale = useLocale()
     const [activeDesktopIndex, setActiveDesktopIndex] = useState<number | null>(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -64,6 +66,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
     return (
         <div className="hidden lg:block w-full overflow-x-clip pt-3 px-4">
             <nav
+                aria-label={locale === 'de' ? 'Hauptnavigation' : 'Main navigation'}
                 className={cn(
                     'w-full mx-auto rounded-[1.5rem] border transition duration-300',
                     'supports-[backdrop-filter]:backdrop-blur-xl',
@@ -76,7 +79,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
                     <div
                         className={cn(
                             'flex items-center justify-between gap-6 transition duration-300',
-                            isElevated ? 'h-[68px]' : 'h-[74px]',
+                            isScrolled ? 'h-[68px]' : 'h-[74px]',
                         )}
                     >
                         <div className="flex items-center flex-shrink-0">{logo}</div>

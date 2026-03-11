@@ -3,19 +3,26 @@ import Image from 'next/image'
 import type { TeamBlock as TeamBlockProps } from '@/payload-types'
 import type { Media } from '@/payload-types'
 import { SectionHeader } from '@/components/SectionHeader'
+import { ScrollFadeIn } from '@/components/ScrollFadeIn'
+import { CMSLink } from '@/components/CMSLink'
 import { cn } from '@/utilities/ui'
 
-export const TeamBlockComponent: React.FC<TeamBlockProps & { id?: string; className?: string }> = ({
-    overline,
+export const TeamBlockComponent: React.FC<TeamBlockProps & { id?: string; className?: string; backgroundColor?: 'white' | 'muted' | null }> = ({
+    badge,
     title,
+    headingLevel,
     members,
+    cta,
     className,
+    backgroundColor = 'white',
 }) => {
     if (!title || !members?.length) return null
 
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
+
     return (
         <section
-            className={cn('section-padding-lg section-atmosphere relative bg-muted/30', className)}
+            className={cn('section-padding-lg section-atmosphere relative', bgClass, className)}
         >
             <div
                 aria-hidden
@@ -27,8 +34,9 @@ export const TeamBlockComponent: React.FC<TeamBlockProps & { id?: string; classN
             />
             <div className="container">
                 <SectionHeader
-                    overline={overline ?? undefined}
+                    overline={badge ?? undefined}
                     title={title}
+                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                     titleClassName="chrome-text"
                 />
                 <ul className="grid list-none block-grid-gap sm:grid-cols-2 lg:grid-cols-4">
@@ -41,21 +49,26 @@ export const TeamBlockComponent: React.FC<TeamBlockProps & { id?: string; classN
                             .map((n) => n[0]?.toUpperCase())
                             .join('')
                         return (
-                            <li key={index} className="list-none">
-                                <article className="group flex h-full flex-col rounded-2xl border border-border/70 glass-morphism padding-large transition duration-300 hover:-translate-y-0.5 hover:border-copper/40 hover:bg-foreground/5 hover:shadow-copper-glow">
+                            <ScrollFadeIn key={member.name ?? index} delay={index * 80} animation="fade-up">
+                            <li className="list-none">
+                                <article className="group flex h-full flex-col rounded-[var(--block-radius)] border border-border/70 glass-morphism padding-large transition duration-300 hover:-translate-y-0.5 hover:border-copper/40 hover:bg-foreground/5 hover:shadow-copper-glow focus-within:border-copper/40 focus-within:shadow-copper-glow">
                                     {image && typeof image === 'object' && image.url && (
-                                        <div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-muted">
+                                        <div className="relative mb-4 aspect-square overflow-hidden rounded-[var(--block-radius)] bg-muted">
                                             <Image
                                                 src={image.url}
-                                                alt={image.alt ?? member.name ?? ''}
+                                                alt={image.alt ?? member.name ?? 'Team member'}
                                                 fill
                                                 className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                sizes="(max-width: 640px) calc(50vw - 1.5rem), (max-width: 1024px) calc(50vw - 1.5rem), calc(25vw - 1.5rem)"
                                             />
                                         </div>
                                     )}
                                     {(!image || typeof image !== 'object' || !image.url) && (
-                                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-copper/20 to-accent/20 text-lg font-bold">
+                                        <div
+                                            className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-copper/20 to-accent/20 text-lg font-bold"
+                                            role="img"
+                                            aria-label={member.name ? `Avatar of ${member.name}` : 'Team member avatar'}
+                                        >
                                             {initials || 'T'}
                                         </div>
                                     )}
@@ -76,9 +89,15 @@ export const TeamBlockComponent: React.FC<TeamBlockProps & { id?: string; classN
                                     )}
                                 </article>
                             </li>
+                            </ScrollFadeIn>
                         )
                     })}
                 </ul>
+                {cta && typeof cta === 'object' && cta.label && (
+                    <div className="mt-10 text-center">
+                        <CMSLink {...cta} />
+                    </div>
+                )}
             </div>
         </section>
     )

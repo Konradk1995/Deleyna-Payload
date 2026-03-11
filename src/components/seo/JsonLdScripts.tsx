@@ -34,7 +34,7 @@ export function JsonLdScripts({ schemas, keyPrefix = 'jsonld' }: JsonLdScriptsPr
                 <script
                     key={`${keyPrefix}-${index}`}
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }}
                 />
             ))}
         </>

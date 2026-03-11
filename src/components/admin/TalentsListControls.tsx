@@ -6,194 +6,298 @@ import { HAIR_OPTIONS, EYE_OPTIONS } from '@/lib/constants/talentOptions'
 import { useLocale } from '@payloadcms/ui'
 
 const CSS_OVERRIDE = `
-.talent-cards-view .collections,
+/* ══════════════════════════════════════════
+   Talent Card View — Admin Panel Override
+   Payload DOM: <table> <tbody> <tr.row-N> <td.cell-X> <span> .file > .thumbnail + .file__filename
+   ══════════════════════════════════════════ */
+
+/* ── Kill horizontal scroll ── */
 .talent-cards-view .collection-list,
-.talent-cards-view .collection-list__wrap,
-.talent-cards-view table,
-.talent-cards-view .collections__card-list {
+.talent-cards-view .collection-list__wrap {
+    overflow-x: hidden !important;
+}
+
+/* ── Layout reset ── */
+.talent-cards-view .table {
+    display: block !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
     width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
+    overflow: hidden !important;
 }
 
 .talent-cards-view table {
     display: block !important;
     border: none !important;
     background: transparent !important;
-    padding: 0 !important;
     width: 100% !important;
+    overflow: hidden !important;
 }
 
 .talent-cards-view thead {
     display: none !important;
 }
 
-.talent-cards-view .collections__card-list,
-.talent-cards-view table tbody,
-.talent-cards-view [role='rowgroup'],
-.talent-cards-view .collection-list .table [role='rowgroup'],
-.talent-cards-view .collection-list .table-wrap [role='rowgroup'] {
+/* ── Grid on tbody ── */
+.talent-cards-view tbody {
     display: grid !important;
-    gap: 24px !important;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
-    padding: 30px !important;
-    margin: -30px !important;
-    width: calc(100% + 60px) !important;
-    overflow: visible !important;
+    gap: 14px !important;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Ensure intermediate containers don't break the grid or add constraints */
-.talent-cards-view .collection-list .table-wrap,
-.talent-cards-view .collection-list .table,
-.talent-cards-view .render-table {
-    display: contents !important;
-}
-
-.talent-cards-view table tr,
-.talent-cards-view [role='rowgroup'] > [role='row'],
-.talent-cards-view [role='row'] {
+/* ── Card = each tr ── */
+.talent-cards-view tbody tr {
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
-    border-radius: 24px !important;
-    background: rgba(255, 255, 255, 0.7) !important;
-    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.05) !important;
-    backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255,255,255,0.5) !important;
+    border-radius: 10px !important;
+    background: var(--theme-elevation-0) !important;
+    border: 1px solid var(--theme-elevation-150) !important;
     overflow: hidden !important;
     padding: 0 !important;
-    min-height: 520px !important;
+    min-height: 0 !important;
     position: relative !important;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
 }
 
-.talent-cards-view table tr:hover,
-.talent-cards-view [role='row']:hover {
-    transform: translateY(-8px) scale(1.02) !important;
-    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.15), 0 18px 36px -18px rgba(0,0,0,0.1) !important;
-    background: rgba(255, 255, 255, 0.85) !important;
-    z-index: 10 !important;
+.talent-cards-view tbody tr:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 28px -8px rgba(0,0,0,0.18) !important;
+    border-color: var(--theme-elevation-250) !important;
+    z-index: 5 !important;
 }
 
-.talent-cards-view .table td,
-.talent-cards-view [role='cell'],
-.talent-cards-view .collection-list .table-wrap [role='row'] > [role='cell'] {
+/* ── All cells base (td) ── */
+.talent-cards-view tbody td {
     display: block !important;
     padding: 0 !important;
     width: 100% !important;
     min-width: 0 !important;
+    border: none !important;
+    vertical-align: top !important;
 }
 
-.talent-cards-view .table td.cell-featuredImage,
-.talent-cards-view [role='cell'].cell-featuredImage {
-    order: -1 !important;
-    height: 380px !important;
-    width: 100% !important;
-    background: #f8fafc !important;
+/* ── Featured image cell ── */
+.talent-cards-view td.cell-featuredImage {
+    order: -10 !important;
+    aspect-ratio: 4 / 5 !important;
+    height: auto !important;
+    background: var(--theme-elevation-100) !important;
     overflow: hidden !important;
     position: relative !important;
 }
 
-.talent-cards-view .table td.cell-featuredImage img,
-.talent-cards-view [role='cell'].cell-featuredImage img {
+/* Wrapper (span or a or button) + .file fill the cell */
+.talent-cards-view td.cell-featuredImage > * {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    inset: 0 !important;
+    overflow: hidden !important;
+}
+
+.talent-cards-view td.cell-featuredImage .file {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    inset: 0 !important;
+}
+
+/* Hide only the filename text */
+.talent-cards-view td.cell-featuredImage .file__filename {
+    display: none !important;
+}
+
+/* Thumbnail — fill cell, override Payload's --size-small (40px) */
+.talent-cards-view td.cell-featuredImage .thumbnail {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    max-width: none !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
+/* Image covers the cell */
+.talent-cards-view td.cell-featuredImage .thumbnail img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    transition: transform 0.35s ease !important;
 }
 
-.talent-cards-view table tr:hover .cell-featuredImage img,
-.talent-cards-view [role='row']:hover .cell-featuredImage img {
-    transform: scale(1.08) !important;
+/* SVG fallback (failed load) */
+.talent-cards-view td.cell-featuredImage .thumbnail svg {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    position: absolute !important;
+    inset: 0 !important;
 }
 
-.talent-cards-view .table td.cell-name,
-.talent-cards-view [role='cell'].cell-name {
-    padding: 24px 24px 12px 24px !important;
-    font-size: 1.25rem !important;
-    font-weight: 800 !important;
-    color: #1a1a1a !important;
-    letter-spacing: -0.03em !important;
+/* Hover zoom on image */
+.talent-cards-view tbody tr:hover td.cell-featuredImage .thumbnail img {
+    transform: scale(1.05) !important;
+}
+
+/* ── Name cell ── */
+.talent-cards-view td.cell-name {
+    order: -5 !important;
+    padding: 10px 12px 1px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: var(--theme-elevation-900) !important;
+    letter-spacing: -0.01em !important;
     line-height: 1.2 !important;
 }
 
-.talent-cards-view .table td.cell-name a {
+.talent-cards-view td.cell-name a {
     color: inherit !important;
     text-decoration: none !important;
 }
 
-.talent-cards-view .table td:not(.cell-featuredImage):not(.cell-name):not(.cell-_select),
-.talent-cards-view [role='cell']:not(.cell-featuredImage):not(.cell-name):not(.cell-_select) {
-    padding: 8px 24px !important;
-    border: none !important;
-}
-
-.talent-cards-view .table td:not(.cell-featuredImage):not(.cell-name):not(.cell-_select):before,
-.talent-cards-view [role='cell']:not(.cell-featuredImage):not(.cell-name):not(.cell-_select):before {
-    content: attr(data-header);
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #64748b !important;
-    margin-bottom: 2px;
-}
-
-/* Custom Badge Styling within Cards */
-.talent-cards-view .cell-category span,
-.talent-cards-view .cell-status span,
-.talent-cards-view .cell-_status span {
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 0.75rem !important;
-}
-
-.talent-cards-view .table td.cell-_select,
-.talent-cards-view [role='cell'].cell-_select {
+/* Stretch name link over entire card so clicking anywhere opens edit */
+.talent-cards-view td.cell-name a::after {
+    content: '' !important;
     position: absolute !important;
-    top: 16px !important;
-    right: 16px !important;
-    left: auto !important;
-    z-index: 20 !important;
-    background: rgba(255,255,255,0.9) !important;
-    backdrop-filter: blur(8px) !important;
-    border-radius: 12px !important;
-    padding: 8px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    opacity: 0;
-    transition: all 0.3s ease !important;
-    transform: scale(0.8) !important;
+    inset: 0 !important;
+    z-index: 10 !important;
 }
 
-.talent-cards-view table tr:hover .cell-_select,
-.talent-cards-view [role='row']:hover .cell-_select,
-.talent-cards-view .cell-_select:has(input:checked) {
+.talent-cards-view tbody tr {
+    cursor: pointer !important;
+}
+
+/* ── Category cell ── */
+.talent-cards-view td.cell-category {
+    order: -4 !important;
+    padding: 3px 12px 4px !important;
+}
+
+.talent-cards-view td.cell-category span {
+    display: inline-block !important;
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    font-size: 0.62rem !important;
+    padding: 2px 8px !important;
+    background: var(--theme-elevation-100) !important;
+    color: var(--theme-elevation-600) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* ── isCoach cell — hide in card view (replaced by JS-injected badge) ── */
+.talent-cards-view td.cell-isCoach {
+    display: none !important;
+}
+
+/* ── JS-injected Coach badge — floating on image ── */
+.talent-cards-view .coach-badge-injected {
+    position: absolute !important;
+    top: 8px !important;
+    left: 8px !important;
+    z-index: 15 !important;
+    background: linear-gradient(135deg, #b87333, #d4956a) !important;
+    border-radius: 6px !important;
+    padding: 3px 10px !important;
+    font-size: 0.6rem !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    box-shadow: 0 2px 8px rgba(184,115,51,0.4) !important;
+    pointer-events: none !important;
+}
+
+/* ── Hide ALL cells except image, name, category, select ── */
+/* Info is injected via JS instead of relying on column selection */
+.talent-cards-view tbody td:not(.cell-featuredImage):not(.cell-name):not(.cell-category):not(.cell-_select) {
+    display: none !important;
+}
+
+/* ── JS-injected info bar ── */
+.talent-cards-view .talent-card-info {
+    order: 3 !important;
+    padding: 6px 12px 10px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px 8px !important;
+    font-size: 0.65rem !important;
+    color: var(--theme-elevation-500) !important;
+    border-top: 1px solid var(--theme-elevation-100) !important;
+}
+
+.talent-cards-view .talent-card-info .info-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    white-space: nowrap !important;
+}
+
+.talent-cards-view .talent-card-info .info-label {
+    font-weight: 700 !important;
+    color: var(--theme-elevation-400) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    font-size: 0.58rem !important;
+}
+
+.talent-cards-view .talent-card-info .info-value {
+    color: var(--theme-elevation-600) !important;
+}
+
+/* ── Checkbox — floating on hover ── */
+.talent-cards-view td.cell-_select {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    left: auto !important;
+    width: auto !important;
+    z-index: 20 !important;
+    background: var(--theme-elevation-0) !important;
+    border-radius: 8px !important;
+    padding: 4px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12) !important;
+    opacity: 0 !important;
+    transition: opacity 0.15s ease, transform 0.15s ease !important;
+    transform: scale(0.9) !important;
+}
+
+.talent-cards-view tbody tr:hover td.cell-_select,
+.talent-cards-view td.cell-_select:has(input:checked) {
     opacity: 1 !important;
     transform: scale(1) !important;
 }
 
-@media (min-width: 900px) {
-    .talent-cards-view .collections__card-list,
-    .talent-cards-view table tbody {
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+/* ── Responsive ── */
+@media (min-width: 1200px) {
+    .talent-cards-view tbody {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
     }
 }
 
-@media (min-width: 1280px) {
-    .talent-cards-view .collections__card-list,
-    .talent-cards-view table tbody {
-        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+@media (min-width: 1600px) {
+    .talent-cards-view tbody {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
     }
 }
 
-@media (min-width: 1680px) {
-    .talent-cards-view .collections__card-list,
-    .talent-cards-view table tbody {
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)) !important;
-    }
-}
-
+/* ── Filter controls ── */
 .talents-admin-filter-controls {
     display: flex;
     align-items: center;
@@ -238,6 +342,7 @@ const i18n = {
         dancers: 'Dancers',
         models: 'Models',
         dancerModel: 'Dancer & Model',
+        coaches: 'Coaches',
         list: 'Liste',
         cards: 'Cards',
         filters: 'Filter',
@@ -266,6 +371,7 @@ const i18n = {
         dancers: 'Dancers',
         models: 'Models',
         dancerModel: 'Dancer & Model',
+        coaches: 'Coaches',
         list: 'List',
         cards: 'Cards',
         filters: 'Filters',
@@ -291,6 +397,12 @@ const i18n = {
     },
 } as const
 
+type TalentCardInfo = {
+    id: string
+    isCoach?: boolean
+    measurements?: { height?: string; hair?: string; eyes?: string }
+}
+
 export const TalentsListControls: React.FC = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -303,7 +415,8 @@ export const TalentsListControls: React.FC = () => {
 
     // Check current category filter
     const currentWhere = searchParams.get('where[category][equals]')
-    const activeTab = currentWhere || 'all'
+    const currentCoach = searchParams.get('where[isCoach][equals]')
+    const activeTab = currentCoach === 'true' ? 'coach' : currentWhere || 'all'
 
     // Additional filters
     const currentSkill = searchParams.get('where[skills][in]') || ''
@@ -387,11 +500,117 @@ export const TalentsListControls: React.FC = () => {
         }
     }, [viewMode])
 
+    const [talentMap, setTalentMap] = useState<Map<string, TalentCardInfo>>(new Map())
+
+    useEffect(() => {
+        if (viewMode !== 'cards') return
+        let cancelled = false
+
+        const fetchTalents = async () => {
+            try {
+                const res = await fetch(
+                    '/api/talents?limit=200&depth=0&select[isCoach]=true&select[measurements]=true',
+                )
+                if (!res.ok) return
+                const data = await res.json()
+                const map = new Map<string, TalentCardInfo>()
+                for (const doc of data?.docs || []) {
+                    map.set(String(doc.id), {
+                        id: String(doc.id),
+                        isCoach: doc.isCoach,
+                        measurements: doc.measurements,
+                    })
+                }
+                if (!cancelled) setTalentMap(map)
+            } catch {
+                // ignore
+            }
+        }
+        fetchTalents()
+        return () => { cancelled = true }
+    }, [viewMode, searchParams])
+
+    // Inject coach badges + info into card rows
+    useEffect(() => {
+        if (viewMode !== 'cards' || talentMap.size === 0) return
+
+        const hairLabels: Record<string, string> = Object.fromEntries(
+            HAIR_OPTIONS.map((o) => [o.value, o.label.split(' / ')[lang === 'en' ? 1 : 0] || o.label]),
+        )
+        const eyeLabels: Record<string, string> = Object.fromEntries(
+            EYE_OPTIONS.map((o) => [o.value, o.label.split(' / ')[lang === 'en' ? 1 : 0] || o.label]),
+        )
+
+        const injectInfo = () => {
+            const rows = document.querySelectorAll<HTMLElement>('tbody tr[data-id]')
+            rows.forEach((row) => {
+                const id = row.getAttribute('data-id') || ''
+                const talent = talentMap.get(id)
+
+                // Clean up previous injections
+                row.querySelector('.coach-badge-injected')?.remove()
+                row.querySelector('.talent-card-info')?.remove()
+
+                if (!talent) return
+
+                // Coach badge
+                if (talent.isCoach) {
+                    const badge = document.createElement('div')
+                    badge.className = 'coach-badge-injected'
+                    badge.textContent = 'Coach'
+                    row.appendChild(badge)
+                }
+
+                // Info bar
+                const m = talent.measurements
+                const infoItems: [string, string][] = []
+
+                if (m?.height) infoItems.push(['↕', m.height])
+                if (m?.hair && hairLabels[m.hair]) infoItems.push(['Hair', hairLabels[m.hair]])
+                if (m?.eyes && eyeLabels[m.eyes]) infoItems.push(['Eyes', eyeLabels[m.eyes]])
+
+                if (infoItems.length > 0) {
+                    const info = document.createElement('div')
+                    info.className = 'talent-card-info'
+                    for (const [label, value] of infoItems) {
+                        const item = document.createElement('span')
+                        item.className = 'info-item'
+                        const lbl = document.createElement('span')
+                        lbl.className = 'info-label'
+                        lbl.textContent = label
+                        const val = document.createElement('span')
+                        val.className = 'info-value'
+                        val.textContent = value
+                        item.append(lbl, val)
+                        info.appendChild(item)
+                    }
+                    row.appendChild(info)
+                }
+            })
+        }
+
+        const timer = setTimeout(injectInfo, 150)
+        const observer = new MutationObserver(() => setTimeout(injectInfo, 80))
+
+        const tbody = document.querySelector('.collection-list tbody')
+        if (tbody) observer.observe(tbody, { childList: true })
+
+        return () => {
+            clearTimeout(timer)
+            observer.disconnect()
+            document.querySelectorAll('.coach-badge-injected, .talent-card-info').forEach((el) => el.remove())
+        }
+    }, [viewMode, talentMap, lang])
+
     const handleTabChange = (category: string) => {
         const params = new URLSearchParams(searchParams.toString())
-        if (category === 'all') {
-            params.delete('where[category][equals]')
-        } else {
+        // Clear both filters first
+        params.delete('where[category][equals]')
+        params.delete('where[isCoach][equals]')
+
+        if (category === 'coach') {
+            params.set('where[isCoach][equals]', 'true')
+        } else if (category !== 'all') {
             params.set('where[category][equals]', category)
         }
         // Reset to first page
@@ -448,6 +667,7 @@ export const TalentsListControls: React.FC = () => {
         params.delete('where[measurements.eyes][in]')
         params.delete('where[heightNum][greater_than_equal]')
         params.delete('where[heightNum][less_than_equal]')
+        params.delete('where[isCoach][equals]')
         params.delete('page')
         setHeightMin('')
         setHeightMax('')
@@ -489,6 +709,7 @@ export const TalentsListControls: React.FC = () => {
                         { id: 'dancer', label: t.dancers },
                         { id: 'model', label: t.models },
                         { id: 'both', label: t.dancerModel },
+                        { id: 'coach', label: t.coaches },
                     ].map((tab) => (
                         <button
                             key={tab.id}

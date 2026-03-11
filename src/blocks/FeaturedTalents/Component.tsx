@@ -3,6 +3,8 @@ import type { FeaturedTalentsBlock as FeaturedTalentsBlockProps } from '@/payloa
 import type { Talent } from '@/payload-types'
 import { FeaturedTalentsCarousel, type TalentItem } from './FeaturedTalentsCarousel'
 import { FeaturedTalentsGrid } from './FeaturedTalentsGrid'
+import { CMSLink } from '@/components/CMSLink'
+import { cn } from '@/utilities/ui'
 
 function isTalentItem(value: unknown): value is TalentItem {
     if (!value || typeof value !== 'object') return false
@@ -52,10 +54,12 @@ type FeaturedTalentsBlockComponentProps = Omit<FeaturedTalentsBlockProps, 'talen
     locale?: string
     randomize?: boolean
     size?: 'normal' | 'hero'
+    backgroundColor?: 'white' | 'muted' | null
 }
 
 export function FeaturedTalentsBlockComponent(props: FeaturedTalentsBlockComponentProps) {
-    const { overline, title, layout, talents: blockTalents, locale, randomize, size } = props
+    const { badge, title, headingLevel, layout, talents: blockTalents, locale, randomize, size, cta, backgroundColor = 'white' } = props
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
 
     let talents: TalentItem[] =
         blockTalents && Array.isArray(blockTalents)
@@ -70,32 +74,49 @@ export function FeaturedTalentsBlockComponent(props: FeaturedTalentsBlockCompone
                   .filter(Boolean) as TalentItem[])
             : []
 
-    // Randomize if flag is set
-    if (randomize && talents.length > 0) {
-        talents = [...talents].sort(() => Math.random() - 0.5)
+    if (randomize && talents.length > 1) {
+        talents = [...talents]
+        for (let i = talents.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[talents[i], talents[j]] = [talents[j], talents[i]]
+        }
     }
+
+    const ctaElement = cta && typeof cta === 'object' && cta.label ? (
+        <div className="mt-10 text-center">
+            <CMSLink {...cta} />
+        </div>
+    ) : null
 
     if (layout === 'grid') {
         return (
-            <FeaturedTalentsGrid
-                talents={talents}
-                overline={overline}
-                title={title}
-                className={props.className}
-                locale={locale}
-            />
+            <section className={cn('section-padding-lg section-atmosphere', bgClass)}>
+                <FeaturedTalentsGrid
+                    talents={talents}
+                    badge={badge}
+                    title={title}
+                    headingLevel={headingLevel}
+                    className={props.className}
+                    locale={locale}
+                />
+                {ctaElement}
+            </section>
         )
     }
 
     return (
-        <FeaturedTalentsCarousel
-            talents={talents}
-            overline={overline}
-            title={title}
-            layout={layout as 'carousel' | 'premium'}
-            size={size as 'normal' | 'hero'}
-            className={props.className}
-            locale={locale}
-        />
+        <section className={cn('section-padding-lg section-atmosphere', bgClass)}>
+            <FeaturedTalentsCarousel
+                talents={talents}
+                badge={badge}
+                title={title}
+                headingLevel={headingLevel}
+                layout={layout as 'carousel' | 'premium'}
+                size={size as 'normal' | 'hero'}
+                className={props.className}
+                locale={locale}
+            />
+            {ctaElement}
+        </section>
     )
 }

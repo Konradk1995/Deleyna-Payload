@@ -7,6 +7,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const InfoCards: Block = {
     slug: 'infoCards',
@@ -43,6 +44,9 @@ export const InfoCards: Block = {
                         description: {
                             de: 'Max. 2 Karten nebeneinander',
                             en: 'Max. 2 cards side by side',
+                        },
+                        components: {
+                            RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
                         },
                     },
                     fields: [
@@ -88,6 +92,7 @@ export const InfoCards: Block = {
                 },
             },
         },
+        ...sectionHeaderFields({ headingLevel: true, description: false }),
         {
             name: 'backgroundColor',
             type: 'select',
@@ -100,29 +105,6 @@ export const InfoCards: Block = {
                 description: {
                     de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
                     en: 'Section background (dark/light mode adapts automatically)',
-                },
-            },
-        },
-        {
-            name: 'tagline',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Kleines Label über der Überschrift, z. B. "WAS UNS AUSZEICHNET"',
-                    en: 'Small label above the headline, e.g. "WHAT SETS US APART"',
-                },
-            },
-        },
-        {
-            name: 'title',
-            type: 'text',
-            required: true,
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Hauptüberschrift, z. B. "5+ Disziplinen. Ein Ziel."',
-                    en: 'Main headline, e.g. "5+ disciplines. One goal."',
                 },
             },
         },
@@ -140,6 +122,9 @@ export const InfoCards: Block = {
                 description: {
                     de: 'Karten mit Icon, Titel, Kurzbeschreibung und optionalem Link (z. B. für "What We Offer")',
                     en: 'Cards with icon, title, short description and optional link (e.g. for "What We Offer")',
+                },
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
                 },
             },
             fields: [

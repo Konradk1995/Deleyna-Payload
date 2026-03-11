@@ -64,7 +64,7 @@ function getLocalizedHref(
 ): string {
   const pathSegment = collectionPaths[collection][locale]
   const safeSlug = encodeURIComponent(String(slug || ''))
-  return `/${locale}/${pathSegment}/${safeSlug}`
+  return `/${pathSegment}/${safeSlug}`
 }
 
 function getDefaultBadge(collection: SupportedCollection, locale: SupportedLocale): string {
@@ -316,7 +316,13 @@ export const SliderBlock: React.FC<SliderBlockProps & { locale?: string }> = asy
   const {
     cardStyle,
     sourceCollection,
-    header,
+    badge,
+    title,
+    titleHighlight,
+    headingLevel,
+    description,
+    cta,
+    backgroundColor,
     itemsLimit = 6,
     sortBy = 'publishedAt',
     badgeField = 'none',
@@ -338,7 +344,7 @@ export const SliderBlock: React.FC<SliderBlockProps & { locale?: string }> = asy
     return null
   }
 
-  if (!header?.heading) {
+  if (!title) {
     return null
   }
 
@@ -364,7 +370,13 @@ export const SliderBlock: React.FC<SliderBlockProps & { locale?: string }> = asy
   return (
     <SliderClient
       cardStyle={cardStyle}
-      header={header}
+      badge={badge}
+      title={title}
+      titleHighlight={titleHighlight}
+      headingLevel={headingLevel}
+      description={description}
+      cta={cta}
+      backgroundColor={backgroundColor}
       items={items}
       sourceCollection={sourceCollection}
       compactFields={compactFields}

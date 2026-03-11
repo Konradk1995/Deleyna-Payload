@@ -54,22 +54,24 @@ const i18n = {
     de: {
         heading: 'Eingesendete Daten',
         uploadedImages: (count: number) => `${count} Bild(er) hochgeladen`,
-        category: {
+        categories: {
             contact: 'Kontakt / Allgemein',
             talent_booking: 'Talent-Anfrage / Buchung',
             become_talent: 'Talent werden',
             job_inquiry: 'Job-Anfrage',
+            class_inquiry: 'Kursanfrage',
             other: 'Sonstiges',
         },
     },
     en: {
         heading: 'Submitted data',
         uploadedImages: (count: number) => `${count} image(s) uploaded`,
-        category: {
+        categories: {
             contact: 'Contact / General',
             talent_booking: 'Talent request / Booking',
             become_talent: 'Become a talent',
             job_inquiry: 'Job inquiry',
+            class_inquiry: 'Class inquiry',
             other: 'Other',
         },
     },
@@ -120,11 +122,12 @@ export const SubmissionDetailView: React.FC = () => {
     }
 
     const categoryColors: Record<string, { bg: string; color: string; label: string }> = {
-        contact: { bg: '#F3F4F6', color: '#374151', label: t.category.contact },
-        talent_booking: { bg: '#EDE9FE', color: '#6D28D9', label: t.category.talent_booking },
-        become_talent: { bg: '#DBEAFE', color: '#1D4ED8', label: t.category.become_talent },
-        job_inquiry: { bg: '#FEF3C7', color: '#B45309', label: t.category.job_inquiry },
-        other: { bg: '#F3F4F6', color: '#6B7280', label: t.category.other },
+        contact: { bg: '#F3F4F6', color: '#374151', label: t.categories.contact },
+        talent_booking: { bg: '#EDE9FE', color: '#6D28D9', label: t.categories.talent_booking },
+        become_talent: { bg: '#DBEAFE', color: '#1D4ED8', label: t.categories.become_talent },
+        job_inquiry: { bg: '#FEF3C7', color: '#B45309', label: t.categories.job_inquiry },
+        class_inquiry: { bg: '#D1FAE5', color: '#065F46', label: t.categories.class_inquiry },
+        other: { bg: '#F3F4F6', color: '#6B7280', label: t.categories.other },
     }
 
     const catConfig = categoryColors[category]

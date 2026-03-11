@@ -25,6 +25,9 @@ export const routing = defineRouting({
       de: '/magazin/[slug]',
       en: '/blog/[slug]',
     },
+    // Jobs routes
+    '/jobs': '/jobs',
+    '/jobs/[slug]': '/jobs/[slug]',
     // Catch-all for all dynamic CMS pages
     '/[...slug]': '/[...slug]',
   },

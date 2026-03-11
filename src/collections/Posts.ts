@@ -40,6 +40,7 @@ export const Posts: CollectionConfig = {
             },
         },
     },
+    defaultSort: '-publishedAt',
     access: {
         read: publishedOrAuthenticated,
         create: adminOrEditor,

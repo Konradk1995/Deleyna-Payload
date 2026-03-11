@@ -11,11 +11,19 @@ export const Users: CollectionConfig = {
         singular: { de: 'Benutzer', en: 'User' },
         plural: { de: 'Benutzer', en: 'Users' },
     },
+    defaultPopulate: {
+        name: true,
+        email: true,
+    },
     admin: {
         useAsTitle: 'email',
         listSearchableFields: ['name', 'email'],
         defaultColumns: ['email', 'name', 'roles', 'createdAt'],
         group: { de: 'Admin', en: 'Admin' },
+        description: {
+            de: 'Administratoren, Redakteure und Benutzer mit Rollen und Zugriffsrechten.',
+            en: 'Administrators, editors and users with roles and access permissions.',
+        },
     },
     auth: {
         tokenExpiration: 7200,
@@ -47,15 +55,10 @@ export const Users: CollectionConfig = {
         },
     },
     access: {
-        // Nur authentifizierte Benutzer können Liste sehen
         read: authenticated,
-        // Nur Admins können neue User erstellen
         create: adminOnly,
-        // Admins können alle bearbeiten, User nur sich selbst
         update: adminOrSelf,
-        // Nur Admins können User löschen
         delete: adminOnly,
-        // Admin-Panel Zugriff
         admin: ({ req: { user } }) => {
             if (!user) return false
             return user.roles?.includes('admin') || user.roles?.includes('editor')
@@ -74,14 +77,13 @@ export const Users: CollectionConfig = {
             hasMany: true,
             defaultValue: ['user'],
             required: true,
-            saveToJWT: true, // Wichtig für Performance - Rollen im JWT speichern
+            saveToJWT: true,
             options: [
                 { label: { de: 'Admin', en: 'Admin' }, value: 'admin' },
                 { label: { de: 'Editor', en: 'Editor' }, value: 'editor' },
                 { label: { de: 'Benutzer', en: 'User' }, value: 'user' },
             ],
             access: {
-                // Nur Admins können Rollen ändern
                 update: ({ req: { user } }) => Boolean(user?.roles?.includes('admin')),
             },
         },

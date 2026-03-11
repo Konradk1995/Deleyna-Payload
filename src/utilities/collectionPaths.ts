@@ -21,6 +21,10 @@ export function getLocalizedSlug(
 /**
  * Build a localized collection path
  */
+/**
+ * Build a localized collection path WITHOUT locale prefix.
+ * The locale prefix is added automatically by next-intl's <Link>.
+ */
 export function buildLocalizedCollectionPath({
     collection,
     slug,
@@ -33,15 +37,14 @@ export function buildLocalizedCollectionPath({
     if (!slug) return ''
 
     const resolvedLocale = resolveLocale(locale)
-    const localePrefix = `/${resolvedLocale}`
 
     if (collection === 'posts' || collection === 'blog') {
-        return `${localePrefix}/${resolvedLocale === 'de' ? 'magazin' : 'blog'}/${slug}`
+        return `/${resolvedLocale === 'de' ? 'magazin' : 'blog'}/${slug}`
     }
 
     if (collection === 'talents') {
-        return `${localePrefix}/${resolvedLocale === 'de' ? 'talente' : 'talents'}/${slug}`
+        return `/${resolvedLocale === 'de' ? 'talente' : 'talents'}/${slug}`
     }
 
-    return slug === 'home' ? localePrefix : `${localePrefix}/${slug}`
+    return slug === 'home' ? '/' : `/${slug}`
 }

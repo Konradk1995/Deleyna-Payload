@@ -7,6 +7,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const StepSection: Block = {
   slug: 'stepSection',
@@ -14,8 +15,8 @@ export const StepSection: Block = {
   imageURL: '/block-previews/step-section.svg',
   imageAltText: 'Card Section: Headline with numbered steps or icon cards',
   labels: {
-    singular: { de: 'Karten-Sektion', en: 'Card section' },
-    plural: { de: 'Karten-Sektionen', en: 'Card sections' },
+    singular: { de: 'Schritte & Karten', en: 'Card section' },
+    plural: { de: 'Schritte & Karten', en: 'Card sections' },
   },
   fields: [
     {
@@ -28,8 +29,10 @@ export const StepSection: Block = {
         { label: { de: 'Flow (Icons mit Pfeilen)', en: 'Flow (icons with arrows)' }, value: 'flow' },
       ],
       admin: {
-        description:
-          'Cards: Number or icon per card. Timeline: Numbered circles with connecting line. Flow: Horizontal icons with arrows.',
+        description: {
+          de: 'Karten: Nummer oder Icon pro Karte. Timeline: Nummerierte Kreise mit Linie. Flow: Horizontale Icons mit Pfeilen.',
+          en: 'Cards: Number or icon per card. Timeline: Numbered circles with connecting line. Flow: Horizontal icons with arrows.',
+        },
       },
     },
     {
@@ -41,11 +44,14 @@ export const StepSection: Block = {
         { label: { de: 'Icons', en: 'Icons' }, value: 'icon' },
       ],
       admin: {
-        description:
-          'Numbers: Large number in card (steps). Icons: Icon image instead of number (overview).',
+        description: {
+          de: 'Zahlen: Große Nummer in der Karte (Schritte). Icons: Icon statt Nummer (Übersicht).',
+          en: 'Numbers: Large number in card (steps). Icons: Icon image instead of number (overview).',
+        },
         condition: (_, siblingData) => siblingData?.layout === 'cards',
       },
     },
+    ...sectionHeaderFields({ headingLevel: true, description: false }),
     {
       name: 'backgroundColor',
       type: 'select',
@@ -54,28 +60,11 @@ export const StepSection: Block = {
         { label: { de: 'Weiß', en: 'White' }, value: 'white' },
         { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
       ],
-      admin: { description: { de: 'Hintergrundfarbe der Section (angepasst an Dark/Light Mode)', en: 'Section background colour (adapts to dark mode)' } },
-    },
-    {
-      name: 'badge',
-      type: 'text',
-      localized: true,
-      admin: { description: { de: 'Kleines Label über der Überschrift', en: 'Small label above the headline' } },
-    },
-    {
-      name: 'headline',
-      type: 'text',
-      localized: true,
       admin: {
-        description: { de: 'Überschrift der Section (H2) — leer lassen zum Ausblenden', en: 'Section headline (H2) — leave empty to hide' },
-      },
-    },
-    {
-      name: 'headlineHighlight',
-      type: 'text',
-      localized: true,
-      admin: {
-        description: { de: 'Wort oder Phrase in der Überschrift in Primärfarbe hervorheben', en: 'Word or phrase to highlight in primary colour within the headline' },
+        description: {
+          de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+          en: 'Section background (dark/light mode adapts automatically)',
+        },
       },
     },
     {
@@ -158,10 +147,14 @@ export const StepSection: Block = {
       ],
       admin: {
         description: { de: 'Einträge der Section (max. 6 für optimale Darstellung)', en: 'Section items (max. 6 for optimal display)' },
+        components: {
+          RowLabel: '@/components/admin/RowLabels#StepRowLabel',
+        },
       },
     },
     link({
       appearances: false,
+      optionalLink: true,
       overrides: {
         name: 'cta',
         label: { de: 'CTA-Button', en: 'CTA button' },

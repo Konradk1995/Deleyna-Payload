@@ -278,20 +278,6 @@ export interface SearchAction {
 }
 
 // ============================================
-// Canonical Configuration
-// ============================================
-
-export interface CanonicalConfig {
-    baseUrl: string
-    forceHttps: boolean
-    removeTrailingSlash: boolean
-    removeDuplicateSlashes: boolean
-    removeIndexHtml: boolean
-    forceWww: boolean
-    preferredDomain?: string
-}
-
-// ============================================
 // Default Values
 // ============================================
 
@@ -330,14 +316,6 @@ export const DEFAULT_SITEMAP_CONFIG: SitemapSettings = {
     additionalSitemaps: [],
 }
 
-export const DEFAULT_CANONICAL_CONFIG: CanonicalConfig = {
-    baseUrl: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
-    forceHttps: true,
-    removeTrailingSlash: true,
-    removeDuplicateSlashes: true,
-    removeIndexHtml: true,
-    forceWww: false,
-}
 
 export const DEFAULT_AI_CRAWLERS: AIAndCrawlersSettings = {
     allowAITraining: true,

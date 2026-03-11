@@ -3,9 +3,11 @@ import type { Block } from 'payload'
 export const MarqueeBannerBlock: Block = {
     slug: 'marqueeBanner',
     interfaceName: 'MarqueeBannerBlock',
+    imageURL: '/block-previews/marquee-banner.svg',
+    imageAltText: 'Scrolling marquee text banner',
     labels: {
-        singular: { de: 'Marquee Banner', en: 'Marquee Banner' },
-        plural: { de: 'Marquee Banner', en: 'Marquee Banners' },
+        singular: { de: 'Laufband', en: 'Marquee Banner' },
+        plural: { de: 'Laufbänder', en: 'Marquee Banners' },
     },
     fields: [
         {

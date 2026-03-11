@@ -32,7 +32,7 @@ const buttonVariants = cva(
                 secondary:
                     'border border-border/70 bg-card text-card-foreground hover:bg-muted hover:-translate-y-0.5 hover:shadow-lg hover:shadow-copper/15 active:translate-y-0 active:scale-95',
                 outline:
-                    'glass-morphism border border-border/40 bg-background/75 text-foreground hover:bg-foreground/6 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-copper/15 active:translate-y-0 active:scale-95',
+                    'border border-border/40 bg-background/75 text-foreground backdrop-blur-[20px] hover:bg-foreground/6 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-copper/15 active:translate-y-0 active:scale-95',
                 ghost: 'bg-transparent hover:bg-foreground/8 hover:text-foreground',
                 link: 'text-foreground underline-offset-4 hover:underline',
                 destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',

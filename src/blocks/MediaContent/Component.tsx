@@ -4,13 +4,16 @@ import { CMSLink } from '@/components/CMSLink'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 import { ScrollFadeIn } from '@/components/ScrollFadeIn'
+import { SectionHeader } from '@/components/SectionHeader'
 import { cn } from '@/utilities/ui'
 
-export const MediaContentBlock: React.FC<MediaContentBlockProps> = (props) => {
-    const { layout = 'mediaLeft', media, tagline, headline, body, links } = props
+export const MediaContentBlock: React.FC<MediaContentBlockProps & { backgroundColor?: 'white' | 'muted' | null }> = (props) => {
+    const { layout = 'mediaLeft', media, badge, title, titleHighlight, headingLevel, body, links, backgroundColor = 'white' } = props as MediaContentBlockProps & { backgroundColor?: 'white' | 'muted' | null }
+
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
 
     return (
-        <section className="section-padding-lg section-atmosphere relative">
+        <section className={cn('section-padding-lg section-atmosphere relative', bgClass)}>
             <div
                 aria-hidden
                 className="pointer-events-none absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-copper/9 blur-[110px]"
@@ -31,6 +34,7 @@ export const MediaContentBlock: React.FC<MediaContentBlockProps> = (props) => {
                         <div className="surface-pill overflow-hidden border border-border/70 shadow-copper-glow">
                             <Media
                                 resource={media}
+                                size="(max-width: 1024px) 100vw, 50vw"
                                 className="aspect-[4/3] w-full object-cover md:aspect-video lg:aspect-[4/5]"
                                 imgClassName="object-cover w-full h-full transition-transform duration-700 hover:scale-105"
                             />
@@ -48,14 +52,15 @@ export const MediaContentBlock: React.FC<MediaContentBlockProps> = (props) => {
                         animation={layout === 'mediaLeft' ? 'fade-left' : 'fade-right'}
                         className={cn(layout === 'mediaRight' && 'lg:order-1')}
                     >
-                        {tagline && (
-                            <span className="overline-copper mb-4 block animate-reveal">
-                                {tagline}
-                            </span>
-                        )}
-                        <h2 className="mb-6 max-w-2xl font-display-tight font-heading-3-bold leading-[1.1] tracking-tight text-balance chrome-text hyphens-auto [overflow-wrap:anywhere] pb-[0.03em]">
-                            {headline}
-                        </h2>
+                        <SectionHeader
+                            overline={badge ?? undefined}
+                            title={title || ''}
+                            titleHighlight={titleHighlight ?? undefined}
+                            as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
+                            centered={false}
+                            titleClassName="chrome-text"
+                            className="mb-0"
+                        />
                         {body && (
                             <div className="font-medium-text-regular text-muted-foreground mb-10 [&_p]:mb-4 last:[&_p]:mb-0 hyphens-auto">
                                 <RichText data={body} enableGutter={false} />

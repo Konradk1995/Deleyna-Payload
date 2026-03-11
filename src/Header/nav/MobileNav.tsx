@@ -28,7 +28,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     className = '',
 }) => {
     const pathname = usePathname()
-    const navRef = useRef<HTMLDivElement | null>(null)
+    const wrapperRef = useRef<HTMLDivElement | null>(null)
     const [isExpanded, setIsExpanded] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
 
@@ -75,7 +75,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             if (window.innerWidth >= 1024) return
 
             const target = event.target as Node
-            if (navRef.current && !navRef.current.contains(target)) {
+            if (wrapperRef.current && !wrapperRef.current.contains(target)) {
                 closeMenu()
             }
         }
@@ -94,22 +94,26 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
     const hasControls = Boolean(languageSwitcher)
 
+    const isElevated = isExpanded || isScrolled
+
     return (
-        <div className={`card-nav-container lg:hidden w-full ${className}`}>
-            <motion.nav
-                ref={navRef}
-                initial={false}
-                animate={{ height: isExpanded ? 'auto' : 60 }}
+        <div ref={wrapperRef} className={`card-nav-container lg:hidden w-full ${className}`}>
+            {/*
+             * The top bar lives OUTSIDE the overflow-hidden motion container
+             * so the dancefloor dropdown is not clipped by the animation container.
+             */}
+            <div
                 className={cn(
-                    'card-nav block h-[60px] max-w-[calc(100vw-2rem)] p-0 relative overflow-hidden will-change-[height] mx-4 mt-3 rounded-[1.2rem] border transition duration-300',
+                    'relative z-10 mx-4 mt-3 rounded-t-[1.2rem] transition duration-300',
                     'supports-[backdrop-filter]:backdrop-blur-xl',
-                    isExpanded || isScrolled
-                        ? 'open border-border/70 bg-background/94 shadow-[0_12px_34px_rgb(0_0_0/0.2)] supports-[backdrop-filter]:bg-background/72'
-                        : 'border-border/55 bg-background/86 shadow-[0_8px_24px_rgb(0_0_0/0.15)] supports-[backdrop-filter]:bg-background/58',
+                    isElevated
+                        ? 'bg-background/94 supports-[backdrop-filter]:bg-background/72'
+                        : 'bg-background/86 supports-[backdrop-filter]:bg-background/58',
+                    !isExpanded && 'rounded-b-[1.2rem] shadow-[0_4px_16px_rgb(0_0_0/0.06)]',
+                    isElevated && !isExpanded && 'shadow-[0_8px_24px_rgb(0_0_0/0.10)]',
                 )}
             >
-                {/* Top bar: logo + CTA + hamburger */}
-                <div className="card-nav-top relative h-[60px] flex items-center justify-between px-4 z-[10]">
+                <div className="card-nav-top h-[60px] flex items-center justify-between px-4">
                     <div className="logo-container flex items-center flex-shrink-0">{logo}</div>
 
                     <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -120,11 +124,23 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                         <HamburgerButton isOpen={isExpanded} onToggle={toggleMenu} />
                     </div>
                 </div>
+            </div>
 
-                {/* Expanded menu content */}
+            {/* Expandable menu content — overflow-hidden for animation only */}
+            <motion.nav
+                initial={false}
+                animate={{ height: isExpanded ? 'auto' : 0 }}
+                className={cn(
+                    'relative z-[9] mx-4 -mt-px overflow-hidden rounded-b-[1.2rem] transition-colors duration-300',
+                    'supports-[backdrop-filter]:backdrop-blur-xl',
+                    isElevated
+                        ? 'bg-background/94 shadow-[0_12px_34px_rgb(0_0_0/0.15)] supports-[backdrop-filter]:bg-background/72'
+                        : 'bg-background/86 shadow-[0_8px_24px_rgb(0_0_0/0.10)] supports-[backdrop-filter]:bg-background/58',
+                )}
+            >
                 <div
                     className={cn(
-                        'card-nav-content relative border-t border-border/50 padding-small pb-[calc(env(safe-area-inset-bottom)+var(--space-md))] flex flex-col gap-medium z-[5] overflow-y-auto overflow-x-hidden',
+                        'card-nav-content border-t border-border/20 padding-small pb-[calc(env(safe-area-inset-bottom)+var(--space-md))] flex flex-col gap-medium overflow-y-auto overflow-x-hidden',
                         isExpanded
                             ? 'opacity-100 pointer-events-auto transition-opacity duration-300'
                             : 'opacity-0 pointer-events-none',
@@ -177,7 +193,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
                     {/* Navigation cards */}
                     {cardItems.length > 0 && (
-                        <div className="flex flex-col gap-medium md:[grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] md:grid md:auto-rows-min">
+                        <div className="flex flex-col gap-medium md:[grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] md:grid md:auto-rows-[1fr]">
                             {cardItems.map((item, idx) => (
                                 <motion.div
                                     initial={{ opacity: 0, y: 16 }}
@@ -190,6 +206,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                                         delay: isExpanded ? (simpleItems.length + idx) * 0.04 : 0,
                                     }}
                                     key={item.id || `${item.label}-${idx}`}
+                                    className="flex"
                                 >
                                     <NavCard item={item} variant="mobile" onClose={closeMenu} />
                                 </motion.div>

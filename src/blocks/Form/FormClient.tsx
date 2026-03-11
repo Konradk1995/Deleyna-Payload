@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { submitFormAction } from '@/app/(frontend)/actions/form-submit'
 import RichText from '@/components/RichText'
 import { TurnstileWidget } from '@/components/Turnstile'
+import { useSelection } from '@/providers/Dancefloor'
 import { fields } from './fields'
 import { localizeOptionLabel } from './localizeOptionLabel'
 
@@ -185,6 +186,8 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
         [locale, submitButtonLabel],
     )
 
+    const { talents, clearSelection } = useSelection()
+
     const formMethods = useForm({
         defaultValues,
         mode: 'onBlur',
@@ -195,6 +198,7 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
         handleSubmit,
         register,
         reset,
+        setValue,
         trigger,
     } = formMethods
 
@@ -205,6 +209,7 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
     const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
     const formTopRef = useRef<HTMLDivElement | null>(null)
+    const successRef = useRef<HTMLDivElement | null>(null)
     const previousStepRef = useRef(0)
 
     const isMultiStep = steps.length > 1
@@ -227,6 +232,12 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
         formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         previousStepRef.current = currentStepIndex
     }, [currentStepIndex])
+
+    useEffect(() => {
+        if (hasSubmitted) {
+            successRef.current?.focus()
+        }
+    }, [hasSubmitted])
 
     useEffect(() => {
         setPageUrl(window.location.href)
@@ -289,6 +300,12 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
 
                 setHasSubmitted(true)
 
+                // Clear Dancefloor only if this form has a TalentSelection field (= booking form)
+                const hasTalentField = rawFields.some((f) => f.blockType === 'talentSelection')
+                if (hasTalentField && talents.length > 0) {
+                    clearSelection()
+                }
+
                 if (confirmationType === 'redirect' && redirect?.url) {
                     router.push(redirect.url)
                 }
@@ -299,12 +316,15 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
             }
         },
         [
+            clearSelection,
             confirmationType,
             formID,
             locale,
+            rawFields,
             redirect,
             router,
             t.errorGeneric,
+            talents.length,
             turnstileToken,
             TURNSTILE_ENABLED,
         ],
@@ -322,7 +342,13 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
     const formContent = (
         <FormProvider {...formMethods}>
             {!isLoading && hasSubmitted && confirmationType === 'message' && (
-                <div className="flex flex-col items-center justify-center padding-large text-center animate-in fade-in zoom-in-95 duration-500">
+                <div
+                    ref={successRef}
+                    tabIndex={-1}
+                    role="status"
+                    aria-live="polite"
+                    className="flex flex-col items-center justify-center padding-large text-center animate-in fade-in zoom-in-95 duration-500"
+                >
                     <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-copper shadow-copper-glow">
                         <Check className="h-10 w-10 text-on-media" />
                     </div>
@@ -507,7 +533,7 @@ export const FormClient: React.FC<FormClientProps> = (props) => {
             )}
 
             {wrapWithCard ? (
-                <div className="surface-pill rounded-[2rem] border border-border/70 bg-background/85 padding-large shadow-copper-glow backdrop-blur-md">
+                <div className="surface-pill rounded-[var(--block-radius-xl)] border border-border/70 bg-background/85 padding-large shadow-copper-glow backdrop-blur-md">
                     {formContent}
                 </div>
             ) : (

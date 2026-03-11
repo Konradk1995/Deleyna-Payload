@@ -43,6 +43,7 @@ export const Pages: CollectionConfig = {
             },
         },
     },
+    defaultSort: '-updatedAt',
     access: {
         read: publishedOrAuthenticated,
         create: adminOrEditor,
@@ -114,7 +115,7 @@ export const Pages: CollectionConfig = {
                     en: 'Parent page for breadcrumbs',
                 },
             },
-            // Nur beim Bearbeiten filtern (eigene Seite ausschließen). Beim Create ist id undefined – dann true (alle anzeigen), sonst hängt die Admin-UI.
+            // Exclude self from parent options (id is undefined during create → show all)
             filterOptions: ({ id }) => (id != null ? { id: { not_equals: id } } : true),
         },
         {

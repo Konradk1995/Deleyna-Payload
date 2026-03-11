@@ -33,6 +33,11 @@ const categoryConfig: Record<
         bg: '#FEF3C7',
         color: '#B45309',
     },
+    class_inquiry: {
+        label: { de: 'Kursanfrage', en: 'Class inquiry' },
+        bg: '#D1FAE5',
+        color: '#065F46',
+    },
     other: {
         label: { de: 'Sonstiges', en: 'Other' },
         bg: 'var(--theme-elevation-100)',

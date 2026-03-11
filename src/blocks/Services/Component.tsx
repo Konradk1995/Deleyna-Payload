@@ -1,9 +1,31 @@
 import React from 'react'
-import { Users, Calendar, Handshake, Globe } from 'lucide-react'
+import {
+    Users,
+    Calendar,
+    Handshake,
+    Globe,
+    Camera,
+    Megaphone,
+    Star,
+    Heart,
+    Lightbulb,
+    Rocket,
+    Shield,
+    Award,
+    TrendingUp,
+    Briefcase,
+    Sparkles,
+    Headset,
+    Network,
+    Palette,
+    Music,
+    Target,
+} from 'lucide-react'
 import type { ServicesBlock as ServicesBlockProps } from '@/payload-types'
 import { SectionHeader } from '@/components/SectionHeader'
 import { ServiceCard } from '@/components/ServiceCard'
 import { ScrollFadeIn } from '@/components/ScrollFadeIn'
+import { CMSLink } from '@/components/CMSLink'
 import { cn } from '@/utilities/ui'
 
 const iconMap = {
@@ -11,15 +33,33 @@ const iconMap = {
     calendar: Calendar,
     handshake: Handshake,
     globe: Globe,
+    camera: Camera,
+    megaphone: Megaphone,
+    star: Star,
+    heart: Heart,
+    lightbulb: Lightbulb,
+    rocket: Rocket,
+    shield: Shield,
+    award: Award,
+    'trending-up': TrendingUp,
+    briefcase: Briefcase,
+    sparkles: Sparkles,
+    headset: Headset,
+    network: Network,
+    palette: Palette,
+    music: Music,
+    target: Target,
 }
 
 export const ServicesBlockComponent: React.FC<
     ServicesBlockProps & { id?: string; className?: string }
-> = ({ overline, title, description, services, className }) => {
+> = ({ badge, title, description, headingLevel, services, cta, backgroundColor = 'white', className }) => {
     if (!title || !services?.length) return null
 
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
+
     return (
-        <section className={cn('padding-large section-atmosphere relative', className)}>
+        <section className={cn('section-padding-lg section-atmosphere relative', bgClass, className)}>
             {/* Animated Background Blobs */}
             <div
                 aria-hidden
@@ -33,9 +73,10 @@ export const ServicesBlockComponent: React.FC<
             <div className="container relative z-10">
                 <ScrollFadeIn animation="fade-up">
                     <SectionHeader
-                        overline={overline ?? undefined}
+                        overline={badge ?? undefined}
                         title={title}
                         description={description ?? undefined}
+                        as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                         titleClassName="chrome-text"
                         size="lg"
                     />
@@ -55,6 +96,11 @@ export const ServicesBlockComponent: React.FC<
                             )
                         })}
                     </div>
+                    {cta && typeof cta === 'object' && cta.label && (
+                        <div className="mt-10 text-center">
+                            <CMSLink {...cta} />
+                        </div>
+                    )}
                 </ScrollFadeIn>
             </div>
         </section>

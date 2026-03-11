@@ -11,6 +11,7 @@ import { State } from './State'
 import { Text } from './Text'
 import { Textarea } from './Textarea'
 import { TalentSelection } from './TalentSelection'
+import { ClassSelection } from './ClassSelection'
 import { ImageUpload } from './ImageUpload'
 
 export const fields = {
@@ -27,5 +28,6 @@ export const fields = {
     text: Text,
     textarea: Textarea,
     talentSelection: TalentSelection,
+    classSelection: ClassSelection,
     imageUpload: ImageUpload,
 }

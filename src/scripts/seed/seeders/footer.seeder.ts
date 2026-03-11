@@ -183,16 +183,22 @@ function buildFooterData(
                         existingRows?.columns?.[2]?.links?.[1]?.id,
                         pageOrUrlLink(refs.contactPageId, '/contact', localized.infoContact),
                     ),
+                    withId(existingRows?.columns?.[2]?.links?.[2]?.id, {
+                        label: 'Jobs',
+                        page: null,
+                        url: '/jobs',
+                        newTab: false,
+                    }),
                     withId(
-                        existingRows?.columns?.[2]?.links?.[2]?.id,
+                        existingRows?.columns?.[2]?.links?.[3]?.id,
                         pageOrUrlLink(refs.privacyPageId, '/privacy', localized.infoPrivacy),
                     ),
                     withId(
-                        existingRows?.columns?.[2]?.links?.[3]?.id,
+                        existingRows?.columns?.[2]?.links?.[4]?.id,
                         pageOrUrlLink(refs.imprintPageId, '/imprint', localized.infoImprint),
                     ),
                     withId(
-                        existingRows?.columns?.[2]?.links?.[4]?.id,
+                        existingRows?.columns?.[2]?.links?.[5]?.id,
                         pageOrUrlLink(refs.agbPageId, '/agb', localized.infoTerms),
                     ),
                 ],

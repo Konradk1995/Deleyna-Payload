@@ -22,12 +22,22 @@ import { RelationshipFeatureClient as RelationshipFeatureClient_e70f5e05f09f93e0
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { CaptionRowLabel as CaptionRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { QuestionRowLabel as QuestionRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { LinkRowLabel as LinkRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { TitleRowLabel as TitleRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { StepRowLabel as StepRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { StatRowLabel as StatRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { MemberRowLabel as MemberRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { ClassRowLabel as ClassRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { TestimonialRowLabel as TestimonialRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
 import { ViewOnSite as ViewOnSite_240624d6fd9a33aa4972643cc4e1cee3 } from '@/components/admin/ViewOnSite'
 import { WebPConvertButton as WebPConvertButton_39cfc7e9fcfefee284d4063b533a1155 } from '@/components/admin/WebPConvertButton'
 import { FolderTableCell as FolderTableCell_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { FolderField as FolderField_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { ConvertAllWebPButton as ConvertAllWebPButton_de5ca2287f8009c71a680fcd74f77c60 } from '@/components/admin/ConvertAllWebPButton'
 import { TalentCategoryCell as TalentCategoryCell_ca501b15d00465361ca0e57d0045b1fa } from '@/components/admin/TalentCategoryCell'
+import { ExperienceRowLabel as ExperienceRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
 import { FeaturedBadgeCell as FeaturedBadgeCell_a36c6dc11a7ae93e14d1ced19942443a } from '@/components/admin/FeaturedBadgeCell'
 import { TalentsListControls as TalentsListControls_8d5fd62765553b33a4b281900868665a } from '@/components/admin/TalentsListControls'
 import { SedcardDownloadButton as SedcardDownloadButton_3ae8fe68d3fa7d1411adbb83afddc633 } from '@/components/admin/SedcardDownloadButton'
@@ -41,6 +51,8 @@ import { RejectTalentButton as RejectTalentButton_1d48509844e709599c97917bc896f1
 import { ApplicationStatusCell as ApplicationStatusCell_f01f6c87d8d9d05a4a41d2d5fc1596f3 } from '@/components/FormSubmissions/ApplicationStatusCell'
 import { FormSubmissionsListControls as FormSubmissionsListControls_bb3318b0e0b295b11ee5108ff20270b7 } from '@/components/admin/FormSubmissionsListControls'
 import { FolderTypeField as FolderTypeField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { NavCardRowLabel as NavCardRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
+import { PlatformRowLabel as PlatformRowLabel_602181e9d445b98d48bce238807017cb } from '@/components/admin/RowLabels'
 import { NotionExportPanel as NotionExportPanel_7ec2cbb7d9bcc8ecad29ad0f61d83a4c } from '@/components/admin/NotionExportPanel'
 import { default as default_8ac72f392134538140c9d9a8f99a94c1 } from '@/components/admin/FormSubmissionBanner'
 import { AdminIcon as AdminIcon_534076e2c753ea5d539a54b05f456b1b } from '@/components/admin/Icon'
@@ -74,12 +86,22 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UploadFeatureClient": UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/components/admin/RowLabels#CaptionRowLabel": CaptionRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#QuestionRowLabel": QuestionRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#LinkRowLabel": LinkRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#TitleRowLabel": TitleRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#StepRowLabel": StepRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#StatRowLabel": StatRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#MemberRowLabel": MemberRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#ClassRowLabel": ClassRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#TestimonialRowLabel": TestimonialRowLabel_602181e9d445b98d48bce238807017cb,
   "@/components/admin/ViewOnSite#ViewOnSite": ViewOnSite_240624d6fd9a33aa4972643cc4e1cee3,
   "@/components/admin/WebPConvertButton#WebPConvertButton": WebPConvertButton_39cfc7e9fcfefee284d4063b533a1155,
   "@payloadcms/ui/rsc#FolderTableCell": FolderTableCell_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#FolderField": FolderField_ab83ff7e88da8d3530831f296ec4756a,
   "@/components/admin/ConvertAllWebPButton#ConvertAllWebPButton": ConvertAllWebPButton_de5ca2287f8009c71a680fcd74f77c60,
   "@/components/admin/TalentCategoryCell#TalentCategoryCell": TalentCategoryCell_ca501b15d00465361ca0e57d0045b1fa,
+  "@/components/admin/RowLabels#ExperienceRowLabel": ExperienceRowLabel_602181e9d445b98d48bce238807017cb,
   "@/components/admin/FeaturedBadgeCell#FeaturedBadgeCell": FeaturedBadgeCell_a36c6dc11a7ae93e14d1ced19942443a,
   "@/components/admin/TalentsListControls#TalentsListControls": TalentsListControls_8d5fd62765553b33a4b281900868665a,
   "@/components/admin/SedcardDownloadButton#SedcardDownloadButton": SedcardDownloadButton_3ae8fe68d3fa7d1411adbb83afddc633,
@@ -93,6 +115,8 @@ export const importMap = {
   "@/components/FormSubmissions/ApplicationStatusCell#ApplicationStatusCell": ApplicationStatusCell_f01f6c87d8d9d05a4a41d2d5fc1596f3,
   "@/components/admin/FormSubmissionsListControls#FormSubmissionsListControls": FormSubmissionsListControls_bb3318b0e0b295b11ee5108ff20270b7,
   "@payloadcms/ui#FolderTypeField": FolderTypeField_3817bf644402e67bfe6577f60ef982de,
+  "@/components/admin/RowLabels#NavCardRowLabel": NavCardRowLabel_602181e9d445b98d48bce238807017cb,
+  "@/components/admin/RowLabels#PlatformRowLabel": PlatformRowLabel_602181e9d445b98d48bce238807017cb,
   "@/components/admin/NotionExportPanel#NotionExportPanel": NotionExportPanel_7ec2cbb7d9bcc8ecad29ad0f61d83a4c,
   "@/components/admin/FormSubmissionBanner#default": default_8ac72f392134538140c9d9a8f99a94c1,
   "@/components/admin/Icon#AdminIcon": AdminIcon_534076e2c753ea5d539a54b05f456b1b,

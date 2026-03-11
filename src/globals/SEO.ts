@@ -167,6 +167,11 @@ export const SEO: GlobalConfig = {
                                     type: 'array',
                                     label: { de: 'Social-Media-Profile', en: 'Social media profiles' },
                                     maxRows: 10,
+                                    admin: {
+                                        components: {
+                                            RowLabel: '@/components/admin/RowLabels#PlatformRowLabel',
+                                        },
+                                    },
                                     fields: [
                                         {
                                             name: 'platform',

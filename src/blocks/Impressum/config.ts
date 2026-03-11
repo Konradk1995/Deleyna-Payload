@@ -12,16 +12,21 @@ export const Impressum: Block = {
     imageURL: '/block-previews/impressum.svg',
     imageAltText: 'Impressum: Unternehmensangaben, Anschrift, Kontakt, Vertretung',
     labels: {
-        singular: 'Impressum',
-        plural: 'Impressum',
+        singular: { de: 'Impressum', en: 'Imprint' },
+        plural: { de: 'Impressum', en: 'Imprints' },
     },
     fields: [
         {
             type: 'collapsible',
-            label: 'Überschriften (optional – leer = deutsche Standard-Texte)',
+            label: {
+                de: 'Überschriften (optional – leer = deutsche Standard-Texte)',
+                en: 'Headings (optional – empty = German defaults)',
+            },
             admin: {
-                description:
-                    'Alle Überschriften sind pro Sprache editierbar. Leer lassen = Standard-Anzeige (DE).',
+                description: {
+                    de: 'Alle Überschriften sind pro Sprache editierbar. Leer lassen = Standard-Anzeige (DE).',
+                    en: 'All headings are editable per language. Leave empty = default display (DE).',
+                },
                 initCollapsed: true,
             },
             fields: [
@@ -29,66 +34,111 @@ export const Impressum: Block = {
                     name: 'headingCompany',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Unternehmensangaben" / "Company Information"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Unternehmensangaben"',
+                            en: 'e.g. "Company Information"',
+                        },
+                    },
                 },
                 {
                     name: 'headingContact',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Kontakt" / "Contact"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Kontakt"',
+                            en: 'e.g. "Contact"',
+                        },
+                    },
                 },
                 {
                     name: 'headingRepresentatives',
                     type: 'text',
                     localized: true,
                     admin: {
-                        description: 'z.B. "Vertretungsberechtigte" / "Authorized Representatives"',
+                        description: {
+                            de: 'z.B. "Vertretungsberechtigte"',
+                            en: 'e.g. "Authorized Representatives"',
+                        },
                     },
                 },
                 {
                     name: 'headingRegister',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Registereintrag" / "Register Entry"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Registereintrag"',
+                            en: 'e.g. "Register Entry"',
+                        },
+                    },
                 },
                 {
                     name: 'headingContentResponsible',
                     type: 'text',
                     localized: true,
                     admin: {
-                        description:
-                            'z.B. "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV" (langer Titel)',
+                        description: {
+                            de: 'z.B. "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV"',
+                            en: 'e.g. "Responsible for content according to § 55 para. 2 RStV"',
+                        },
                     },
                 },
                 {
                     name: 'headingDisclaimer',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Haftungsausschluss" / "Disclaimer"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Haftungsausschluss"',
+                            en: 'e.g. "Disclaimer"',
+                        },
+                    },
                 },
                 {
                     name: 'headingLiabilityContent',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Haftung für Inhalte" / "Liability for Content"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Haftung für Inhalte"',
+                            en: 'e.g. "Liability for Content"',
+                        },
+                    },
                 },
                 {
                     name: 'headingLiabilityLinks',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Haftung für Links" / "Liability for Links"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Haftung für Links"',
+                            en: 'e.g. "Liability for Links"',
+                        },
+                    },
                 },
                 {
                     name: 'headingCopyright',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "Urheberrecht" / "Copyright"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "Urheberrecht"',
+                            en: 'e.g. "Copyright"',
+                        },
+                    },
                 },
                 {
                     name: 'headingEuDispute',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'z.B. "EU-Streitschlichtung" / "EU Dispute Resolution"' },
+                    admin: {
+                        description: {
+                            de: 'z.B. "EU-Streitschlichtung"',
+                            en: 'e.g. "EU Dispute Resolution"',
+                        },
+                    },
                 },
             ],
         },
@@ -100,14 +150,28 @@ export const Impressum: Block = {
                     type: 'text',
                     required: true,
                     localized: true,
-                    admin: { description: 'Unternehmensangaben – Firmenname', width: '50%' },
+                    label: { de: 'Firmenname', en: 'Company name' },
+                    admin: {
+                        description: {
+                            de: 'Unternehmensangaben – Firmenname',
+                            en: 'Company information – company name',
+                        },
+                        width: '50%',
+                    },
                 },
                 {
                     name: 'street',
                     type: 'text',
                     required: true,
                     localized: true,
-                    admin: { description: 'Straße und Hausnummer', width: '50%' },
+                    label: { de: 'Straße', en: 'Street' },
+                    admin: {
+                        description: {
+                            de: 'Straße und Hausnummer',
+                            en: 'Street and house number',
+                        },
+                        width: '50%',
+                    },
                 },
             ],
         },
@@ -119,14 +183,28 @@ export const Impressum: Block = {
                     type: 'text',
                     required: true,
                     localized: true,
-                    admin: { description: 'PLZ', width: '25%' },
+                    label: { de: 'PLZ', en: 'Postal code' },
+                    admin: {
+                        description: {
+                            de: 'Postleitzahl',
+                            en: 'Postal code',
+                        },
+                        width: '25%',
+                    },
                 },
                 {
                     name: 'city',
                     type: 'text',
                     required: true,
                     localized: true,
-                    admin: { description: 'Ort', width: '25%' },
+                    label: { de: 'Ort', en: 'City' },
+                    admin: {
+                        description: {
+                            de: 'Ort / Stadt',
+                            en: 'City / town',
+                        },
+                        width: '25%',
+                    },
                 },
                 {
                     name: 'country',
@@ -134,38 +212,63 @@ export const Impressum: Block = {
                     required: true,
                     localized: true,
                     defaultValue: 'Deutschland',
-                    admin: { description: 'Land', width: '50%' },
+                    label: { de: 'Land', en: 'Country' },
+                    admin: {
+                        description: {
+                            de: 'Land',
+                            en: 'Country',
+                        },
+                        width: '50%',
+                    },
                 },
             ],
         },
         {
             type: 'collapsible',
-            label: 'Kontakt',
+            label: { de: 'Kontakt', en: 'Contact' },
             admin: { initCollapsed: false },
             fields: [
                 {
                     name: 'phone',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'Telefon (z.B. +49 30 123 456 789)' },
+                    label: { de: 'Telefon', en: 'Phone' },
+                    admin: {
+                        description: {
+                            de: 'Telefonnummer (z.B. +49 30 123 456 789)',
+                            en: 'Phone number (e.g. +49 30 123 456 789)',
+                        },
+                    },
                 },
                 {
                     name: 'email',
                     type: 'email',
                     localized: true,
-                    admin: { description: 'E-Mail' },
+                    label: { de: 'E-Mail', en: 'Email' },
+                    admin: {
+                        description: {
+                            de: 'E-Mail-Adresse',
+                            en: 'Email address',
+                        },
+                    },
                 },
                 {
                     name: 'website',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'Website (z.B. www.weess.energy)' },
+                    label: { de: 'Website', en: 'Website' },
+                    admin: {
+                        description: {
+                            de: 'Website (z.B. www.deleyna.com)',
+                            en: 'Website (e.g. www.deleyna.com)',
+                        },
+                    },
                 },
             ],
         },
         {
             type: 'collapsible',
-            label: 'Vertretungsberechtigte',
+            label: { de: 'Vertretungsberechtigte', en: 'Authorized Representatives' },
             admin: { initCollapsed: false },
             fields: [
                 {
@@ -173,13 +276,19 @@ export const Impressum: Block = {
                     type: 'text',
                     defaultValue: 'Geschäftsführer:',
                     localized: true,
-                    admin: { description: 'Überschrift (z.B. Geschäftsführer:)' },
+                    label: { de: 'Bezeichnung', en: 'Label' },
+                    admin: {
+                        description: {
+                            de: 'Überschrift (z.B. Geschäftsführer:)',
+                            en: 'Label (e.g. Managing Director:)',
+                        },
+                    },
                 },
                 {
                     name: 'representativesNames',
                     type: 'array',
                     minRows: 1,
-                    labels: { singular: 'Name', plural: 'Namen' },
+                    labels: { singular: { de: 'Name', en: 'Name' }, plural: { de: 'Namen', en: 'Names' } },
                     fields: [
                         {
                             name: 'name',
@@ -188,38 +297,67 @@ export const Impressum: Block = {
                             localized: true,
                         },
                     ],
-                    admin: { description: 'Namen der vertretungsberechtigten Personen' },
+                    admin: {
+                        description: {
+                            de: 'Namen der vertretungsberechtigten Personen',
+                            en: 'Names of authorized representatives',
+                        },
+                        components: {
+                            RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
+                        },
+                    },
                 },
             ],
         },
         {
             type: 'collapsible',
-            label: 'Registereintrag',
+            label: { de: 'Registereintrag', en: 'Register Entry' },
             admin: { initCollapsed: false },
             fields: [
                 {
                     name: 'registerCourt',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'Registergericht (z.B. Amtsgericht Charlottenburg)' },
+                    label: { de: 'Registergericht', en: 'Register court' },
+                    admin: {
+                        description: {
+                            de: 'Registergericht (z.B. Amtsgericht Charlottenburg)',
+                            en: 'Register court (e.g. Amtsgericht Charlottenburg)',
+                        },
+                    },
                 },
                 {
                     name: 'registerNumber',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'Registernummer (z.B. HRB 123456 B)' },
+                    label: { de: 'Registernummer', en: 'Register number' },
+                    admin: {
+                        description: {
+                            de: 'Registernummer (z.B. HRB 123456 B)',
+                            en: 'Register number (e.g. HRB 123456 B)',
+                        },
+                    },
                 },
                 {
                     name: 'vatId',
                     type: 'text',
                     localized: true,
-                    admin: { description: 'USt-IdNr. (z.B. DE123456789)' },
+                    label: { de: 'USt-IdNr.', en: 'VAT ID' },
+                    admin: {
+                        description: {
+                            de: 'USt-IdNr. (z.B. DE123456789)',
+                            en: 'VAT ID (e.g. DE123456789)',
+                        },
+                    },
                 },
             ],
         },
         {
             type: 'collapsible',
-            label: 'Verantwortlich für den Inhalt (§ 55 Abs. 2 RStV)',
+            label: {
+                de: 'Verantwortlich für den Inhalt (§ 55 Abs. 2 RStV)',
+                en: 'Responsible for content (§ 55 para. 2 RStV)',
+            },
             admin: { initCollapsed: false },
             fields: [
                 {
@@ -227,87 +365,26 @@ export const Impressum: Block = {
                     type: 'text',
                     required: true,
                     localized: true,
+                    label: { de: 'Name', en: 'Name' },
                     admin: {
-                        description:
-                            'Name der verantwortlichen Person (Adresse wird aus Unternehmensangaben übernommen)',
+                        description: {
+                            de: 'Name der verantwortlichen Person (Adresse wird aus Unternehmensangaben übernommen)',
+                            en: 'Name of responsible person (address is taken from company info)',
+                        },
                     },
                 },
             ],
         },
         {
             type: 'collapsible',
-            label: 'Haftungsausschluss',
+            label: { de: 'Haftungsausschluss', en: 'Disclaimer' },
             admin: { initCollapsed: false },
             fields: [
                 {
                     name: 'liabilityContent',
                     type: 'richText',
                     localized: true,
-                    editor: lexicalEditor({
-                        features: ({ rootFeatures }) => [
-                            ...rootFeatures,
-                            FixedToolbarFeature(),
-                            InlineToolbarFeature(),
-                        ],
-                    }),
-                    admin: { description: 'Haftung für Inhalte' },
-                },
-                {
-                    name: 'liabilityLinks',
-                    type: 'richText',
-                    localized: true,
-                    editor: lexicalEditor({
-                        features: ({ rootFeatures }) => [
-                            ...rootFeatures,
-                            FixedToolbarFeature(),
-                            InlineToolbarFeature(),
-                        ],
-                    }),
-                    admin: { description: 'Haftung für Links' },
-                },
-                {
-                    name: 'copyright',
-                    type: 'richText',
-                    localized: true,
-                    editor: lexicalEditor({
-                        features: ({ rootFeatures }) => [
-                            ...rootFeatures,
-                            FixedToolbarFeature(),
-                            InlineToolbarFeature(),
-                        ],
-                    }),
-                    admin: { description: 'Urheberrecht' },
-                },
-            ],
-        },
-        {
-            type: 'collapsible',
-            label: 'EU-Streitschlichtung',
-            admin: { initCollapsed: false },
-            fields: [
-                {
-                    name: 'euDisputeIntro',
-                    type: 'richText',
-                    localized: true,
-                    editor: lexicalEditor({
-                        features: ({ rootFeatures }) => [
-                            ...rootFeatures,
-                            FixedToolbarFeature(),
-                            InlineToolbarFeature(),
-                        ],
-                    }),
-                    admin: { description: 'Einleitungstext zur ODR-Plattform' },
-                },
-                {
-                    name: 'euDisputeUrl',
-                    type: 'text',
-                    defaultValue: 'https://ec.europa.eu/consumers/odr/',
-                    admin: { description: 'URL der EU-Streitschlichtungsplattform' },
-                },
-                {
-                    name: 'euDisputeClosing',
-                    type: 'richText',
-                    localized: true,
+                    label: { de: 'Haftung für Inhalte', en: 'Liability for content' },
                     editor: lexicalEditor({
                         features: ({ rootFeatures }) => [
                             ...rootFeatures,
@@ -316,8 +393,105 @@ export const Impressum: Block = {
                         ],
                     }),
                     admin: {
-                        description:
-                            'Schlusstext (E-Mail im Impressum, keine Verpflichtung zur Teilnahme)',
+                        description: {
+                            de: 'Haftung für Inhalte',
+                            en: 'Liability for content',
+                        },
+                    },
+                },
+                {
+                    name: 'liabilityLinks',
+                    type: 'richText',
+                    localized: true,
+                    label: { de: 'Haftung für Links', en: 'Liability for links' },
+                    editor: lexicalEditor({
+                        features: ({ rootFeatures }) => [
+                            ...rootFeatures,
+                            FixedToolbarFeature(),
+                            InlineToolbarFeature(),
+                        ],
+                    }),
+                    admin: {
+                        description: {
+                            de: 'Haftung für Links',
+                            en: 'Liability for links',
+                        },
+                    },
+                },
+                {
+                    name: 'copyright',
+                    type: 'richText',
+                    localized: true,
+                    label: { de: 'Urheberrecht', en: 'Copyright' },
+                    editor: lexicalEditor({
+                        features: ({ rootFeatures }) => [
+                            ...rootFeatures,
+                            FixedToolbarFeature(),
+                            InlineToolbarFeature(),
+                        ],
+                    }),
+                    admin: {
+                        description: {
+                            de: 'Urheberrecht',
+                            en: 'Copyright',
+                        },
+                    },
+                },
+            ],
+        },
+        {
+            type: 'collapsible',
+            label: { de: 'EU-Streitschlichtung', en: 'EU Dispute Resolution' },
+            admin: { initCollapsed: false },
+            fields: [
+                {
+                    name: 'euDisputeIntro',
+                    type: 'richText',
+                    localized: true,
+                    label: { de: 'Einleitung', en: 'Introduction' },
+                    editor: lexicalEditor({
+                        features: ({ rootFeatures }) => [
+                            ...rootFeatures,
+                            FixedToolbarFeature(),
+                            InlineToolbarFeature(),
+                        ],
+                    }),
+                    admin: {
+                        description: {
+                            de: 'Einleitungstext zur ODR-Plattform',
+                            en: 'Introduction text about the ODR platform',
+                        },
+                    },
+                },
+                {
+                    name: 'euDisputeUrl',
+                    type: 'text',
+                    defaultValue: 'https://ec.europa.eu/consumers/odr/',
+                    label: { de: 'Plattform-URL', en: 'Platform URL' },
+                    admin: {
+                        description: {
+                            de: 'URL der EU-Streitschlichtungsplattform',
+                            en: 'URL of the EU dispute resolution platform',
+                        },
+                    },
+                },
+                {
+                    name: 'euDisputeClosing',
+                    type: 'richText',
+                    localized: true,
+                    label: { de: 'Schlusstext', en: 'Closing text' },
+                    editor: lexicalEditor({
+                        features: ({ rootFeatures }) => [
+                            ...rootFeatures,
+                            FixedToolbarFeature(),
+                            InlineToolbarFeature(),
+                        ],
+                    }),
+                    admin: {
+                        description: {
+                            de: 'Schlusstext (E-Mail im Impressum, keine Verpflichtung zur Teilnahme)',
+                            en: 'Closing text (email in imprint, no obligation to participate)',
+                        },
                     },
                 },
             ],
@@ -326,8 +500,12 @@ export const Impressum: Block = {
             name: 'dateLabel',
             type: 'text',
             localized: true,
+            label: { de: 'Stand', en: 'Last updated' },
             admin: {
-                description: 'z.B. "Stand: Dezember 2024"',
+                description: {
+                    de: 'z.B. "Stand: Dezember 2024"',
+                    en: 'e.g. "Last updated: December 2024"',
+                },
             },
         },
     ],

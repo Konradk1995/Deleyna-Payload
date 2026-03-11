@@ -69,7 +69,7 @@ export const hero: Field = {
             },
         },
 
-        // Explizite Überschrift (H1) und Subtext – einfache Alternative zum RichText
+        // Explicit headline (H1) and subtext — simple alternative to RichText
         {
             name: 'headline',
             type: 'text',
@@ -97,7 +97,7 @@ export const hero: Field = {
             },
         },
 
-        // RichText (alle ausser none) – für erweiterten Inhalt neben Headline/Subtext
+        // RichText (all types except none) — for extended content alongside Headline/Subtext
         {
             name: 'richText',
             type: 'richText',

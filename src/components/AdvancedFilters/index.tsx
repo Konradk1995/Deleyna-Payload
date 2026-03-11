@@ -24,6 +24,7 @@ interface AdvancedFiltersProps {
     showHairFilter?: boolean
     showEyeFilter?: boolean
     showSkillsFilter?: boolean
+    showCoachFilter?: boolean
     value: FilterState
     onChange: (state: FilterState) => void
     locale?: string
@@ -39,6 +40,7 @@ export function AdvancedFilters({
     showHairFilter = true,
     showEyeFilter = true,
     showSkillsFilter = false,
+    showCoachFilter = false,
     value,
     onChange,
     locale = 'de',
@@ -53,6 +55,9 @@ export function AdvancedFilters({
         { label: allLabel, value: 'all' },
         { label: filterLabels?.dancers || (locale === 'de' ? 'Tänzer' : 'Dancers'), value: 'dancer' },
         { label: filterLabels?.models || 'Models', value: 'model' },
+        ...(showCoachFilter
+            ? [{ label: locale === 'de' ? 'Coaches' : 'Coaches', value: 'coach' }]
+            : []),
     ]
 
     const activeCount =
@@ -166,7 +171,7 @@ export function AdvancedFilters({
                         Filter
                         {activeCount > 0 && (
                             <span
-                                className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-copper px-1 text-[10px] font-bold text-white"
+                                className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-copper px-1 text-[10px] font-bold text-background"
                                 aria-label={`${activeCount} ${locale === 'de' ? 'aktive Filter' : 'active filters'}`}
                             >
                                 {activeCount}

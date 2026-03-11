@@ -65,6 +65,8 @@ export async function headerSeeder(payload: Payload) {
         const coachingPageId = findPageId('coaching')
         const faqPageId = findPageId('faq')
         const testimonialsPageId = findPageId('testimonials')
+        const jobInquiryPageId = findPageId('job-anfrage')
+        const classInquiryPageId = findPageId('kurs-anfrage')
 
         warnMissing('about', '/about')
         warnMissing('contact', '/contact')
@@ -75,6 +77,8 @@ export async function headerSeeder(payload: Payload) {
         warnMissing('coaching', '/coaching')
         warnMissing('faq', '/faq')
         warnMissing('testimonials', '/testimonials')
+        warnMissing('job-anfrage', '/job-anfrage')
+        warnMissing('kurs-anfrage', '/kurs-anfrage')
 
         const shared = {
             languageSwitcherPlacement: 'header-footer',
@@ -150,6 +154,14 @@ export async function headerSeeder(payload: Payload) {
                                 icon: 'UserRound',
                             },
                             {
+                                link: referencePage(
+                                    classInquiryPageId,
+                                    '/kurs-anfrage',
+                                    'Kurs-Anfrage',
+                                ),
+                                icon: 'Music',
+                            },
+                            {
                                 link: referencePage(bookingPageId, '/booking', 'Booking-Anfrage'),
                                 icon: 'CalendarCheck',
                             },
@@ -167,6 +179,37 @@ export async function headerSeeder(payload: Payload) {
                         ],
                     },
                     {
+                        label: 'Jobs',
+                        labelLink: {
+                            type: 'custom',
+                            url: '/jobs',
+                            label: 'Jobs',
+                            newTab: false,
+                            trackClicks: false,
+                        },
+                        mediaDisplay: 'image',
+                        links: [
+                            {
+                                link: {
+                                    type: 'custom',
+                                    url: '/jobs',
+                                    label: 'Alle Jobs',
+                                    newTab: false,
+                                    trackClicks: false,
+                                },
+                                icon: 'Briefcase',
+                            },
+                            {
+                                link: referencePage(
+                                    jobInquiryPageId,
+                                    '/job-anfrage',
+                                    'Job-Anfrage',
+                                ),
+                                icon: 'FileText',
+                            },
+                        ],
+                    },
+                    {
                         label: 'Kontakt',
                         labelLink: referencePage(contactPageId, '/contact', 'Kontakt'),
                         mediaDisplay: 'image',
@@ -174,6 +217,18 @@ export async function headerSeeder(payload: Payload) {
                             {
                                 link: referencePage(contactPageId, '/contact', 'Kontakt aufnehmen'),
                                 icon: 'Mail',
+                            },
+                            {
+                                link: referencePage(bookingPageId, '/booking', 'Booking-Anfrage'),
+                                icon: 'CalendarCheck',
+                            },
+                            {
+                                link: referencePage(
+                                    classInquiryPageId,
+                                    '/kurs-anfrage',
+                                    'Kurs-Anfrage',
+                                ),
+                                icon: 'Music',
                             },
                             {
                                 link: referencePage(faqPageId, '/faq', 'FAQ / Support'),
@@ -273,6 +328,14 @@ export async function headerSeeder(payload: Payload) {
                                 icon: 'UserRound',
                             },
                             {
+                                link: referencePage(
+                                    classInquiryPageId,
+                                    '/kurs-anfrage',
+                                    'Class Inquiry',
+                                ),
+                                icon: 'Music',
+                            },
+                            {
                                 link: referencePage(bookingPageId, '/booking', 'Booking Request'),
                                 icon: 'CalendarCheck',
                             },
@@ -290,6 +353,37 @@ export async function headerSeeder(payload: Payload) {
                         ],
                     },
                     {
+                        label: 'Jobs',
+                        labelLink: {
+                            type: 'custom',
+                            url: '/jobs',
+                            label: 'Jobs',
+                            newTab: false,
+                            trackClicks: false,
+                        },
+                        mediaDisplay: 'image',
+                        links: [
+                            {
+                                link: {
+                                    type: 'custom',
+                                    url: '/jobs',
+                                    label: 'All Jobs',
+                                    newTab: false,
+                                    trackClicks: false,
+                                },
+                                icon: 'Briefcase',
+                            },
+                            {
+                                link: referencePage(
+                                    jobInquiryPageId,
+                                    '/job-anfrage',
+                                    'Job Inquiry',
+                                ),
+                                icon: 'FileText',
+                            },
+                        ],
+                    },
+                    {
                         label: 'Contact',
                         labelLink: referencePage(contactPageId, '/contact', 'Contact'),
                         mediaDisplay: 'image',
@@ -297,6 +391,18 @@ export async function headerSeeder(payload: Payload) {
                             {
                                 link: referencePage(contactPageId, '/contact', 'Reach out'),
                                 icon: 'Mail',
+                            },
+                            {
+                                link: referencePage(bookingPageId, '/booking', 'Booking Request'),
+                                icon: 'CalendarCheck',
+                            },
+                            {
+                                link: referencePage(
+                                    classInquiryPageId,
+                                    '/kurs-anfrage',
+                                    'Class Inquiry',
+                                ),
+                                icon: 'Music',
                             },
                             {
                                 link: referencePage(faqPageId, '/faq', 'Support / FAQ'),

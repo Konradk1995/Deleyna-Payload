@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const TestimonialBlock: Block = {
     slug: 'testimonial',
@@ -6,40 +7,23 @@ export const TestimonialBlock: Block = {
     imageURL: '/block-previews/testimonial.svg',
     imageAltText: 'Testimonial: Zitate von Kunden & Partnern mit Video/Bild',
     labels: {
-        singular: { de: 'Testimonial', en: 'Testimonial' },
-        plural: { de: 'Testimonials', en: 'Testimonials' },
+        singular: { de: 'Kundenstimme', en: 'Testimonial' },
+        plural: { de: 'Kundenstimmen', en: 'Testimonials' },
     },
     fields: [
+        ...sectionHeaderFields({ headingLevel: true, description: false, cta: true }),
         {
-            name: 'badge',
-            type: 'text',
-            localized: true,
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
             admin: {
                 description: {
-                    de: 'Kleines Label über der Überschrift, z. B. „WAS UNSERE KUNDEN SAGEN"',
-                    en: 'Small label above the headline, e.g. "WHAT OUR CLIENTS SAY"',
-                },
-            },
-        },
-        {
-            name: 'headline',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Hauptüberschrift, z. B. „Stimmen aus der Branche"',
-                    en: 'Main headline, e.g. "Industry voices"',
-                },
-            },
-        },
-        {
-            name: 'headlineHighlight',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Teil der Überschrift, der in Akzentfarbe hervorgehoben wird',
-                    en: 'Part of the headline to highlight in accent color',
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
                 },
             },
         },
@@ -52,6 +36,11 @@ export const TestimonialBlock: Block = {
             labels: {
                 singular: { de: 'Testimonial', en: 'Testimonial' },
                 plural: { de: 'Testimonials', en: 'Testimonials' },
+            },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#TestimonialRowLabel',
+                },
             },
             fields: [
                 {
@@ -135,21 +124,6 @@ export const TestimonialBlock: Block = {
                     },
                 },
             ],
-        },
-        {
-            name: 'backgroundColor',
-            type: 'select',
-            defaultValue: 'white',
-            options: [
-                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
-                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
-            ],
-            admin: {
-                description: {
-                    de: 'Hintergrund der Section',
-                    en: 'Section background',
-                },
-            },
         },
     ],
 }

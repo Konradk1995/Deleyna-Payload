@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { adminOnly } from '../access'
 
-// Default Werte für Cookie Banner
+// Default values for cookie banner
 const COOKIE_BANNER_DEFAULTS = {
     enabled: true,
     trigger: {
@@ -24,7 +24,7 @@ const COOKIE_BANNER_DEFAULTS = {
     policies: {
         privacyPolicyLabel: 'Datenschutzerklärung',
     },
-    // DB-kompatibel: Defaults als String (DE). Lokalisierte Anzeige bleibt über Feldkonfiguration.
+    // Defaults stored as DE strings. Localized display is handled via field configuration.
     necessary: {
         enabled: true,
         required: true,

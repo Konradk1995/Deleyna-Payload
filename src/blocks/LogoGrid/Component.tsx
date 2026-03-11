@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { Media } from '@/payload-types'
 import { cn } from '@/utilities/ui'
+import { ScrollFadeIn } from '@/components/ScrollFadeIn'
 import { SectionHeader } from '@/components/SectionHeader'
 
 type LogoClient = {
@@ -11,35 +12,44 @@ type LogoClient = {
 }
 
 type LogoGridBlockProps = {
+    badge?: string | null
+    title?: string | null
+    headingLevel?: string | null
     variant?: 'logos' | 'text' | null
-    headline?: string | null
     clients?: LogoClient[] | null
     locale?: string
     className?: string
+    backgroundColor?: 'white' | 'muted' | null
 }
 
 export function LogoGridBlockComponent({
+    badge,
+    title,
+    headingLevel,
     variant = 'logos',
-    headline,
     clients,
     locale = 'de',
     className,
+    backgroundColor = 'white',
 }: LogoGridBlockProps) {
     if (!Array.isArray(clients) || clients.length === 0) return null
     const fallbackClientLabel = locale === 'de' ? 'Kunde' : 'Client'
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
 
     return (
         <section
-            className={cn('section-padding section-atmosphere relative bg-muted/20', className)}
+            className={cn('section-padding-lg section-atmosphere relative', bgClass, className)}
         >
             <div
                 aria-hidden
                 className="pointer-events-none absolute left-1/2 top-0 h-64 min-w-[32rem] -translate-x-1/2 rounded-full bg-copper/8 blur-3xl"
             />
             <div className="container">
-                {headline && (
+                {title && (
                     <SectionHeader
-                        title={headline}
+                        overline={badge ?? undefined}
+                        title={title}
+                        as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                         centered
                         size="sm"
                         titleClassName="chrome-text"
@@ -59,19 +69,21 @@ export function LogoGridBlockComponent({
 
                             if (client.link) {
                                 return (
-                                    <a
-                                        key={client.id ?? index}
-                                        href={client.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="transition-opacity hover:opacity-80"
-                                    >
-                                        {content}
-                                    </a>
+                                    <ScrollFadeIn key={client.id ?? index} delay={index * 80} animation="fade-up">
+                                        <a
+                                            href={client.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="rounded-full transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                                            aria-label={`${label} (opens in new tab)`}
+                                        >
+                                            {content}
+                                        </a>
+                                    </ScrollFadeIn>
                                 )
                             }
 
-                            return <div key={client.id ?? index}>{content}</div>
+                            return <ScrollFadeIn key={client.id ?? index} delay={index * 80} animation="fade-up"><div>{content}</div></ScrollFadeIn>
                         })}
                     </div>
                 ) : (
@@ -85,7 +97,7 @@ export function LogoGridBlockComponent({
                                 client.name?.trim() || `${fallbackClientLabel} ${index + 1}`
 
                             const card = (
-                                <div className="flex h-28 items-center justify-center rounded-xl border border-border/70 bg-card/70 p-4 backdrop-blur-sm transition-colors hover:border-copper/30">
+                                <div className="flex h-28 items-center justify-center rounded-[var(--block-radius)] border border-border/70 bg-card/70 p-4 backdrop-blur-sm transition-colors hover:border-copper/30">
                                     {media?.url ? (
                                         <Image
                                             src={media.url}
@@ -104,18 +116,21 @@ export function LogoGridBlockComponent({
 
                             if (client.link) {
                                 return (
-                                    <a
-                                        key={client.id ?? index}
-                                        href={client.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {card}
-                                    </a>
+                                    <ScrollFadeIn key={client.id ?? index} delay={index * 80} animation="fade-up">
+                                        <a
+                                            href={client.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="rounded-[var(--block-radius)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                                            aria-label={`${name} (opens in new tab)`}
+                                        >
+                                            {card}
+                                        </a>
+                                    </ScrollFadeIn>
                                 )
                             }
 
-                            return <div key={client.id ?? index}>{card}</div>
+                            return <ScrollFadeIn key={client.id ?? index} delay={index * 80} animation="fade-up"><div>{card}</div></ScrollFadeIn>
                         })}
                     </div>
                 )}

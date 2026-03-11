@@ -27,6 +27,7 @@ export const BigTextBlock: Block = {
       type: 'text',
       required: true,
       localized: true,
+      label: { de: 'Zeile 1', en: 'Line 1' },
       admin: {
         description: { de: 'Erste Heading-Zeile', en: 'First heading line' },
       },
@@ -35,6 +36,7 @@ export const BigTextBlock: Block = {
       name: 'lineOneHighlight',
       type: 'text',
       localized: true,
+      label: { de: 'Hervorhebung Zeile 1', en: 'Highlight line 1' },
       admin: {
         description: { de: 'Wort/Phrase in Zeile 1, die hervorgehoben wird (z. B. in Schwarz statt Grau)', en: 'Word/phrase in line 1 to highlight (e.g. in black instead of grey)' },
       },
@@ -43,6 +45,7 @@ export const BigTextBlock: Block = {
       name: 'lineTwo',
       type: 'text',
       localized: true,
+      label: { de: 'Zeile 2 (optional)', en: 'Line 2 (optional)' },
       admin: {
         description: { de: 'Zweite Heading-Zeile (optional)', en: 'Second heading line (optional)' },
       },
@@ -51,6 +54,7 @@ export const BigTextBlock: Block = {
       name: 'lineTwoHighlight',
       type: 'text',
       localized: true,
+      label: { de: 'Hervorhebung Zeile 2', en: 'Highlight line 2' },
       admin: {
         description: { de: 'Wort/Phrase in Zeile 2, die hervorgehoben wird (z. B. in Schwarz statt Grau)', en: 'Word/phrase in line 2 to highlight (e.g. in black instead of grey)' },
       },

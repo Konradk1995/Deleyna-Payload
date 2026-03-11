@@ -8,6 +8,7 @@ import { getSEOSettings, getDefaultSEOSettings } from './getSEOSettings'
 import { getServerSideURL } from './getURL'
 import { localizePageSlug } from './pageSlugAliases'
 import type { SitemapEntry, ChangeFrequency } from '@/types/seo'
+import type { Page, Post, Talent, Job } from '@/payload-types'
 
 export type { SitemapEntry }
 
@@ -18,6 +19,7 @@ export interface SitemapConfig {
     includePosts: boolean
     includeCategories: boolean
     includeTalents: boolean
+    includeJobs: boolean
     changeFrequency: ChangeFrequency
     priority: number
     excludePaths: string[]
@@ -28,6 +30,7 @@ type SupportedLocale = 'de' | 'en'
 const SEGMENTS = {
     blog: { de: 'magazin', en: 'blog' },
     talents: { de: 'talente', en: 'talents' },
+    jobs: { de: 'jobs', en: 'jobs' },
     categories: { de: 'kategorien', en: 'categories' },
 } as const
 
@@ -98,6 +101,7 @@ export async function getSitemapConfig(): Promise<SitemapConfig> {
             includePosts: sitemapSettings.includePosts ?? true,
             includeCategories: sitemapSettings.includeCategories ?? false,
             includeTalents: true,
+            includeJobs: true,
             changeFrequency: sitemapSettings.changeFrequency || 'weekly',
             priority: typeof sitemapSettings.priority === 'number' ? sitemapSettings.priority : 0.5,
             excludePaths,
@@ -113,6 +117,7 @@ export async function getSitemapConfig(): Promise<SitemapConfig> {
             includePosts: true,
             includeCategories: false,
             includeTalents: true,
+            includeJobs: true,
             changeFrequency: 'weekly',
             priority: 0.5,
             excludePaths: [],
@@ -150,16 +155,25 @@ export async function getPages(configOverride?: SitemapConfig): Promise<SitemapE
         const payload = await getCachedPayload()
         const sitemapConfig = configOverride ?? (await getSitemapConfig())
 
-        const pages = await payload.find({
-            collection: 'pages',
-            where: {
-                _status: { equals: 'published' },
-            },
-            limit: 1000,
-            depth: 0,
-        })
+        let allDocs: Page[] = []
+        let page = 1
+        let hasMore = true
+        while (hasMore) {
+            const result = await payload.find({
+                collection: 'pages',
+                where: {
+                    _status: { equals: 'published' },
+                },
+                limit: 100,
+                page,
+                depth: 0,
+            })
+            allDocs = allDocs.concat(result.docs)
+            hasMore = result.hasNextPage
+            page++
+        }
 
-        return pages.docs
+        return allDocs
             .filter((page) => {
                 const pageSettings = (page as unknown as { pageSettings?: BasePageSettings })
                     .pageSettings
@@ -233,16 +247,25 @@ export async function getPosts(configOverride?: SitemapConfig): Promise<SitemapE
         const payload = await getCachedPayload()
         const sitemapConfig = configOverride ?? (await getSitemapConfig())
 
-        const posts = await payload.find({
-            collection: 'posts',
-            where: {
-                _status: { equals: 'published' },
-            },
-            limit: 1000,
-            depth: 0,
-        })
+        let allDocs: Post[] = []
+        let page = 1
+        let hasMore = true
+        while (hasMore) {
+            const result = await payload.find({
+                collection: 'posts',
+                where: {
+                    _status: { equals: 'published' },
+                },
+                limit: 100,
+                page,
+                depth: 0,
+            })
+            allDocs = allDocs.concat(result.docs)
+            hasMore = result.hasNextPage
+            page++
+        }
 
-        return posts.docs
+        return allDocs
             .filter((post) => {
                 const pageSettings = (post as unknown as { pageSettings?: BasePageSettings })
                     .pageSettings
@@ -296,19 +319,29 @@ export async function getCategories(configOverride?: SitemapConfig): Promise<Sit
         const payload = await getCachedPayload()
         const sitemapConfig = configOverride ?? (await getSitemapConfig())
 
-        const categories = await (
-            payload as unknown as {
-                find: (args: { collection: string; limit: number; depth: number }) => Promise<{
-                    docs: Array<{ slug: string; updatedAt: string }>
-                }>
-            }
-        ).find({
-            collection: 'categories',
-            limit: 1000,
-            depth: 0,
-        })
+        let allDocs: Array<{ slug: string; updatedAt: string }> = []
+        let page = 1
+        let hasMore = true
+        while (hasMore) {
+            const result = await (
+                payload as unknown as {
+                    find: (args: { collection: string; limit: number; page: number; depth: number }) => Promise<{
+                        docs: Array<{ slug: string; updatedAt: string }>
+                        hasNextPage: boolean
+                    }>
+                }
+            ).find({
+                collection: 'categories',
+                limit: 100,
+                page,
+                depth: 0,
+            })
+            allDocs = allDocs.concat(result.docs)
+            hasMore = result.hasNextPage
+            page++
+        }
 
-        return categories.docs
+        return allDocs
             .filter((category) => {
                 const dePath = buildLocalizedPath('de', [SEGMENTS.categories.de, category.slug])
                 const enPath = buildLocalizedPath('en', [SEGMENTS.categories.en, category.slug])
@@ -355,16 +388,25 @@ export async function getTalents(configOverride?: SitemapConfig): Promise<Sitema
         const payload = await getCachedPayload()
         const sitemapConfig = configOverride ?? (await getSitemapConfig())
 
-        const talents = await payload.find({
-            collection: 'talents',
-            where: {
-                _status: { equals: 'published' },
-            },
-            limit: 1000,
-            depth: 0,
-        })
+        let allDocs: Talent[] = []
+        let page = 1
+        let hasMore = true
+        while (hasMore) {
+            const result = await payload.find({
+                collection: 'talents',
+                where: {
+                    _status: { equals: 'published' },
+                },
+                limit: 100,
+                page,
+                depth: 0,
+            })
+            allDocs = allDocs.concat(result.docs)
+            hasMore = result.hasNextPage
+            page++
+        }
 
-        return talents.docs
+        return allDocs
             .filter((talent) => {
                 if (!talent.slug) return false
 
@@ -403,6 +445,74 @@ export async function getTalents(configOverride?: SitemapConfig): Promise<Sitema
             })
     } catch (error) {
         console.error('Error fetching talents for sitemap:', error)
+        return []
+    }
+}
+
+/**
+ * Get all jobs for sitemap
+ */
+export async function getJobs(configOverride?: SitemapConfig): Promise<SitemapEntry[]> {
+    try {
+        const payload = await getCachedPayload()
+        const sitemapConfig = configOverride ?? (await getSitemapConfig())
+
+        let allDocs: Job[] = []
+        let page = 1
+        let hasMore = true
+        while (hasMore) {
+            const result = await payload.find({
+                collection: 'jobs',
+                where: {
+                    _status: { equals: 'published' },
+                },
+                limit: 100,
+                page,
+                depth: 0,
+            })
+            allDocs = allDocs.concat(result.docs)
+            hasMore = result.hasNextPage
+            page++
+        }
+
+        return allDocs
+            .filter((job) => {
+                if (!job.slug) return false
+
+                const dePath = buildLocalizedPath('de', [SEGMENTS.jobs.de, job.slug])
+                const enPath = buildLocalizedPath('en', [SEGMENTS.jobs.en, job.slug])
+
+                return !isAnyPathExcluded([dePath, enPath], sitemapConfig.excludePaths)
+            })
+            .flatMap((job) => {
+                return SUPPORTED_LOCALES.map((locale) => ({
+                    url: buildAbsoluteUrl(
+                        sitemapConfig.baseUrl,
+                        buildLocalizedPath(locale, [SEGMENTS.jobs[locale], job.slug || '']),
+                    ),
+                    lastModified: job.updatedAt,
+                    changeFrequency: 'weekly' as ChangeFrequency,
+                    priority: 0.6,
+                    alternates: {
+                        languages: {
+                            de: buildAbsoluteUrl(
+                                sitemapConfig.baseUrl,
+                                buildLocalizedPath('de', [SEGMENTS.jobs.de, job.slug || '']),
+                            ),
+                            en: buildAbsoluteUrl(
+                                sitemapConfig.baseUrl,
+                                buildLocalizedPath('en', [SEGMENTS.jobs.en, job.slug || '']),
+                            ),
+                            'x-default': buildAbsoluteUrl(
+                                sitemapConfig.baseUrl,
+                                buildLocalizedPath('de', [SEGMENTS.jobs.de, job.slug || '']),
+                            ),
+                        },
+                    },
+                }))
+            })
+    } catch (error) {
+        console.error('Error fetching jobs for sitemap:', error)
         return []
     }
 }
@@ -487,6 +597,30 @@ export async function generateSitemapEntries(): Promise<SitemapEntry[]> {
                             de: buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath('de', [talentListingPaths.de])),
                             en: buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath('en', [talentListingPaths.en])),
                             'x-default': buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath('de', [talentListingPaths.de])),
+                        },
+                    },
+                })
+            })
+        }
+    }
+
+    if (sitemapConfig.includeJobs) {
+        const jobs = await getJobs(sitemapConfig)
+        entries.push(...jobs)
+
+        const jobListingPaths = { de: SEGMENTS.jobs.de, en: SEGMENTS.jobs.en }
+        if (!isAnyPathExcluded([`/${jobListingPaths.de}`, `/${jobListingPaths.en}`], sitemapConfig.excludePaths)) {
+            SUPPORTED_LOCALES.forEach((locale) => {
+                entries.push({
+                    url: buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath(locale, [jobListingPaths[locale]])),
+                    lastModified: now,
+                    changeFrequency: 'weekly',
+                    priority: 0.7,
+                    alternates: {
+                        languages: {
+                            de: buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath('de', [jobListingPaths.de])),
+                            en: buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath('en', [jobListingPaths.en])),
+                            'x-default': buildAbsoluteUrl(sitemapConfig.baseUrl, buildLocalizedPath('de', [jobListingPaths.de])),
                         },
                     },
                 })

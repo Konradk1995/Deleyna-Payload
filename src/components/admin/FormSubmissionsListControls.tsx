@@ -9,7 +9,7 @@ type Counts = {
     unread: number
     pending: number
     byCategory: Record<
-        'contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'other',
+        'contact' | 'talent_booking' | 'become_talent' | 'job_inquiry' | 'class_inquiry' | 'other',
         number
     >
     byLocale: Record<'de' | 'en', number>
@@ -45,6 +45,7 @@ const i18n = {
             talent_booking: 'Buchung',
             become_talent: 'Talent werden',
             job_inquiry: 'Job',
+            class_inquiry: 'Kursanfrage',
             other: 'Sonstiges',
         },
     },
@@ -77,12 +78,13 @@ const i18n = {
             talent_booking: 'Booking',
             become_talent: 'Become a talent',
             job_inquiry: 'Job',
+            class_inquiry: 'Class inquiry',
             other: 'Other',
         },
     },
 } as const
 
-const categories = ['contact', 'talent_booking', 'become_talent', 'job_inquiry', 'other'] as const
+const categories = ['contact', 'talent_booking', 'become_talent', 'job_inquiry', 'class_inquiry', 'other'] as const
 
 async function fetchCount(query: string): Promise<number> {
     try {
@@ -112,6 +114,7 @@ export const FormSubmissionsListControls: React.FC = () => {
             talent_booking: 0,
             become_talent: 0,
             job_inquiry: 0,
+            class_inquiry: 0,
             other: 0,
         },
         byLocale: { de: 0, en: 0 },
@@ -157,6 +160,7 @@ export const FormSubmissionsListControls: React.FC = () => {
             talentBooking,
             becomeTalent,
             jobInquiry,
+            classInquiry,
             other,
             localeDe,
             localeEn,
@@ -170,6 +174,7 @@ export const FormSubmissionsListControls: React.FC = () => {
             fetchCount('&where[category][equals]=talent_booking'),
             fetchCount('&where[category][equals]=become_talent'),
             fetchCount('&where[category][equals]=job_inquiry'),
+            fetchCount('&where[category][equals]=class_inquiry'),
             fetchCount('&where[category][equals]=other'),
             fetchCount('&where[locale][equals]=de'),
             fetchCount('&where[locale][equals]=en'),
@@ -184,6 +189,7 @@ export const FormSubmissionsListControls: React.FC = () => {
                 talent_booking: talentBooking,
                 become_talent: becomeTalent,
                 job_inquiry: jobInquiry,
+                class_inquiry: classInquiry,
                 other,
             },
             byLocale: { de: localeDe, en: localeEn },

@@ -145,6 +145,11 @@ export const Footer: GlobalConfig = {
                             type: 'array',
                             label: { de: 'Social Media Links', en: 'Social media links' },
                             maxRows: 8,
+                            admin: {
+                                components: {
+                                    RowLabel: '@/components/admin/RowLabels#PlatformRowLabel',
+                                },
+                            },
                             fields: [
                                 {
                                     name: 'platform',

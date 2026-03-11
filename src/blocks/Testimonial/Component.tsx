@@ -6,6 +6,7 @@ import type { Media } from '@/payload-types'
 
 import { cn } from '@/utilities/ui'
 import { SectionHeader } from '@/components/SectionHeader'
+import { CMSLink } from '@/components/CMSLink'
 import { ScrollFadeIn } from '@/components/ScrollFadeIn'
 import { Media as MediaComponent } from '@/components/Media'
 
@@ -22,8 +23,11 @@ type TestimonialItem = {
 
 type TestimonialBlockProps = {
     badge?: string | null
-    headline?: string | null
-    headlineHighlight?: string | null
+    title?: string | null
+    titleHighlight?: string | null
+    headingLevel?: string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cta?: any
     items: TestimonialItem[]
     backgroundColor?: 'white' | 'muted' | null
     locale?: string
@@ -31,8 +35,10 @@ type TestimonialBlockProps = {
 
 export function TestimonialBlockComponent({
     badge,
-    headline,
-    headlineHighlight,
+    title,
+    titleHighlight,
+    headingLevel,
+    cta,
     items,
     backgroundColor = 'white',
 }: TestimonialBlockProps) {
@@ -41,17 +47,17 @@ export function TestimonialBlockComponent({
     const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
 
     return (
-        <section className={cn('padding-large section-atmosphere relative gap-large', bgClass)}>
+        <section className={cn('section-padding-lg section-atmosphere relative', bgClass)}>
             <div className="container">
-                {(headline || badge) && (
+                {(title || badge) && (
                 <SectionHeader
                     overline={badge || undefined}
-                    title={headline || ''}
-                    titleHighlight={headlineHighlight || undefined}
+                    title={title || ''}
+                    titleHighlight={titleHighlight || undefined}
+                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                     centered
                     size="md"
                     titleClassName="chrome-text"
-                    className="mb-10 md:mb-14"
                 />
                 )}
 
@@ -85,6 +91,12 @@ export function TestimonialBlockComponent({
                         ))}
                     </div>
                 )}
+
+                {cta && typeof cta === 'object' && cta.label && (
+                    <div className="mt-10 text-center">
+                        <CMSLink {...cta} />
+                    </div>
+                )}
             </div>
         </section>
     )
@@ -102,7 +114,7 @@ function SingleTestimonial({ item }: { item: TestimonialItem }) {
         <ScrollFadeIn animation="fade-up">
                     <div
                         className={cn(
-                            'relative overflow-hidden rounded-3xl padding-medium',
+                            'relative overflow-hidden rounded-[var(--block-radius-xl)] padding-medium',
                             hasMedia ? 'min-h-96 md:min-h-[32rem]' : 'bg-card border border-border',
                         )}
                     >
@@ -110,7 +122,7 @@ function SingleTestimonial({ item }: { item: TestimonialItem }) {
                 {hasMedia && (
                     <>
                         <MediaComponent resource={mediaData!} fill imgClassName="object-cover" />
-                        <div className="absolute inset-0 hero-overlay" aria-hidden />
+                        <div className="absolute inset-0 hero-overlay" aria-hidden="true" />
                     </>
                 )}
 
@@ -209,7 +221,7 @@ function TestimonialCard({
     return (
         <div
             className={cn(
-                'group relative flex flex-col h-full overflow-hidden rounded-2xl border border-border transition duration-300 hover:shadow-lg hover:-translate-y-0.5',
+                'group relative flex flex-col h-full overflow-hidden rounded-[var(--block-radius)] border border-border transition duration-300 hover:shadow-lg hover:-translate-y-0.5',
                 featured && 'md:col-span-2 lg:col-span-1',
                 hasMedia ? 'min-h-96' : 'bg-card padding-large',
             )}

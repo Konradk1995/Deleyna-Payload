@@ -12,8 +12,9 @@ type Props = StickyMediaBlockProps & {
 export const StickyMediaBlock: React.FC<Props> = (props) => {
     const {
         badge,
-        headline,
-        headlineHighlight,
+        title,
+        titleHighlight,
+        headingLevel,
         subtitle,
         media,
         overlayOpacity = '50',
@@ -28,8 +29,9 @@ export const StickyMediaBlock: React.FC<Props> = (props) => {
     return (
         <StickyMediaClient
             badge={badge ?? undefined}
-            headline={headline ?? undefined}
-            headlineHighlight={headlineHighlight ?? undefined}
+            headline={title ?? undefined}
+            headlineHighlight={titleHighlight ?? undefined}
+            headingLevel={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
             subtitle={subtitle ?? undefined}
             media={media}
             overlayOpacity={parseInt(overlayOpacity || '50') / 100}

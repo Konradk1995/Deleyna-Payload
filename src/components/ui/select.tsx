@@ -106,7 +106,7 @@ const SelectItem: React.FC<
 > = ({ children, className, ref, ...props }) => (
     <SelectPrimitive.Item
         className={cn(
-            'relative flex w-full cursor-default select-none items-center rounded-lg py-2.5 pl-10 pr-4 text-base outline-none focus:bg-copper focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors duration-150',
+            'relative flex w-full cursor-default select-none items-center rounded-lg py-2.5 pl-10 pr-4 text-base outline-none focus:bg-copper focus:text-background data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors duration-150',
             className,
         )}
         ref={ref}

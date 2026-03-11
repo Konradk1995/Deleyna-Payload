@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 import { link } from '@/fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 const iconOptions = [
     { label: { de: 'GraduationCap', en: 'GraduationCap' }, value: 'graduationCap' },
@@ -13,11 +14,24 @@ export const EducationBlock: Block = {
     interfaceName: 'EducationBlock',
     imageURL: '/block-previews/education.svg',
     imageAltText: 'Education programs cards',
-    labels: { singular: { de: 'Education', en: 'Education' }, plural: { de: 'Education', en: 'Education' } },
+    labels: { singular: { de: 'Kurse & Ausbildung', en: 'Education' }, plural: { de: 'Kurse & Ausbildungen', en: 'Education' } },
     fields: [
-        { name: 'overline', type: 'text', localized: true, label: { de: 'Overline', en: 'Overline' } },
-        { name: 'title', type: 'text', required: true, localized: true, label: { de: 'Titel', en: 'Title' } },
-        { name: 'description', type: 'textarea', localized: true, label: { de: 'Beschreibung', en: 'Description' } },
+        ...sectionHeaderFields({ headingLevel: true }),
+        {
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
+        },
         {
             name: 'programs',
             type: 'array',
@@ -25,6 +39,11 @@ export const EducationBlock: Block = {
             minRows: 1,
             maxRows: 6,
             labels: { singular: { de: 'Programm', en: 'Program' }, plural: { de: 'Programme', en: 'Programs' } },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
+                },
+            },
             fields: [
                 { name: 'icon', type: 'select', required: true, options: iconOptions, label: { de: 'Icon', en: 'Icon' } },
                 { name: 'title', type: 'text', required: true, localized: true, label: { de: 'Titel', en: 'Title' } },

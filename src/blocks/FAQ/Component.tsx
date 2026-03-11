@@ -1,4 +1,8 @@
 import RichText from '@/components/RichText'
+import { cn } from '@/utilities/ui'
+import { SectionHeader } from '@/components/SectionHeader'
+import { CMSLink } from '@/components/CMSLink'
+import { ScrollFadeIn } from '@/components/ScrollFadeIn'
 import { FAQAccordion } from './Accordion.client'
 
 /** Plain-Text aus Lexical RichText für FAQPage-Schema (Google Rich Results) */
@@ -24,21 +28,32 @@ type FAQItem = {
 }
 
 type Props = {
+    badge?: string | null
     title?: string | null
+    titleHighlight?: string | null
+    headingLevel?: string | null
     description?: string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cta?: any
     items?: FAQItem[] | null
     layout?: 'accordion' | 'list' | 'twoColumn' | null
     generateSchema?: boolean | null
     anchorId?: string | null
+    backgroundColor?: 'white' | 'muted' | null
 }
 
 export function FAQBlockComponent({
+    badge,
     title,
+    titleHighlight,
+    headingLevel,
     description,
+    cta,
     items,
     layout = 'accordion',
     generateSchema,
     anchorId,
+    backgroundColor = 'white',
 }: Props) {
     if (!items || items.length === 0) return null
 
@@ -79,12 +94,14 @@ export function FAQBlockComponent({
         answerElement: item.answer ? <RichText data={item.answer} enableProse={false} /> : null,
     }))
 
+    const bgClass = backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'
+
     return (
         <section
             id={anchorId || undefined}
-            className="padding-large section-atmosphere relative"
+            className={cn('section-padding-lg section-atmosphere relative', bgClass)}
         >
-            <div className="pointer-events-none absolute left-1/2 top-0 h-64 min-w-[30rem] -translate-x-1/2 rounded-full bg-copper/8 blur-3xl" />
+            <div className="pointer-events-none absolute left-1/2 top-0 h-64 min-w-[30rem] -translate-x-1/2 rounded-full bg-copper/8 blur-3xl" aria-hidden="true" />
             <div className="container relative">
                 {schemaData && (
                     <script
@@ -93,22 +110,24 @@ export function FAQBlockComponent({
                     />
                 )}
 
-                {(title || description) && (
-                    <div className="mb-10 text-center md:mb-14">
-                        {title && (
-                            <h2 className="mb-3 font-display-tight font-heading-3-bold leading-none tracking-tight text-balance chrome-text hyphens-auto [overflow-wrap:anywhere] pb-1">
-                                {title}
-                            </h2>
-                        )}
-                        {description && (
-                            <p className="mx-auto max-w-2xl text-balance font-normal-text-regular leading-relaxed text-muted-foreground">
-                                {description}
-                            </p>
-                        )}
+                <SectionHeader
+                    overline={badge}
+                    title={title}
+                    titleHighlight={titleHighlight}
+                    description={description}
+                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
+                    titleClassName="chrome-text"
+                />
+
+                <ScrollFadeIn animation="fade-up">
+                    <FAQAccordion items={accordionItems} layout={layout} />
+                </ScrollFadeIn>
+
+                {cta && typeof cta === 'object' && cta.label && (
+                    <div className="mt-10 text-center">
+                        <CMSLink {...cta} />
                     </div>
                 )}
-
-                <FAQAccordion items={accordionItems} layout={layout} />
             </div>
         </section>
     )

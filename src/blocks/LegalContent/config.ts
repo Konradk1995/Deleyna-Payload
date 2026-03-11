@@ -12,8 +12,8 @@ export const LegalContent: Block = {
     imageURL: '/block-previews/legal-content.svg',
     imageAltText: 'Rechtstext: Titel, Inhaltsverzeichnis und Absätze (z.B. Datenschutz, AGB)',
     labels: {
-        singular: 'Rechtstext mit Inhaltsverzeichnis',
-        plural: 'Rechtstexte (Datenschutz, AGB, …)',
+        singular: { de: 'Rechtstext', en: 'Legal text' },
+        plural: { de: 'Rechtstexte', en: 'Legal texts' },
     },
     fields: [
         {
@@ -21,7 +21,7 @@ export const LegalContent: Block = {
             type: 'text',
             localized: true,
             admin: {
-                description: 'Optionaler Seitentitel (z.B. "Datenschutz" oder "AGB")',
+                description: { de: 'Optionaler Seitentitel (z.B. "Datenschutz" oder "AGB")', en: 'Optional page title (e.g. "Privacy Policy" or "Terms")' },
             },
         },
         {
@@ -30,8 +30,10 @@ export const LegalContent: Block = {
             localized: true,
             defaultValue: 'Inhaltsverzeichnis',
             admin: {
-                description:
-                    'Überschrift über der linken Navigation (z.B. "Inhaltsverzeichnis" / "Table of contents")',
+                description: {
+                    de: 'Überschrift über der linken Navigation (z.B. "Inhaltsverzeichnis")',
+                    en: 'Heading above the left navigation (e.g. "Table of contents")',
+                },
             },
         },
         {
@@ -40,8 +42,8 @@ export const LegalContent: Block = {
             minRows: 1,
             required: true,
             labels: {
-                singular: 'Abschnitt',
-                plural: 'Abschnitte',
+                singular: { de: 'Abschnitt', en: 'Section' },
+                plural: { de: 'Abschnitte', en: 'Sections' },
             },
             fields: [
                 {
@@ -50,8 +52,10 @@ export const LegalContent: Block = {
                     required: true,
                     localized: true,
                     admin: {
-                        description:
-                            'Überschrift des Abschnitts (erscheint im Inhaltsverzeichnis und über dem Text)',
+                        description: {
+                            de: 'Überschrift des Abschnitts (erscheint im Inhaltsverzeichnis und über dem Text)',
+                            en: 'Section heading (appears in table of contents and above the text)',
+                        },
                     },
                 },
                 {
@@ -67,12 +71,15 @@ export const LegalContent: Block = {
                         ],
                     }),
                     admin: {
-                        description: 'Inhalt des Abschnitts',
+                        description: { de: 'Inhalt des Abschnitts', en: 'Section content' },
                     },
                 },
             ],
             admin: {
-                description: 'Nummerierte Abschnitte. Reihenfolge = Reihenfolge auf der Seite.',
+                description: { de: 'Nummerierte Abschnitte. Reihenfolge = Reihenfolge auf der Seite.', en: 'Numbered sections. Order = order on the page.' },
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
+                },
             },
         },
         {
@@ -80,7 +87,7 @@ export const LegalContent: Block = {
             type: 'text',
             localized: true,
             admin: {
-                description: 'z.B. "Stand: Dezember 2024"',
+                description: { de: 'z.B. "Stand: Dezember 2024"', en: 'e.g. "As of: December 2024"' },
             },
         },
     ],

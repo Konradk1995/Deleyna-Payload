@@ -34,6 +34,11 @@ const talents = [
             en: 'Maya is a versatile dancer with over 8 years of experience in contemporary and hip-hop styles. She has performed on stages across Europe and collaborated with top fashion brands for their campaign choreography.',
         },
         featured: true,
+        isCoach: true,
+        coachingDescription: {
+            de: 'Private Coaching-Sessions in Contemporary & Hip-Hop. Von Grundlagen bis Choreografie — individuell auf dein Level abgestimmt.',
+            en: 'Private coaching sessions in Contemporary & Hip-Hop. From basics to choreography — tailored to your level.',
+        },
         sortOrder: 1,
         measurements: {
             height: '170 cm',
@@ -129,6 +134,11 @@ const talents = [
             en: 'Elena seamlessly combines her modeling and dance backgrounds, creating dynamic performances that blur the line between fashion and art. Her unique skillset makes her perfect for creative campaigns.',
         },
         featured: true,
+        isCoach: true,
+        coachingDescription: {
+            de: 'Coaching für Tanz & Modeling-Posing. Perfekt für Performer, die beide Welten verbinden möchten — Bühne, Kamera, Laufsteg.',
+            en: 'Coaching for dance & modeling posing. Perfect for performers who want to combine both worlds — stage, camera, runway.',
+        },
         sortOrder: 4,
         measurements: {
             height: '178 cm',
@@ -167,6 +177,11 @@ const talents = [
             en: 'Aisha is a powerhouse dancer from London, specializing in Hip-Hop, Vogueing and Afro Dance. Known for her sharp execution and magnetic stage presence, she has worked with major artists and brands across Europe.',
         },
         featured: true,
+        isCoach: true,
+        coachingDescription: {
+            de: 'Privat-Coaching in Hip-Hop, Vogueing & Afro Dance. Fokus auf Technik, Musikalität und Bühnenpräsenz.',
+            en: 'Private coaching in Hip-Hop, Vogueing & Afro Dance. Focus on technique, musicality and stage presence.',
+        },
         sortOrder: 5,
         measurements: {
             height: '168 cm',
@@ -410,7 +425,7 @@ export async function talentsSeeder(payload: Payload) {
     let created = 0
     let updated = 0
 
-    for (const [talentIndex, { skillSlugs, ...talent }] of talents.entries()) {
+    for (const [talentIndex, { skillSlugs, coachingDescription, ...talent }] of talents.entries()) {
         try {
             const existing = await payload.find({
                 collection: 'talents',
@@ -443,10 +458,12 @@ export async function talentsSeeder(payload: Payload) {
             ].filter((id): id is number => typeof id === 'number')
 
             const talentSeo = buildTalentSeo(talent.name, talent.category)
-            const { bio, ...talentRest } = talent
+            const { bio, isCoach, ...talentRest } = talent
             const talentData: any = {
                 ...talentRest,
                 bio: bio.de,
+                isCoach: isCoach || false,
+                coachingDescription: coachingDescription?.de || null,
                 skills: skillIds,
                 seo: {
                     metaTitle: talentSeo.metaTitle.de,
@@ -466,9 +483,10 @@ export async function talentsSeeder(payload: Payload) {
                 _status: 'published',
             }
 
-            // EN locale data: bio + gallery captions + SEO
+            // EN locale data: bio + gallery captions + SEO + coaching
             const enLocaleData: any = {
                 bio: bio.en,
+                ...(coachingDescription?.en ? { coachingDescription: coachingDescription.en } : {}),
                 seo: {
                     metaTitle: talentSeo.metaTitle.en,
                     metaDescription: talentSeo.metaDescription.en,

@@ -2,6 +2,9 @@ import type { Block } from 'payload'
 
 export const MapBlock: Block = {
     slug: 'map',
+    interfaceName: 'MapBlock',
+    imageURL: '/block-previews/map.svg',
+    imageAltText: 'Embedded map block',
     labels: {
         singular: { de: 'Karte', en: 'Map' },
         plural: { de: 'Karten', en: 'Maps' },

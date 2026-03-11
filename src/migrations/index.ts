@@ -4,6 +4,7 @@ import * as migration_20260228_074216_talent_taxonomy_update from './20260228_07
 import * as migration_20260228_081029_add_application_status from './20260228_081029_add_application_status';
 import * as migration_20260301_140000_media_alt_localized from './20260301_140000_media_alt_localized';
 import * as migration_20260305_151750 from './20260305_151750';
+import * as migration_20260306_045204_section_header_fields from './20260306_045204_section_header_fields';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260305_151750.up,
     down: migration_20260305_151750.down,
-    name: '20260305_151750'
+    name: '20260305_151750',
+  },
+  {
+    up: migration_20260306_045204_section_header_fields.up,
+    down: migration_20260306_045204_section_header_fields.down,
+    name: '20260306_045204_section_header_fields'
   },
 ];

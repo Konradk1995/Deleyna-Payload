@@ -30,7 +30,7 @@ export function ContentBlockComponent({
     const useCardWrapper = backgroundColor === 'muted' || layout === 'narrow'
 
     return (
-        <section className={cn('padding-large section-atmosphere relative padding-medium', bgClass)}>
+        <section className={cn('section-padding-lg section-atmosphere relative', bgClass)}>
             {hasWhiteBackground && (
                 <>
                     <div

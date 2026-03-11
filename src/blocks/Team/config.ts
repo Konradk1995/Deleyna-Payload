@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const TeamBlock: Block = {
     slug: 'team',
@@ -7,18 +8,21 @@ export const TeamBlock: Block = {
     imageAltText: 'Team member cards grid',
     labels: { singular: { de: 'Team', en: 'Team' }, plural: { de: 'Team', en: 'Team' } },
     fields: [
+        ...sectionHeaderFields({ headingLevel: true, cta: true }),
         {
-            name: 'overline',
-            type: 'text',
-            localized: true,
-            label: { de: 'Overline (z. B. Our Team)', en: 'Overline (e.g. Our Team)' },
-        },
-        {
-            name: 'title',
-            type: 'text',
-            required: true,
-            localized: true,
-            label: { de: 'Titel', en: 'Title' },
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
         },
         {
             name: 'members',
@@ -30,6 +34,11 @@ export const TeamBlock: Block = {
                 singular: { de: 'Teammitglied', en: 'Team member' },
                 plural: { de: 'Teammitglieder', en: 'Team members' },
             },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#MemberRowLabel',
+                },
+            },
             fields: [
                 {
                     name: 'name',
@@ -37,6 +46,12 @@ export const TeamBlock: Block = {
                     required: true,
                     localized: true,
                     label: { de: 'Name', en: 'Name' },
+                    admin: {
+                        description: {
+                            de: 'Vollständiger Name des Teammitglieds',
+                            en: 'Full name of the team member',
+                        },
+                    },
                 },
                 {
                     name: 'role',
@@ -44,6 +59,12 @@ export const TeamBlock: Block = {
                     required: true,
                     localized: true,
                     label: { de: 'Rolle (z. B. Founder & CEO)', en: 'Role (e.g. Founder & CEO)' },
+                    admin: {
+                        description: {
+                            de: 'Position oder Rolle im Team',
+                            en: 'Position or role within the team',
+                        },
+                    },
                 },
                 {
                     name: 'image',
@@ -59,6 +80,12 @@ export const TeamBlock: Block = {
                     type: 'textarea',
                     localized: true,
                     label: { de: 'Kurzbeschreibung', en: 'Short bio' },
+                    admin: {
+                        description: {
+                            de: 'Kurze Biografie oder Beschreibung (optional)',
+                            en: 'Short biography or description (optional)',
+                        },
+                    },
                 },
             ],
         },

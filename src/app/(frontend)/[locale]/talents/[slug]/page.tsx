@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation'
 import { getCachedDocument } from '@/utilities/getDocument'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { ArrowLeft, Mail, Instagram } from 'lucide-react'
+import { Mail, Instagram } from 'lucide-react'
+import { Breadcrumb } from '@/components/Breadcrumb'
 
 import { Button } from '@/components/ui/button'
 import { AddToSelectionButton } from '@/components/Dancefloor/AddToDancefloorButton'
@@ -22,6 +23,8 @@ import { getHairLabel, getEyeLabel, getLanguageLabel } from '@/lib/constants/tal
 
 import type { Metadata } from 'next'
 import type { Talent, TalentSkill } from '@/payload-types'
+
+export const revalidate = 3600
 
 interface PageProps {
     params: Promise<{ locale: string; slug: string }>
@@ -42,13 +45,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     try {
         const result = await payload.find({
             collection: 'talents',
-            depth: 0,
+            depth: 1,
             draft: isDraft,
             locale: locale as 'de' | 'en',
             select: {
                 name: true,
                 bio: true,
                 seo: true,
+                featuredImage: true,
             },
             where: {
                 slug: { equals: slug },
@@ -64,15 +68,72 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             }
         }
 
+        const title = talent.seo?.metaTitle || `${talent.name} - ${t.sedcard}`
+        const description = talent.seo?.metaDescription || talent.bio?.substring(0, 160)
+        const keywords = (talent.seo as Record<string, unknown>)?.metaKeywords as string | undefined
+
+        // Resolve OG image: seo.ogImage > featured image > global logo
+        let ogImageUrl: string | undefined
+        const seoOgImg = (talent.seo as Record<string, unknown>)?.ogImage
+        if (seoOgImg && typeof seoOgImg === 'object' && 'url' in (seoOgImg as Record<string, unknown>) && (seoOgImg as Record<string, unknown>).url) {
+            const url = (seoOgImg as Record<string, unknown>).url as string
+            ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+        }
+        if (!ogImageUrl) {
+            const featImg = talent.featuredImage
+            if (featImg && typeof featImg === 'object' && 'url' in featImg && featImg.url) {
+                const url = featImg.url as string
+                ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+            }
+        }
+        if (!ogImageUrl) {
+            try {
+                const { getCachedGlobal } = await import('@/utilities/getGlobals')
+                const seo = await getCachedGlobal('seo', 1, locale)
+                const logo = seo?.socialMedia?.logo
+                if (logo && typeof logo === 'object' && 'url' in logo && logo.url) {
+                    const url = logo.url as string
+                    ogImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+                }
+            } catch { /* ignore */ }
+        }
+
+        // Crawling settings
+        const noIndex = (talent.seo as Record<string, unknown>)?.noIndex === true
+        const customCanonical = (talent.seo as Record<string, unknown>)?.canonicalUrl as string | undefined
+
+        const alternates = {
+            canonical: customCanonical || canonical,
+            languages: {
+                de: `${baseUrl}/de/talente/${slug}`,
+                en: `${baseUrl}/en/talents/${slug}`,
+                'x-default': `${baseUrl}/de/talente/${slug}`,
+            },
+        }
+
         return {
-            title: talent.seo?.metaTitle || `${talent.name} - ${t.sedcard}`,
-            description: talent.seo?.metaDescription || talent.bio?.substring(0, 160),
-            alternates: {
-                canonical,
-                languages: {
-                    de: `${baseUrl}/de/talente/${slug}`,
-                    en: `${baseUrl}/en/talents/${slug}`,
-                },
+            title,
+            description,
+            ...(keywords ? { keywords } : {}),
+            authors: [{ name: 'Deleyna' }],
+            robots: { index: !noIndex, follow: true },
+            alternates,
+            openGraph: {
+                type: 'profile' as const,
+                title,
+                description,
+                url: customCanonical || canonical,
+                siteName: 'Deleyna',
+                locale: localeKey === 'de' ? 'de_DE' : 'en_US',
+                ...(ogImageUrl
+                    ? { images: [{ url: ogImageUrl, width: 1200, height: 630, alt: talent.name || title }] }
+                    : {}),
+            },
+            twitter: {
+                card: 'summary_large_image' as const,
+                title,
+                description,
+                ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
             },
         }
     } catch {
@@ -122,6 +183,9 @@ const i18n = {
         sedcard: 'Sedcard',
         backToTalents: 'Zurück zu den Talenten',
         aboutMe: 'Über mich',
+        coachingBadge: 'Coaching',
+        coachingTitle: 'Privat-Coaching',
+        coachingCta: 'Coaching anfragen',
         measurements: 'Maße',
         skillsAndLanguages: 'Skills & Sprachen',
         experience: 'Erfahrung',
@@ -154,6 +218,9 @@ const i18n = {
         sedcard: 'Sedcard',
         backToTalents: 'Back to Talents',
         aboutMe: 'About',
+        coachingBadge: 'Coaching',
+        coachingTitle: 'Private Coaching',
+        coachingCta: 'Inquire about coaching',
         measurements: 'Measurements',
         skillsAndLanguages: 'Skills & Languages',
         experience: 'Experience',
@@ -336,16 +403,19 @@ export default async function TalentDetailPage({ params }: PageProps) {
                 }
             />
 
+            {/* ── Breadcrumb ── */}
+            <div className="container mt-6 mb-2">
+                <Breadcrumb
+                    items={[
+                        { label: locale === 'de' ? 'Startseite' : 'Home', href: '/' },
+                        { label: locale === 'de' ? 'Talente' : 'Talents', href: '/talents' },
+                        { label: talent.name || '' },
+                    ]}
+                />
+            </div>
+
             <section className="padding-large section-atmosphere">
                 <div className="container">
-                    {/* Back Link (chrome-grace style) */}
-                    <Link
-                        href="/talents"
-                        className="overline mb-8 inline-flex items-center gap-2 text-copper hover:opacity-80 transition-opacity"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        {t.backToTalents}
-                    </Link>
 
                     {/* Main Content: stacks on mobile, side-by-side on lg */}
                     <div className="grid gap-8 lg:gap-12 lg:grid-cols-2">
@@ -392,7 +462,7 @@ export default async function TalentDetailPage({ params }: PageProps) {
                             {/* Header (chrome-grace style) */}
                             <div className="mb-4">
                                 <span className="overline mb-2 block text-copper">{t.sedcard}</span>
-                                <h1 className="font-display-tight font-heading-1-bold leading-[1.04] tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere] pb-[0.03em]">
+                                <h1 className="font-display-tight font-heading-1-bold tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere]">
                                     <span className="font-display text-foreground">
                                         {talent.name.split(' ')[0]}
                                     </span>{' '}
@@ -434,6 +504,35 @@ export default async function TalentDetailPage({ params }: PageProps) {
                                     <p className="text-muted-foreground leading-relaxed">
                                         {talent.bio}
                                     </p>
+                                </div>
+                            )}
+
+                            {/* Coaching */}
+                            {talent.isCoach && talent.coachingDescription && (
+                                <div className="mb-8 rounded-2xl border border-copper/20 bg-gradient-to-br from-copper/5 to-copper/10 p-5">
+                                    <div className="mb-2 flex items-center gap-2">
+                                        <span className="rounded-full bg-copper/15 px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-copper">
+                                            {t.coachingBadge}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-heading-5-bold text-foreground mb-2">
+                                        {t.coachingTitle}
+                                    </h3>
+                                    <p className="text-muted-foreground leading-relaxed text-sm">
+                                        {talent.coachingDescription}
+                                    </p>
+                                    <div className="mt-4">
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="sm"
+                                            className="rounded-full border-copper/30 text-copper hover:bg-copper/10 hover:text-copper"
+                                        >
+                                            <Link href={{ pathname: '/[...slug]', params: { slug: ['contact'] } }}>
+                                                {t.coachingCta}
+                                            </Link>
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
 

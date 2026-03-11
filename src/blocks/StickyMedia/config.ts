@@ -1,18 +1,20 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const StickyMedia: Block = {
     slug: 'stickyMedia',
     interfaceName: 'StickyMediaBlock',
     labels: {
         singular: {
-            de: 'Sticky Media (Fullscreen-Scroll)',
+            de: 'Vollbild-Scroll',
             en: 'Sticky media (fullscreen scroll)',
         },
-        plural: { de: 'Sticky-Media-Blöcke', en: 'Sticky media blocks' },
+        plural: { de: 'Vollbild-Scroll-Blöcke', en: 'Sticky media blocks' },
     },
     imageURL: '/block-previews/sticky-media.svg',
     imageAltText: 'Fullscreen sticky background with scroll-driven text animation.',
     fields: [
+        ...sectionHeaderFields({ headingLevel: true, description: false }),
         {
             name: 'backgroundColor',
             type: 'select',
@@ -23,41 +25,8 @@ export const StickyMedia: Block = {
             ],
             admin: {
                 description: {
-                    de: 'Hintergrundfarbe der Section (angepasst an Dark/Light Mode)',
-                    en: 'Section background colour (adapts to dark mode)',
-                },
-            },
-        },
-        {
-            name: 'badge',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Optionales Badge/Tagline über der Überschrift (z.B. "EINLEITUNG").',
-                    en: 'Optional badge/tagline above the headline (e.g. "EINLEITUNG").',
-                },
-            },
-        },
-        {
-            name: 'headline',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Hauptüberschrift (H2). Leer lassen zum Ausblenden.',
-                    en: 'Main headline (H2). Leave empty to hide.',
-                },
-            },
-        },
-        {
-            name: 'headlineHighlight',
-            type: 'text',
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Wort oder Phrase in der Überschrift in Akzentfarbe hervorheben.',
-                    en: 'Word or phrase in the headline to highlight in accent colour.',
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
                 },
             },
         },

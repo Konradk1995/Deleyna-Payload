@@ -1,4 +1,5 @@
 import React from 'react'
+import { Check, ChevronRight, MoveRight } from 'lucide-react'
 import type { StepSectionBlock as StepSectionBlockProps, Media as MediaType } from '@/payload-types'
 
 import RichText from '@/components/RichText'
@@ -31,46 +32,13 @@ const getDesktopCols = (count: number): string => {
     return 'lg:grid-cols-6'
 }
 
-const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg
-        className={className}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-    >
-        <path d="M20 6L9 17l-5-5" />
-    </svg>
-)
-
 /** Dashed arrow between flow items (desktop only) */
 const FlowArrow: React.FC = () => (
     <div
         className="hidden lg:flex items-center justify-center flex-shrink-0 px-3"
         aria-hidden="true"
     >
-        <svg width="40" height="12" viewBox="0 0 40 12" fill="none" className="text-border">
-            <line
-                x1="0"
-                y1="6"
-                x2="30"
-                y2="6"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-            />
-            <path
-                d="M30 2l6 4-6 4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
+        <MoveRight className="h-5 w-5 text-border" strokeWidth={1.5} />
     </div>
 )
 
@@ -80,8 +48,9 @@ const FlowArrow: React.FC = () => (
 
 export const StepSectionBlock: React.FC<Props> = (props) => {
     const {
-        headline,
-        headlineHighlight,
+        title,
+        titleHighlight,
+        headingLevel,
         intro,
         steps,
         cta,
@@ -111,15 +80,16 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
     return (
         <section
             className={cn('section-padding-lg section-atmosphere', bgClass)}
-            aria-label={badge || headline || 'Section'}
+            aria-label={badge || title || 'Section'}
         >
             <div className="container">
                 {/* ── Header ── */}
                 <div className="mx-auto mb-12 max-w-4xl text-center md:mb-16">
                     <SectionHeader
                         overline={badge ?? undefined}
-                        title={headline ?? ''}
-                        titleHighlight={headlineHighlight}
+                        title={title ?? ''}
+                        titleHighlight={titleHighlight}
+                        as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                         centered={true}
                         className="mb-0"
                     />
@@ -185,7 +155,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                                     {/* Icon container */}
                                                     <div
                                                         className={cn(
-                                                            'flex h-14 w-14 items-center justify-center rounded-2xl transition-[border-color,background-color,box-shadow] duration-300',
+                                                            'flex h-14 w-14 items-center justify-center rounded-[var(--block-radius)] transition-[border-color,background-color,box-shadow] duration-300',
                                                             isHighlighted
                                                                 ? 'border-2 border-primary bg-primary/5 ring-4 ring-primary/10'
                                                                 : 'bg-muted border border-border',
@@ -240,17 +210,22 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                             typeof iconMedia === 'object' &&
                                             iconMedia.url
                                         const isHighlighted = step.highlight
+                                        const isOddLast =
+                                            index === stepCount - 1 &&
+                                            stepCount % 2 === 1 &&
+                                            stepCount > 1
 
                                         return (
                                             <ScrollFadeIn
                                                 key={step.id ?? index}
                                                 delay={80 + index * 60}
                                                 animation="fade-up"
+                                                className={isOddLast ? 'col-span-2' : undefined}
                                             >
                                                 <div className="flex flex-col items-center gap-2.5 text-center">
                                                     <div
                                                         className={cn(
-                                                            'flex h-12 w-12 items-center justify-center rounded-2xl transition-[border-color,background-color] duration-300',
+                                                            'flex h-12 w-12 items-center justify-center rounded-[var(--block-radius)] transition-[border-color,background-color] duration-300',
                                                             isHighlighted
                                                                 ? 'border-2 border-primary bg-primary/5'
                                                                 : 'bg-muted border border-border',
@@ -345,8 +320,14 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                 typeof iconMedia === 'object' &&
                                 iconMedia.url
 
+                            // Last item on an odd-count grid: span 2 cols at md (before lg kicks in)
+                            const isOddLast = isLast && stepCount % 2 === 1 && stepCount > 1
+
                             return (
-                                <li key={step.id ?? index} className="list-none">
+                                <li
+                                    key={step.id ?? index}
+                                    className={cn('list-none', isOddLast && 'md:col-span-2 lg:col-span-1')}
+                                >
                                     <ScrollFadeIn delay={index * 120} className="h-full">
                                         <div className="group relative h-full">
                                             {/* Chevron between cards (number mode only) */}
@@ -355,19 +336,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                                     className="absolute -right-[0.85rem] top-1/2 z-20 hidden -translate-y-1/2 text-border lg:flex"
                                                     aria-hidden="true"
                                                 >
-                                                    <svg
-                                                        className="h-4 w-4"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                        strokeWidth={2}
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            d="M9 5l7 7-7 7"
-                                                        />
-                                                    </svg>
+                                                    <ChevronRight className="h-4 w-4" />
                                                 </div>
                                             )}
                                             <div
@@ -380,7 +349,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                                 {isIconMode ? (
                                                     <div className="mb-4" aria-hidden="true">
                                                         {hasIcon ? (
-                                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+                                                            <div className="flex h-12 w-12 items-center justify-center rounded-[var(--block-radius)] bg-muted">
                                                                 <Media
                                                                     resource={iconMedia}
                                                                     className="h-7 w-7"
@@ -388,7 +357,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                                                 />
                                                             </div>
                                                         ) : (
-                                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+                                                            <div className="flex h-12 w-12 items-center justify-center rounded-[var(--block-radius)] bg-muted">
                                                                 <span className="font-heading-6-bold text-muted-foreground">
                                                                     ?
                                                                 </span>
@@ -434,8 +403,8 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                     iconMedia && typeof iconMedia === 'object' && iconMedia.url
 
                                 return (
-                                    <ScrollFadeIn key={step.id ?? index} delay={index * 120}>
-                                        <div className="flex flex-col items-center">
+                                    <ScrollFadeIn key={step.id ?? index} delay={index * 120} className="h-full">
+                                        <div className="flex h-full flex-col items-center">
                                             {/* Circle + connecting line */}
                                             <div className="relative mb-5 flex w-full items-center justify-center">
                                                 {index > 0 && (
@@ -459,7 +428,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                             {/* Card */}
                                             <div
                                                 className={cn(
-                                                    'flex w-full flex-col items-center p-5 text-center md:p-6',
+                                                    'flex w-full flex-1 flex-col items-center p-5 text-center md:p-6',
                                                     cardClass,
                                                 )}
                                             >
@@ -476,7 +445,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                                                     </div>
                                                 ) : (
                                                     <div
-                                                        className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10"
+                                                        className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--block-radius)] bg-primary/10"
                                                         aria-hidden="true"
                                                     >
                                                         <span className="font-subtext-semibold text-primary">
@@ -569,7 +538,7 @@ export const StepSectionBlock: React.FC<Props> = (props) => {
                     <ScrollFadeIn delay={(stepCount + 1) * 100}>
                         <div className="surface-pill mt-10 flex items-start gap-4 border-primary/20 bg-primary/5 padding-large md:mt-14 md:gap-5">
                             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground md:h-12 md:w-12">
-                                <CheckIcon className="h-5 w-5 md:h-6 md:w-6" />
+                                <Check className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 {resultTitle && (

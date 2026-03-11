@@ -1,7 +1,9 @@
 import type { Block } from 'payload'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const GalleryBlock: Block = {
     slug: 'gallery',
+    interfaceName: 'GalleryBlock',
     imageURL: '/block-previews/gallery.svg',
     imageAltText: 'Image gallery grid with multiple columns',
     labels: {
@@ -34,12 +36,37 @@ export const GalleryBlock: Block = {
                     ['grid', 'masonry', 'lightbox'].includes(siblingData?.variant),
             },
         },
+        ...sectionHeaderFields({ headingLevel: true, titleHighlight: false }),
+        {
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
+        },
         {
             name: 'images',
             type: 'array',
             required: true,
             minRows: 1,
             maxRows: 24,
+            labels: {
+                singular: { de: 'Bild', en: 'Image' },
+                plural: { de: 'Bilder', en: 'Images' },
+            },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#CaptionRowLabel',
+                },
+            },
             fields: [
                 {
                     name: 'image',

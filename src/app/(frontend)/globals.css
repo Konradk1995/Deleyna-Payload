@@ -40,25 +40,25 @@
     --input: 229 229 229;
     --ring: 196 149 106;
 
-    /* Destructive (Fehler, Löschen) */
+    /* Destructive */
     --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
 
-    /* Success (Erfolg, Bestätigung) */
+    /* Success */
     --success: 34 197 94;
     --success-foreground: 255 255 255;
 
     /* Radius */
     --radius: 1rem;
 
-    /* Chrome/Metallic (Reference: chrome-grace-talent) */
+    /* Chrome / Metallic */
     --chrome-start: 140 140 140; /* Darker for better contrast on white */
     --chrome-mid: 100 100 100;
     --chrome-end: 60 60 60;
     --copper: 186 139 96; /* Slightly deeper copper */
     --copper-glow: 216 175 140;
 
-    /* Talent card palettes (chrome-grace-talent) */
+    /* Talent card palettes */
     --talent-sage: 197 212 168;
     --talent-peach: 232 168 109;
     --talent-cream: 232 220 200;
@@ -84,12 +84,13 @@
     --space-lg: 2rem;
     --space-xl: 3rem;
     --space-xxl: 4.5rem;
-    --space-hero: 8rem; /* 128px → 128-74 = 54px visible above content */
-    --space-hero-md: 9rem; /* 144px → 70px visible */
-    --space-hero-lg: 10rem; /* 160px → 86px visible */
-    --space-hero-tight: 6.5rem; /* 104px → 30px visible */
-    --space-hero-tight-md: 7.5rem; /* 120px → 46px visible */
-    --space-hero-tight-lg: 8.5rem; /* 136px → 62px visible */
+    --header-h: 4.625rem; /* 74px — fixed header height */
+    --space-hero: 3.5rem; /* clean gap below header */
+    --space-hero-md: 4.5rem;
+    --space-hero-lg: 5.5rem;
+    --space-hero-tight: 2rem;
+    --space-hero-tight-md: 3rem;
+    --space-hero-tight-lg: 3.5rem;
 
     /* Typography Scale */
     --type-display: clamp(2.75rem, 5vw, 4rem);
@@ -148,14 +149,14 @@
     --chrome-start: 240 240 240;
     --chrome-mid: 200 200 200;
     --chrome-end: 160 160 160;
-    --copper: 196 149 106;
-    --copper-glow: 216 175 140;
+    --copper: 216 170 128;
+    --copper-glow: 230 195 160;
 
     /* Talent card palettes Dark */
     --talent-sage: 145 165 120;
     --talent-peach: 200 130 85;
     --talent-cream: 200 185 155;
-    --surface-inverse: 10 10 10;
+    --surface-inverse: 245 245 245;
 
     /* Hero overlay */
     --hero-overlay-opacity: 0.55;
@@ -194,18 +195,18 @@
 /* Note: Playfair Display is loaded via next/font in layout.tsx
    and exposed as --font-display CSS variable */
 
-/* Typography Utilities – einheitliche Schriftgrößen/Stile für Blöcke (wie weess) */
+/* Typography Utilities */
 @layer utilities {
     /* Headings: H1–H6, bold/regular */
     .font-heading-1-bold {
         font-size: clamp(2.5rem, 5vw, 3.75rem);
         font-weight: 700;
-        line-height: 1;
+        line-height: 1.1;
     }
     .font-heading-2-bold {
         font-size: clamp(2rem, 4vw, 3rem);
         font-weight: 700;
-        line-height: 1.1;
+        line-height: 1.15;
     }
     .font-heading-3-bold {
         font-size: clamp(1.75rem, 3vw, 2.25rem);
@@ -238,7 +239,7 @@
         line-height: 1.4;
     }
 
-    /* Body / Fließtext */
+    /* Body */
     .font-normal-text-regular {
         font-size: 1rem;
         font-weight: 400;
@@ -285,7 +286,6 @@
 html {
     opacity: 0;
     scroll-behavior: smooth;
-    overflow-x: hidden;
     overflow-x: clip;
 }
 
@@ -298,7 +298,6 @@ html:not(.dark) {
 body {
     background-color: rgb(var(--background));
     color: rgb(var(--foreground));
-    overflow-x: hidden;
     overflow-x: clip;
     font-feature-settings:
         'rlig' 1,
@@ -341,7 +340,7 @@ body {
     font-family: var(--font-display), Georgia, serif;
     letter-spacing: -0.025em;
     font-weight: 700;
-    line-height: 1.05;
+    line-height: 1.1;
 }
 
 /* Accent Text */
@@ -358,7 +357,7 @@ body {
     background-color: rgb(var(--accent-hover));
 }
 
-/* Gradient Overlay für Hero */
+/* Hero gradient overlay */
 .gradient-overlay {
     background: linear-gradient(to bottom, transparent 0%, rgb(var(--background) / 0.8) 100%);
 }
@@ -391,7 +390,7 @@ body {
     background: linear-gradient(to top, rgb(var(--media-overlay) / 0.7), transparent);
 }
 
-/* Hero-Hintergründe (Lovable/chrome-grace-talent Style) – wiederverwendbar */
+/* Hero backgrounds */
 .hero-grid {
     background-image:
         linear-gradient(rgb(var(--foreground) / 0.1) 1px, transparent 1px),
@@ -485,14 +484,13 @@ body {
 }
 
 /* ===========================================
-   SPACING SYSTEM (Design-Tokens, 8px Grid)
-   Änderungen hier wirken auf alle Blöcke.
+   SPACING SYSTEM (Design Tokens, 8px Grid)
    =========================================== */
 
 :root {
     --section-padding-y: 4rem; /* 64px, Standard-Sektion */
     --section-padding-y-md: 6rem; /* 96px ab 768px */
-    --section-padding-lg-y: 5rem; /* 80px, große Sektion */
+    --section-padding-lg-y: 5rem;
     --section-padding-lg-y-md: 7rem; /* 112px ab 768px */
 
     /* Block layout tokens */
@@ -550,8 +548,8 @@ body {
 
     .block-card-base {
         border-radius: var(--block-radius);
-        border: 1px solid rgb(var(--border) / 0.7);
-        background-color: rgb(var(--card) / 0.85);
+        border: 1px solid rgb(var(--border) / 0.5);
+        background-color: rgb(var(--card) / 0.65);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
         transition:
@@ -955,7 +953,7 @@ body {
     }
 }
 
-/* Dezenter Chrome-Hintergrund für Sektionen (Lovable) */
+/* Subtle chrome section background */
 .section-chrome {
     background: linear-gradient(
         180deg,
@@ -1022,6 +1020,31 @@ body {
     );
 }
 
+/*
+ * Inverse section — swaps foreground/background tokens so child elements
+ * using text-foreground, bg-card, border-border etc. automatically adapt.
+ * Light mode: dark section (black bg, white text)
+ * Dark mode:  light section (light bg, dark text) — true inversion
+ */
+.inverse-section {
+    --background: 10 10 10;
+    --foreground: 250 250 250;
+    --muted-foreground: 180 180 180;
+    --card: 18 18 18;
+    --card-foreground: 250 250 250;
+    --border: 50 50 50;
+}
+
+.dark .inverse-section,
+[data-theme='dark'] .inverse-section {
+    --background: 245 245 245;
+    --foreground: 10 10 10;
+    --muted-foreground: 100 100 100;
+    --card: 235 235 235;
+    --card-foreground: 10 10 10;
+    --border: 210 210 210;
+}
+
 /* ===========================================
    COMPONENT STYLES
    =========================================== */
@@ -1073,7 +1096,7 @@ body {
     color: rgb(var(--accent));
 }
 
-/* Overline text style (Reference: chrome-grace-talent) */
+/* Overline text style */
 .overline {
     font-size: 0.75rem;
     font-weight: 600;
@@ -1100,9 +1123,11 @@ body {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.02em;
+    /* Prevent background-clip: text from clipping descenders (g, j, p, y) and umlauts */
+    padding-bottom: 0.1em;
 }
 
-/* Lovable-style: Copper/Orange gradient in text (headlines) – sexy, warm */
+/* Copper gradient text */
 .text-gradient-copper {
     font-family: var(--font-display), Georgia, serif;
     background: linear-gradient(
@@ -1120,7 +1145,7 @@ body {
     letter-spacing: -0.025em;
 }
 
-/* Overline mit Copper – für Sektionen / Labels */
+/* Copper overline */
 .overline-copper {
     font-size: 0.7rem;
     font-weight: 600;
@@ -1182,8 +1207,8 @@ body {
 
 .surface-pill-soft {
     border-radius: 1.25rem;
-    border: 1px solid rgb(var(--border) / 0.6);
-    background-color: rgb(var(--card) / 0.72);
+    border: 1px solid rgb(var(--border) / 0.35);
+    background-color: rgb(var(--card) / 0.5);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 }
@@ -1262,7 +1287,7 @@ body {
     opacity: 0;
 }
 
-/* Chrome gradient background (chrome-grace-talent) */
+/* Chrome gradient background */
 .chrome-gradient {
     background: linear-gradient(
         135deg,
@@ -1310,8 +1335,16 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .marquee-track {
-        animation: none;
+    .marquee-track,
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-scale-in,
+    .animate-copper-pulse,
+    .animate-reveal,
+    [class*='stagger-'] {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
     }
 }
 
@@ -1336,7 +1369,7 @@ body {
     animation: shimmer 3s ease-in-out infinite;
 }
 
-/* Talent carousel states (chrome-grace-talent) */
+/* Talent carousel states */
 .talent-card-active {
     @apply scale-100 opacity-100 z-20;
 }
@@ -1374,7 +1407,7 @@ body {
     );
 }
 
-/* Talent card hover overlay (chrome-grace-talent) */
+/* Talent card hover overlay */
 .talent-card {
     @apply relative overflow-hidden;
 }

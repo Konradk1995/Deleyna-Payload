@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
 import type { Page, Post, Media } from '@/payload-types'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { localizePageSlug } from '@/utilities/pageSlugAliases'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 const BASE_URL = getServerSideURL()
 
+type DocWithPageSettings = { pageSettings?: Page['pageSettings'] }
+
 interface GenerateMetaArgs {
-    doc: Partial<Page> | Partial<Post> | null
+    doc: (Partial<Page> | Partial<Post>) | null
     locale?: string
 }
 
@@ -25,28 +26,19 @@ function getResolvedSlug(
     return ''
 }
 
-/**
- * Generiert Next.js Metadata aus Page/Post Dokumenten
- */
 export async function generateMeta({ doc, locale = 'de' }: GenerateMetaArgs): Promise<Metadata> {
     if (!doc) {
         return {
-            title: 'Seite nicht gefunden',
+            title: 'Page not found',
         }
     }
 
-    let siteName = 'Agentur'
+    let siteName = 'Deleyna'
     let defaultDescription = ''
     let defaultOgImage: string | undefined
 
     try {
-        const payloadConfig = await config
-        const payload = await getPayload({ config: payloadConfig })
-
-        const seoSettings = await payload.findGlobal({
-            slug: 'seo',
-            locale: locale as 'de' | 'en',
-        })
+        const seoSettings = await getCachedGlobal('seo', 1, locale)
 
         siteName = seoSettings?.businessInfo?.name || siteName
         defaultDescription = seoSettings?.businessInfo?.description || ''
@@ -58,14 +50,10 @@ export async function generateMeta({ doc, locale = 'de' }: GenerateMetaArgs): Pr
         console.error('Error fetching SEO settings:', error)
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pageSettings = (doc as any).pageSettings || {}
+    const pageSettings = (doc as DocWithPageSettings).pageSettings || {}
 
-    // Titel
     const title = pageSettings.metaTitle || doc.title || ''
     const fullTitle = title ? `${title} | ${siteName}` : siteName
-
-    // Beschreibung
     const description = pageSettings.metaDescription || defaultDescription
 
     // OG Image
@@ -136,12 +124,18 @@ export async function generateMeta({ doc, locale = 'de' }: GenerateMetaArgs): Pr
             },
         },
         openGraph: {
-            type: 'website',
+            type: 'publishedAt' in doc ? 'article' : 'website',
             locale: locale === 'de' ? 'de_DE' : 'en_US',
             url: canonicalUrl,
             title: pageSettings.ogTitle || title,
             description: pageSettings.ogDescription || description,
             siteName,
+            ...('publishedAt' in doc && doc.publishedAt
+                ? { publishedTime: new Date(doc.publishedAt as string).toISOString() }
+                : {}),
+            ...('updatedAt' in doc && doc.updatedAt
+                ? { modifiedTime: new Date(doc.updatedAt as string).toISOString() }
+                : {}),
             images: ogImage
                 ? [
                       {
@@ -171,8 +165,7 @@ export function generatePageStructuredData(
     seoSettings?: any,
 ) {
     const schemas: object[] = []
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pageSettings = (doc as any).pageSettings || {}
+    const pageSettings = (doc as DocWithPageSettings).pageSettings || {}
     const schemaType = pageSettings.schemaType || 'WebPage'
     const includeBreadcrumbs = pageSettings.includeBreadcrumbs ?? true
     const includeOrganization =

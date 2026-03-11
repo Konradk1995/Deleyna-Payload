@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import { link } from '@/fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 export const MasonryGrid: Block = {
     slug: 'masonryGrid',
@@ -21,42 +22,7 @@ export const MasonryGrid: Block = {
                 },
             ],
         },
-        {
-            name: 'badge',
-            type: 'text',
-            label: { de: 'Badge', en: 'Badge' },
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Optionaler Badge/Tagline über der Überschrift',
-                    en: 'Optional badge/tagline above the headline',
-                },
-            },
-        },
-        {
-            name: 'heading',
-            type: 'text',
-            label: { de: 'Überschrift', en: 'Heading' },
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Optionale Überschrift (H2)',
-                    en: 'Optional heading for the section (H2)',
-                },
-            },
-        },
-        {
-            name: 'headlineHighlight',
-            type: 'text',
-            label: { de: 'Hervorhebung', en: 'Highlight' },
-            localized: true,
-            admin: {
-                description: {
-                    de: 'Optionaler Begriff zur Hervorhebung in der Überschrift (Primärfarbe)',
-                    en: 'Optional phrase to emphasize in the headline (shown in primary color)',
-                },
-            },
-        },
+        ...sectionHeaderFields({ headingLevel: true, description: false }),
         {
             name: 'backgroundColor',
             type: 'select',
@@ -68,8 +34,8 @@ export const MasonryGrid: Block = {
             ],
             admin: {
                 description: {
-                    de: 'Sektionshintergrund (Dunkel/Hell-Modus automatisch)',
-                    en: 'Section background (Dark/Light mode applies automatically)',
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
                 },
                 condition: (_, siblingData) => siblingData?.variant === 'benefits',
             },
@@ -156,6 +122,11 @@ export const MasonryGrid: Block = {
                     },
                     minRows: 2,
                     required: true,
+                    admin: {
+                        components: {
+                            RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
+                        },
+                    },
                     fields: [
                         {
                             name: 'label',
@@ -315,6 +286,9 @@ export const MasonryGrid: Block = {
                     en: 'Add exactly four cards for the audience grid layout',
                 },
                 condition: (_, siblingData) => siblingData?.variant === 'audience',
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
+                },
             },
             fields: [
                 {
@@ -377,7 +351,7 @@ export const MasonryGrid: Block = {
         },
     ],
     labels: {
-        singular: { de: 'Masonry Grid', en: 'Masonry grid' },
-        plural: { de: 'Masonry Grids', en: 'Masonry grids' },
+        singular: { de: 'Kachel-Raster', en: 'Masonry grid' },
+        plural: { de: 'Kachel-Raster', en: 'Masonry grids' },
     },
 }

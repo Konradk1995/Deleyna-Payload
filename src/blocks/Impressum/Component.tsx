@@ -68,14 +68,14 @@ export const ImpressumBlock: React.FC<Props> = async ({
         euDispute: headingEuDispute || t('euDispute'),
     }
 
-    const cardClass = 'block-card-base rounded-2xl border border-border padding-large shadow-sm'
+    const cardClass = 'block-card-base rounded-[var(--block-radius)] border border-border padding-large shadow-sm'
 
     return (
         <section className="section-padding section-atmosphere bg-muted" aria-label="Impressum">
             <div className="container">
-                <div className="mx-auto flex max-w-4xl flex-col gap-5">
+                <div className="mx-auto flex max-w-4xl flex-col block-grid-gap">
                     {/* Block 1: Unternehmensangaben + Kontakt */}
-                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <div className="grid grid-cols-1 block-grid-gap md:grid-cols-2">
                         <div className={cardClass}>
                             <div className="mb-4 flex items-center gap-3">
                                 <Building2 className={iconClass} aria-hidden="true" />
@@ -139,7 +139,7 @@ export const ImpressumBlock: React.FC<Props> = async ({
                     </div>
 
                     {/* Block 2: Vertretungsberechtigte + Registereintrag */}
-                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <div className="grid grid-cols-1 block-grid-gap md:grid-cols-2">
                         <div className={cardClass}>
                             <div className="mb-4 flex items-center gap-3">
                                 <User className={iconClass} aria-hidden="true" />

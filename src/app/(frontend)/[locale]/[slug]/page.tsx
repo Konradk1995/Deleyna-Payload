@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import { generateMeta } from '@/utilities/generateMeta'
 import { enrichFeaturedTalentsBlocks } from '@/utilities/enrichFeaturedTalentsBlocks'
 import { localizePageSlug, toCanonicalPageSlug } from '@/utilities/pageSlugAliases'
@@ -13,6 +14,8 @@ import { getCachedDocument } from '@/utilities/getDocument'
 
 import type { Metadata } from 'next'
 import type { Page } from '@/payload-types'
+
+export const revalidate = 3600
 
 type PageProps = {
     params: Promise<{ locale: string; slug: string }>
@@ -127,11 +130,40 @@ export default async function DynamicPage({ params }: PageProps) {
     const fallbackUrl = `${baseUrl}/${locale}/${localizedSlug}`
     const pageUrl = page.pageSettings?.canonicalUrl || fallbackUrl
 
+    const heroType = page.hero?.type
+    const hasHero = heroType && heroType !== 'none'
+    const isFullBleedHero =
+        heroType === 'highImpact' ||
+        heroType === 'centeredVideo' ||
+        heroType === 'textMiddleAligned'
+
+    const breadcrumbItems = [
+        { label: locale === 'de' ? 'Startseite' : 'Home', href: '/' as const },
+        { label: page.title || '' },
+    ]
+
     return (
         <>
             <PageStructuredData page={page} url={pageUrl} />
-            {/* Hero */}
-            {page.hero && page.hero.type !== 'none' && <RenderHero {...page.hero} />}
+
+            {isFullBleedHero ? (
+                <div className="relative">
+                    <RenderHero {...page.hero!} />
+                    <div className="absolute top-[calc(var(--header-h)+1rem)] left-0 right-0 z-20 container">
+                        <Breadcrumb
+                            items={breadcrumbItems}
+                            className="[&_ol]:text-on-media/70 [&_a]:text-on-media/70 [&_a:hover]:text-on-media [&_span]:text-on-media/90 [&_svg]:text-on-media/40 drop-shadow-sm"
+                        />
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className="container mt-6 mb-2">
+                        <Breadcrumb items={breadcrumbItems} />
+                    </div>
+                    {hasHero && <RenderHero {...page.hero!} />}
+                </>
+            )}
 
             {/* Blocks */}
             {layout && layout.length > 0 && <RenderBlocks blocks={layout} locale={locale} />}

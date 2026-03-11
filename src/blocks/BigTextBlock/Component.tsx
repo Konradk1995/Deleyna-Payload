@@ -62,7 +62,7 @@ export const BigTextBlockComponent: React.FC<BigTextBlockProps> = ({
                         as={Tag}
                         className={cn(
                             fontClass,
-                            'pb-1 leading-none text-balance bg-gradient-to-r from-foreground via-copper to-foreground bg-clip-text text-transparent',
+                            'text-balance bg-gradient-to-r from-foreground via-copper to-foreground bg-clip-text text-transparent',
                         )}
                     />
                     {lineTwo && (
@@ -72,7 +72,7 @@ export const BigTextBlockComponent: React.FC<BigTextBlockProps> = ({
                             as={Tag}
                             className={cn(
                                 fontClass,
-                                'mt-4 pb-1 leading-none text-balance bg-gradient-to-r from-foreground via-copper to-foreground bg-clip-text text-transparent md:mt-6',
+                                'mt-4 text-balance bg-gradient-to-r from-foreground via-copper to-foreground bg-clip-text text-transparent md:mt-6',
                             )}
                         />
                     )}

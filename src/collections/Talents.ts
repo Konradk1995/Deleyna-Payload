@@ -67,6 +67,10 @@ export const Talents: CollectionConfig = {
             'name',
             'featuredImage',
             'category',
+            'isCoach',
+            'measurements.height',
+            'measurements.hair',
+            'measurements.eyes',
             'bookingEmail',
             'featured',
             '_status',
@@ -164,8 +168,8 @@ export const Talents: CollectionConfig = {
                                         disableListFilter: true,
                                         style: { flex: '1 1 50%' },
                                         description: {
-                                            de: 'Hauptbild / Cover (Portrait, mind. 800x1200px). Wird auch als Sedcard-Cover verwendet. Bitte KEIN freigestelltes (Cutout) Bild verwenden.',
-                                            en: 'Main image / cover (portrait, min. 800x1200px). Also used as sedcard cover. Please do NOT use a cutout image here.',
+                                            de: 'Hauptbild / Cover (Portrait, mind. 1200×1600 px). Wird als großes Hero-Bild links in der Sedcard verwendet. Bitte KEIN freigestelltes (Cutout) Bild verwenden.',
+                                            en: 'Main image / cover (portrait, min 1200×1600 px). Used as the large hero image on the left side of the sedcard. Please do NOT use a cutout image here.',
                                         },
                                     },
                                 },
@@ -193,6 +197,9 @@ export const Talents: CollectionConfig = {
                                 description: {
                                     de: 'Zusätzliche Bilder für die Talent-Detailseite (Website). Nicht für die Sedcard-PDF — dafür den Tab „Sedcard" nutzen.',
                                     en: 'Additional images for the talent detail page (website). Not for the sedcard PDF — use the "Sedcard" tab for that.',
+                                },
+                                components: {
+                                    RowLabel: '@/components/admin/RowLabels#CaptionRowLabel',
                                 },
                             },
                             fields: [
@@ -376,6 +383,19 @@ export const Talents: CollectionConfig = {
                             },
                         },
                         {
+                            name: 'coachingDescription',
+                            type: 'textarea',
+                            label: { de: 'Coaching-Angebot', en: 'Coaching offering' },
+                            localized: true,
+                            admin: {
+                                condition: (data) => data?.isCoach === true,
+                                description: {
+                                    de: 'Kurze Beschreibung des Coaching-Angebots (z.B. Tanzstile, Levels, Privatstunden)',
+                                    en: 'Short description of coaching offering (e.g. dance styles, levels, private lessons)',
+                                },
+                            },
+                        },
+                        {
                             name: 'languages',
                             type: 'select',
                             hasMany: true,
@@ -390,6 +410,9 @@ export const Talents: CollectionConfig = {
                                 description: {
                                     de: 'Bisherige Jobs, Shows, Kampagnen',
                                     en: 'Previous jobs, shows, campaigns',
+                                },
+                                components: {
+                                    RowLabel: '@/components/admin/RowLabels#ExperienceRowLabel',
                                 },
                             },
                             fields: [
@@ -467,8 +490,8 @@ export const Talents: CollectionConfig = {
                 {
                     label: { de: 'Sedcard', en: 'Sedcard' },
                     description: {
-                        de: 'Feste Bilder für die Sedcard-PDF. Diese 4 Bilder werden immer in der PDF verwendet.',
-                        en: 'Fixed images for the sedcard PDF. These 4 images are always used in the PDF.',
+                        de: 'Bilder für die Sedcard-PDF. Das Hauptbild (oben) wird als großes Hero-Bild links verwendet. Diese 3 Bilder erscheinen rechts im Grid. Alle Bilder werden automatisch zu JPEG konvertiert.',
+                        en: 'Images for the sedcard PDF. The featured image (above) is used as the large hero on the left. These 3 images appear in the right grid. All images are automatically converted to JPEG.',
                     },
                     fields: [
                         {
@@ -479,14 +502,14 @@ export const Talents: CollectionConfig = {
                                     type: 'upload',
                                     relationTo: 'media',
                                     label: {
-                                        de: 'Sedcard Bild 1 – Ganzkörper',
-                                        en: 'Sedcard image 1 – Full body',
+                                        de: 'Bild oben rechts – Ganzkörper',
+                                        en: 'Top right – Full body',
                                     },
                                     admin: {
                                         width: '50%',
                                         description: {
-                                            de: 'Ganzkörperaufnahme (Portrait). Bitte KEIN freigestelltes (Cutout) Bild verwenden.',
-                                            en: 'Full body shot (portrait). Please do NOT use a cutout image here.',
+                                            de: 'Querformat empfohlen, mind. 1200×800 px. Erscheint oben rechts im Grid (großes Bild). KEIN Cutout.',
+                                            en: 'Landscape recommended, min 1200×800 px. Appears top-right in the grid (large image). NO cutout.',
                                         },
                                     },
                                 },
@@ -495,14 +518,14 @@ export const Talents: CollectionConfig = {
                                     type: 'upload',
                                     relationTo: 'media',
                                     label: {
-                                        de: 'Sedcard Bild 2 – Close-Up',
-                                        en: 'Sedcard image 2 – Close-up',
+                                        de: 'Bild unten links – Close-Up',
+                                        en: 'Bottom left – Close-up',
                                     },
                                     admin: {
                                         width: '50%',
                                         description: {
-                                            de: 'Nahaufnahme / Portrait. Bitte KEIN freigestelltes (Cutout) Bild verwenden.',
-                                            en: 'Close-up / portrait. Please do NOT use a cutout image here.',
+                                            de: 'Quadratisch oder Portrait, mind. 800×800 px. Erscheint unten links im Grid. KEIN Cutout.',
+                                            en: 'Square or portrait, min 800×800 px. Appears bottom-left in the grid. NO cutout.',
                                         },
                                     },
                                 },
@@ -516,14 +539,14 @@ export const Talents: CollectionConfig = {
                                     type: 'upload',
                                     relationTo: 'media',
                                     label: {
-                                        de: 'Sedcard Bild 3 – Bewegung',
-                                        en: 'Sedcard image 3 – Action',
+                                        de: 'Bild unten rechts – Bewegung / Frei',
+                                        en: 'Bottom right – Action / Free',
                                     },
                                     admin: {
                                         width: '50%',
                                         description: {
-                                            de: 'Bewegung / Tanz / Aktion. Bitte KEIN freigestelltes (Cutout) Bild verwenden.',
-                                            en: 'Movement / dance / action. Please do NOT use a cutout image here.',
+                                            de: 'Quadratisch oder Portrait, mind. 800×800 px. Erscheint unten rechts im Grid. KEIN Cutout.',
+                                            en: 'Square or portrait, min 800×800 px. Appears bottom-right in the grid. NO cutout.',
                                         },
                                     },
                                 },
@@ -532,14 +555,14 @@ export const Talents: CollectionConfig = {
                                     type: 'upload',
                                     relationTo: 'media',
                                     label: {
-                                        de: 'Sedcard Bild 4 – Frei wählbar',
-                                        en: 'Sedcard image 4 – Free choice',
+                                        de: 'Bild 4 – Reserve',
+                                        en: 'Image 4 – Reserve',
                                     },
                                     admin: {
                                         width: '50%',
                                         description: {
-                                            de: 'Frei wählbares Bild. Bitte KEIN freigestelltes (Cutout) Bild verwenden.',
-                                            en: 'Freely chosen image. Please do NOT use a cutout image here.',
+                                            de: 'Optional. Wird nur verwendet wenn Bild 3 fehlt. Mind. 800×800 px. KEIN Cutout.',
+                                            en: 'Optional. Only used if image 3 is missing. Min 800×800 px. NO cutout.',
                                         },
                                     },
                                 },
@@ -580,10 +603,11 @@ export const Talents: CollectionConfig = {
                                     type: 'text',
                                     localized: true,
                                     label: { de: 'Meta Titel', en: 'Meta title' },
+                                    maxLength: 60,
                                     admin: {
                                         description: {
-                                            de: 'Überschreibt den Standard-Titel',
-                                            en: 'Overrides the default title',
+                                            de: 'Überschreibt den Standard-Titel (max. 60 Zeichen)',
+                                            en: 'Overrides the default title (max. 60 characters)',
                                         },
                                     },
                                 },
@@ -598,6 +622,41 @@ export const Talents: CollectionConfig = {
                                             de: 'Empfohlen sind 140-160 Zeichen für Snippets. Für Social/LLM-Kontext sind bis 320 erlaubt.',
                                             en: 'Recommended for snippets: 140-160 characters. Up to 320 allowed for social/LLM context.',
                                         },
+                                    },
+                                },
+                                {
+                                    name: 'metaKeywords',
+                                    type: 'text',
+                                    localized: true,
+                                    label: { de: 'Keywords', en: 'Keywords' },
+                                    admin: {
+                                        description: { de: 'Komma-getrennte Keywords', en: 'Comma-separated keywords' },
+                                    },
+                                },
+                                {
+                                    name: 'ogImage',
+                                    type: 'upload',
+                                    relationTo: 'media',
+                                    label: { de: 'Social Media Bild', en: 'Social media image' },
+                                    admin: {
+                                        description: { de: 'Bild für Social Media (empfohlen: 1200x630px). Fallback: Featured Image.', en: 'Image for social media (recommended: 1200x630px). Fallback: featured image.' },
+                                    },
+                                },
+                                {
+                                    name: 'noIndex',
+                                    type: 'checkbox',
+                                    defaultValue: false,
+                                    label: { de: 'Nicht indexieren', en: 'No index' },
+                                    admin: {
+                                        description: { de: 'Diese Seite von Suchmaschinen ausschließen', en: 'Exclude this page from search engines' },
+                                    },
+                                },
+                                {
+                                    name: 'canonicalUrl',
+                                    type: 'text',
+                                    label: { de: 'Kanonische URL', en: 'Canonical URL' },
+                                    admin: {
+                                        description: { de: 'Optionale kanonische URL (für Duplikate)', en: 'Optional canonical URL (for duplicate content)' },
                                     },
                                 },
                             ],
@@ -618,6 +677,19 @@ export const Talents: CollectionConfig = {
                 description: { de: 'Auf der Startseite anzeigen', en: 'Show on homepage' },
                 components: {
                     Cell: '@/components/admin/FeaturedBadgeCell#FeaturedBadgeCell',
+                },
+            },
+        },
+        {
+            name: 'isCoach',
+            type: 'checkbox',
+            label: { de: 'Coach / Privat-Coaching', en: 'Coach / Private coaching' },
+            defaultValue: false,
+            admin: {
+                position: 'sidebar',
+                description: {
+                    de: 'Dieses Talent bietet Coaching oder Privatstunden an und kann in Coaching-Anfragen ausgewählt werden.',
+                    en: 'This talent offers coaching or private lessons and can be selected in coaching inquiries.',
                 },
             },
         },

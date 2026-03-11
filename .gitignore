@@ -57,6 +57,7 @@ node_modules/
 # Lighthouse reports
 lh-report*.json
 lh-report*.html
+tests/lighthouse/reports/
 
 # Temp files
 .tmp/

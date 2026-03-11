@@ -48,6 +48,30 @@ export async function GET() {
             depth: 0,
         })
 
+        // Get published talents
+        let talents: { docs: Array<{ slug?: string | null; name?: string | null }> } = { docs: [] }
+        try {
+            talents = await payload.find({
+                collection: 'talents',
+                where: { _status: { equals: 'published' } },
+                limit: 50,
+                depth: 0,
+                select: { slug: true, name: true },
+            })
+        } catch { /* collection may not exist */ }
+
+        // Get published jobs
+        let jobs: { docs: Array<{ slug?: string | null; title?: string | null }> } = { docs: [] }
+        try {
+            jobs = await payload.find({
+                collection: 'jobs',
+                where: { _status: { equals: 'published' } },
+                limit: 20,
+                depth: 0,
+                select: { slug: true, title: true },
+            })
+        } catch { /* collection may not exist */ }
+
         const pageLines = pages.docs
             .filter((page) => {
                 const settings = (page as { pageSettings?: { excludeFromLLM?: boolean } })
@@ -69,6 +93,14 @@ export async function GET() {
             })
             .map((post) => `- /de/magazin/${post.slug} | /en/blog/${post.slug} - ${post.title}`)
 
+        const talentLines = talents.docs
+            .filter((t) => t.slug)
+            .map((t) => `- /de/talente/${t.slug} | /en/talents/${t.slug} - ${t.name || t.slug}`)
+
+        const jobLines = jobs.docs
+            .filter((j) => j.slug)
+            .map((j) => `- /de/jobs/${j.slug} | /en/jobs/${j.slug} - ${j.title || j.slug}`)
+
         const llmsTxtContent = `# ${businessName} - Übersicht
 
 ## Über uns
@@ -87,6 +119,12 @@ ${pageLines.join('\n') || '- Keine Seiten verfügbar'}
 
 ### Blog & Aktuelles
 ${postLines.join('\n') || '- Keine Blog-Beiträge verfügbar'}
+
+### Talente
+${talentLines.join('\n') || '- Keine Talente verfügbar'}
+
+### Jobs
+${jobLines.join('\n') || '- Keine Job-Angebote verfügbar'}
 
 ### Konfigurierte Bereiche
 ${contentAreas.map((area: { area: string; description: string }) => `- ${area.area} - ${area.description}`).join('\n') || '- Keine Bereiche konfiguriert'}

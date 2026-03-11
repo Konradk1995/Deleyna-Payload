@@ -16,7 +16,7 @@ export function ServiceCard({ icon, title, description, className }: ServiceCard
     return (
         <div
             className={cn(
-                'group h-full rounded-[2rem] glass-morphism hover:bg-foreground/[0.03] transition duration-500 border-border/40 hover:border-copper/30 hover:shadow-copper-glow padding-large',
+                'group h-full rounded-[var(--block-radius-xl)] glass-morphism hover:bg-foreground/[0.03] transition duration-500 border-border/40 hover:border-copper/30 hover:shadow-copper-glow padding-large',
                 className,
             )}
         >

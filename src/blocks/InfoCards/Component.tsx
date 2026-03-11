@@ -1,5 +1,6 @@
 import React, { useId } from 'react'
 import Image from 'next/image'
+import { ArrowRight } from 'lucide-react'
 
 import type { InfoCardsBlock as InfoCardsBlockProps } from '@/payload-types'
 import type { Media } from '@/payload-types'
@@ -7,6 +8,7 @@ import type { Media } from '@/payload-types'
 import { CMSLink } from '@/components/CMSLink'
 import RichText from '@/components/RichText'
 import { ScrollFadeIn } from '@/components/ScrollFadeIn'
+import { SectionHeader } from '@/components/SectionHeader'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { cn } from '@/utilities/ui'
 
@@ -27,18 +29,6 @@ function hasCardLink(
     return Boolean(hasTarget)
 }
 
-const ArrowIcon = ({ className }: { className?: string }) => (
-    <svg
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-        aria-hidden
-    >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-    </svg>
-)
 
 import { Media as MediaComponent } from '@/components/Media'
 
@@ -53,8 +43,10 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
         id: blockId,
         backgroundColor = 'muted',
         topCards,
-        tagline,
+        badge,
         title,
+        titleHighlight,
+        headingLevel,
         cards,
         contentBelowCards,
         sideMedia,
@@ -76,7 +68,7 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
         <section
             className={cn('section-padding-lg section-atmosphere', bgClass)}
             aria-labelledby={hasMainBlock ? headingId : undefined}
-            aria-label={!hasMainBlock ? tagline || 'Info' : undefined}
+            aria-label={!hasMainBlock ? badge || 'Info' : undefined}
         >
             <div className="container">
                 {/* ── Obere 2 Karten (Headline + Text + CTA) ── */}
@@ -93,7 +85,7 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                                     className="block-card-min-h-compact flex h-full flex-col padding-large"
                                 >
                                     {card.headline && (
-                                        <h3 className="mb-4 font-display-tight font-heading-3-bold leading-none tracking-tight text-balance chrome-text hyphens-auto [overflow-wrap:anywhere] pb-1">
+                                        <h3 className="mb-4 font-display-tight font-heading-3-bold tracking-tight text-balance chrome-text hyphens-auto [overflow-wrap:anywhere]">
                                             {card.headline}
                                         </h3>
                                     )}
@@ -109,7 +101,7 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                                             className="inline-flex items-center gap-1.5 w-fit group/cta"
                                         >
                                             {card.link.label}
-                                            <ArrowIcon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover/cta:translate-x-1" />
+                                            <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover/cta:translate-x-1" />
                                         </CMSLink>
                                     )}
                                 </Card>
@@ -141,17 +133,16 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                         <div>
                             {/* Header oben, linksbündig – darunter die 3 Karten (wie im Bild) */}
                             <ScrollFadeIn className="mb-10 md:mb-12">
-                                {tagline && (
-                                    <p className="mb-3 font-subtext-semibold text-muted-foreground md:mb-4">
-                                        {tagline}
-                                    </p>
-                                )}
-                                <h2
+                                <SectionHeader
+                                    overline={badge}
+                                    title={title}
+                                    titleHighlight={titleHighlight ?? undefined}
+                                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
+                                    centered={false}
+                                    titleClassName="chrome-text"
                                     id={headingId}
-                                    className="font-display-tight font-heading-3-bold leading-none tracking-tight text-balance chrome-text hyphens-auto [overflow-wrap:anywhere] pb-1"
-                                >
-                                    {title}
-                                </h2>
+                                    className="mb-0"
+                                />
                             </ScrollFadeIn>
 
                             <ul
@@ -168,10 +159,12 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                                     const icon = card.icon as Media | null | undefined
                                     const cardLink = card.link
                                     const isLinkCard = hasCardLink(cardLink)
+                                    const isLast = index === cards.length - 1
+                                    const isOddLast = isLast && cards.length % 2 === 1 && cards.length > 1
                                     const cardContent = (
                                         <>
                                             {icon && typeof icon === 'object' && icon.url && (
-                                                <div className="mb-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-border bg-muted transition-transform duration-300 group-hover:scale-105 md:mb-5 md:h-14 md:w-14">
+                                                <div className="mb-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[var(--block-radius)] border border-border bg-muted transition-transform duration-300 group-hover:scale-105 md:mb-5 md:h-14 md:w-14">
                                                     <div className="relative h-6 w-6 md:h-7 md:w-7">
                                                         <Image
                                                             src={icon.url}
@@ -199,7 +192,7 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                                             {isLinkCard && (
                                                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-copper group-hover:underline">
                                                     {cardLink.label || fallbackCardLinkLabel}
-                                                    <ArrowIcon className="h-4 w-4 shrink-0" />
+                                                    <ArrowRight className="h-4 w-4 shrink-0" />
                                                 </span>
                                             )}
                                         </>
@@ -207,7 +200,7 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                                     return (
                                         <li
                                             key={card.id ?? index}
-                                            className="list-none flex h-full"
+                                            className={cn('list-none flex h-full', isOddLast && 'md:col-span-2 lg:col-span-1')}
                                         >
                                             <ScrollFadeIn
                                                 delay={80 + index * 60}

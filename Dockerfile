@@ -12,37 +12,17 @@ COPY package.json pnpm-lock.yaml* ./
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 # ── builder ─────────────────────────────────────────────────────────
+# Build without DB secrets. Migrations/seed run separately (CI or entrypoint).
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG DATABASE_URL
-ARG PAYLOAD_SECRET
+# Build-time env only for Next.js public URL (optional; override at run)
 ARG NEXT_PUBLIC_SERVER_URL
-ARG S3_BUCKET
-ARG S3_ACCESS_KEY_ID
-ARG S3_SECRET_ACCESS_KEY
-ARG S3_REGION
-ARG S3_ENDPOINT
-
-ENV DATABASE_URL=${DATABASE_URL}
-ENV PAYLOAD_SECRET=${PAYLOAD_SECRET}
-ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
-ENV S3_BUCKET=${S3_BUCKET}
-ENV S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
-ENV S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
-ENV S3_REGION=${S3_REGION}
-ENV S3_ENDPOINT=${S3_ENDPOINT}
+ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL:-http://localhost:3000}
 
 RUN corepack enable pnpm && pnpm run build
-
-# 1) Run database migrations (must succeed)
-RUN npx payload migrate
-
-# 2) Seed all content into the production database
-#    SKIP_MEDIA_SEED=true → media upload needs running S3, skip in build
-RUN SKIP_MEDIA_SEED=true npx tsx src/scripts/seed/scripts.ts
 
 # ── runner ──────────────────────────────────────────────────────────
 FROM base AS runner

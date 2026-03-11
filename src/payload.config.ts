@@ -22,6 +22,7 @@ import { Posts } from './collections/Posts'
 import { Categories } from './collections/Categories'
 import { Talents } from './collections/Talents'
 import { TalentSkills } from './collections/TalentSkills'
+import { Jobs } from './collections/Jobs'
 
 // Globals
 import { SEO } from './globals/SEO'
@@ -34,6 +35,7 @@ import { PostsArchive } from './globals/PostsArchive'
 import { Notifications } from './globals/Notifications'
 import { FormSettings } from './globals/FormSettings'
 import { SedcardSettings } from './globals/SedcardSettings'
+import { JobsArchive } from './globals/JobsArchive'
 import { NotionSettings } from './globals/NotionSettings'
 
 // Lokalisierung
@@ -66,7 +68,7 @@ export default buildConfig({
             titleSuffix: ' | Deleyna',
         },
         livePreview: {
-            collections: ['pages', 'posts', 'talents'],
+            collections: ['pages', 'posts', 'talents', 'jobs'],
             url: ({ data, collectionConfig, locale }) => {
                 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
                 const slug = typeof data?.slug === 'string' ? data.slug : ''
@@ -80,6 +82,9 @@ export default buildConfig({
                 }
                 if (collectionConfig?.slug === 'talents') {
                     return `${baseUrl}/${localePrefix}/${talentSegment}/${slug}`
+                }
+                if (collectionConfig?.slug === 'jobs') {
+                    return `${baseUrl}/${localePrefix}/jobs/${slug}`
                 }
                 if (collectionConfig?.slug === 'pages') {
                     if (!slug || slug === 'home') return `${baseUrl}/${localePrefix}`
@@ -106,6 +111,8 @@ export default buildConfig({
         // Talent
         Talents,
         TalentSkills,
+        // Jobs
+        Jobs,
         // Admin
         Users,
     ],
@@ -114,10 +121,10 @@ export default buildConfig({
         PostsArchive,
         // Talent
         TalentsArchive,
+        // Jobs
+        JobsArchive,
         SedcardSettings,
-        // Formulare (Forms)
         FormSettings,
-        // Einstellungen (Settings)
         Header,
         Footer,
         SEO,
@@ -136,17 +143,16 @@ export default buildConfig({
     db: postgresAdapter({
         pool: {
             connectionString: getRequiredEnv('DATABASE_URL'),
-            // Connection pool security
-            max: 20, // Max connections
-            idleTimeoutMillis: 30000, // 30 seconds idle timeout
-            connectionTimeoutMillis: 10000, // 10 second connection timeout
+            max: process.env.NODE_ENV === 'production' ? 20 : 10,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 30000,
         },
     }),
     sharp,
     plugins: [
         // Redirects FIRST so "Einstellungen" group appears before "Formulare"
         redirectsPlugin({
-            collections: ['pages', 'posts', 'talents'],
+            collections: ['pages', 'posts', 'talents', 'jobs'],
             overrides: {
                 admin: {
                     group: { de: 'Einstellungen', en: 'Settings' },
@@ -213,6 +219,47 @@ export default buildConfig({
                             type: 'text',
                             label: { de: 'Step-Titel', en: 'Step Title' },
                             localized: true,
+                        },
+                    ],
+                } as never,
+                // Class selection dropdown — fetches upcoming classes (postType: class, future date)
+                classSelection: {
+                    slug: 'classSelection',
+                    labels: {
+                        singular: { de: 'Kurs-Auswahl', en: 'Class Selection' },
+                        plural: { de: 'Kurs-Auswahl Felder', en: 'Class Selection Fields' },
+                    },
+                    fields: [
+                        {
+                            type: 'row',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    type: 'text',
+                                    label: { de: 'Feldname', en: 'Field Name' },
+                                    required: true,
+                                    defaultValue: 'selectedClass',
+                                    admin: { width: '50%' },
+                                },
+                                {
+                                    name: 'label',
+                                    type: 'text',
+                                    label: { de: 'Beschriftung', en: 'Label' },
+                                    defaultValue: 'Kurs auswählen / Select a class',
+                                    localized: true,
+                                    admin: { width: '50%' },
+                                },
+                            ],
+                        },
+                        {
+                            name: 'width',
+                            type: 'number',
+                            label: { de: 'Feldbreite (%)', en: 'Field Width (%)' },
+                        },
+                        {
+                            name: 'required',
+                            type: 'checkbox',
+                            label: { de: 'Pflichtfeld', en: 'Required' },
                         },
                     ],
                 } as never,
@@ -328,6 +375,7 @@ export default buildConfig({
                 },
                 defaultSort: '-createdAt',
                 access: {
+                    read: ({ req: { user } }: { req: { user: unknown } }) => !!user,
                     update: ({ req: { user } }: { req: { user: unknown } }) => !!user,
                 },
                 hooks: {
@@ -466,6 +514,10 @@ export default buildConfig({
                                 {
                                     label: { de: 'Job-Anfrage', en: 'Job inquiry' },
                                     value: 'job_inquiry',
+                                },
+                                {
+                                    label: { de: 'Kurs-Anfrage', en: 'Class inquiry' },
+                                    value: 'class_inquiry',
                                 },
                                 { label: { de: 'Sonstiges', en: 'Other' }, value: 'other' },
                             ],
@@ -690,12 +742,16 @@ export default buildConfig({
                                     label: { de: 'Job-Anfrage', en: 'Job inquiry' },
                                     value: 'job_inquiry',
                                 },
+                                {
+                                    label: { de: 'Kurs-Anfrage', en: 'Class inquiry' },
+                                    value: 'class_inquiry',
+                                },
                                 { label: { de: 'Sonstiges', en: 'Other' }, value: 'other' },
                             ],
                             admin: {
                                 position: 'sidebar',
                                 description: {
-                                    de: 'Ermöglicht Filterung der Einsendungen nach Art (z. B. Talent-Anfragen vs. „Talent werden“).',
+                                    de: 'Ermöglicht Filterung der Einsendungen nach Art (z. B. Talent-Anfragen vs. „Talent werden”).',
                                     en: 'Allows filtering submissions by type (e.g. talent requests vs. become a talent).',
                                 },
                             },

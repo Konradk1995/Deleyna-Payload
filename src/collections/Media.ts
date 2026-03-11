@@ -29,10 +29,9 @@ export const Media: CollectionConfig = {
         filename: true,
         url: true,
     },
+    defaultSort: '-createdAt',
     access: {
-        // Öffentlich lesbar für Frontend
         read: anyone,
-        // Nur Admins/Editoren können hochladen
         create: adminOrEditor,
         update: adminOrEditor,
         delete: adminOrEditor,
@@ -212,7 +211,7 @@ export const Media: CollectionConfig = {
                 position: 'centre',
             },
         ],
-        adminThumbnail: 'thumbnail',
+        adminThumbnail: 'card',
     },
     fields: [
         {

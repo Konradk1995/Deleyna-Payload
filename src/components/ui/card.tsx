@@ -44,7 +44,7 @@ const CardTitle: React.FC<
     { ref?: React.Ref<HTMLHeadingElement> } & React.HTMLAttributes<HTMLHeadingElement>
 > = ({ className, ref, ...props }) => (
     <h3
-        className={cn('font-heading-5-bold leading-none tracking-tight text-foreground', className)}
+        className={cn('font-heading-5-bold tracking-tight text-foreground', className)}
         ref={ref}
         {...props}
     />

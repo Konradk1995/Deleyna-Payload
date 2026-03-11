@@ -8,7 +8,9 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
+import { toHref } from '@/utilities/typedHref'
 import { SectionHeader } from '@/components/SectionHeader'
+import { CMSLink } from '@/components/CMSLink'
 import { AddToSelectionButton } from '@/components/Dancefloor/AddToDancefloorButton'
 
 type SliderItem = {
@@ -23,11 +25,13 @@ type SliderItem = {
 
 type SliderClientProps = {
     cardStyle: 'compact' | 'featured'
-    header: {
-        eyebrow?: string | null
-        heading: string
-        description?: string | null
-    }
+    badge?: string | null
+    title: string
+    titleHighlight?: string | null
+    headingLevel?: string | null
+    description?: string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cta?: any
     items: SliderItem[]
     sourceCollection: string
     compactFields?: {
@@ -37,11 +41,12 @@ type SliderClientProps = {
         imagePosition?: 'left' | 'right' | null
         showFallbackImage?: boolean | null
     } | null
+    backgroundColor?: 'white' | 'muted' | null
     locale?: string
 }
 
 export const SliderClient: React.FC<SliderClientProps> = (props) => {
-    const { cardStyle, header, items, compactFields, featuredFields, sourceCollection } = props
+    const { cardStyle, badge, title, titleHighlight, headingLevel, description, cta, items, compactFields, featuredFields, sourceCollection, backgroundColor } = props
 
     const t = useTranslations('common')
     const previousSlideLabel = t('previousSlide')
@@ -63,10 +68,17 @@ export const SliderClient: React.FC<SliderClientProps> = (props) => {
     }, [cardStyle])
 
     useEffect(() => {
-        const update = () => setSlidesPerView(getSlidesPerView())
-        update()
-        window.addEventListener('resize', update)
-        return () => window.removeEventListener('resize', update)
+        setSlidesPerView(getSlidesPerView())
+        let timer: ReturnType<typeof setTimeout>
+        const handleResize = () => {
+            clearTimeout(timer)
+            timer = setTimeout(() => setSlidesPerView(getSlidesPerView()), 150)
+        }
+        window.addEventListener('resize', handleResize)
+        return () => {
+            window.removeEventListener('resize', handleResize)
+            clearTimeout(timer)
+        }
     }, [getSlidesPerView])
 
     const sliderEnabled = items.length > slidesPerView
@@ -111,12 +123,14 @@ export const SliderClient: React.FC<SliderClientProps> = (props) => {
             : 'min-w-0 max-w-[1000px] flex-[0_0_88vw] md:flex-[0_0_82vw]'
 
     return (
-        <section className="section-padding-lg section-atmosphere relative overflow-x-clip bg-background transition-colors duration-300">
+        <section className={`section-padding-lg section-atmosphere relative overflow-x-clip transition-colors duration-300 ${backgroundColor === 'muted' ? 'bg-muted' : 'bg-background'}`}>
             <div className="container relative pb-8 md:pb-10">
                 <SectionHeader
-                    overline={header.eyebrow ?? undefined}
-                    title={header.heading}
-                    description={header.description ?? undefined}
+                    overline={badge ?? undefined}
+                    title={title}
+                    titleHighlight={titleHighlight ?? undefined}
+                    description={description ?? undefined}
+                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                     centered={false}
                     className="mb-0"
                     titleClassName="chrome-text"
@@ -134,7 +148,7 @@ export const SliderClient: React.FC<SliderClientProps> = (props) => {
                         onClick={scrollPrev}
                         disabled={!canScrollPrev}
                         aria-label={previousSlideLabel}
-                        className={`absolute left-0 top-1/2 z-10 hidden -translate-y-1/2 border-border/70 bg-card/75 backdrop-blur-sm md:inline-flex ${
+                        className={`absolute -left-1 top-1/2 z-10 -translate-y-1/2 border-border/70 bg-card/75 backdrop-blur-sm sm:left-0 ${
                             !canScrollPrev
                                 ? 'opacity-40'
                                 : 'hover:scale-[1.04] hover:border-copper/30'
@@ -153,7 +167,7 @@ export const SliderClient: React.FC<SliderClientProps> = (props) => {
                         onClick={scrollNext}
                         disabled={!canScrollNext}
                         aria-label={nextSlideLabel}
-                        className={`absolute right-0 top-1/2 z-10 hidden -translate-y-1/2 border-border/70 bg-card/75 backdrop-blur-sm md:inline-flex ${
+                        className={`absolute -right-1 top-1/2 z-10 -translate-y-1/2 border-border/70 bg-card/75 backdrop-blur-sm sm:right-0 ${
                             !canScrollNext
                                 ? 'opacity-40'
                                 : 'hover:scale-[1.04] hover:border-copper/30'
@@ -227,6 +241,11 @@ export const SliderClient: React.FC<SliderClientProps> = (props) => {
                     </div>
                 )}
             </div>
+            {cta && typeof cta === 'object' && cta.label && (
+                <div className="container mt-10 text-center">
+                    <CMSLink {...cta} />
+                </div>
+            )}
         </section>
     )
 }
@@ -246,11 +265,7 @@ const CompactCard: React.FC<{
         <div
             className={`${sliderEnabled ? 'w-full' : 'w-full'} relative block-card-base block-card-min-h-compact group flex flex-col padding-medium md:padding-large`}
         >
-            <Link
-                href={linkHref as never}
-                className="absolute inset-0 z-0"
-                aria-label={item.name}
-            />
+            <Link href={toHref(linkHref)} className="absolute inset-0 z-0" aria-label={item.name} />
             {enableSelection && item.slug && (
                 <div className="relative z-20 pointer-events-auto w-fit">
                     <AddToSelectionButton
@@ -262,7 +277,8 @@ const CompactCard: React.FC<{
             )}
             <div className="relative z-10 pointer-events-none">
                 {item.badge && (
-                    <span className="font-subtext-semibold mb-3 md:mb-4 text-muted-foreground block">
+                    <span className="font-subtext-semibold mb-3 md:mb-4 text-copper inline-flex items-center gap-2">
+                        <span className="h-px w-6 bg-copper/60" aria-hidden />
                         {item.badge}
                     </span>
                 )}
@@ -297,7 +313,7 @@ const CompactCard: React.FC<{
     )
 }
 
-// Featured Card Component – nur Design-Tokens
+// Featured Card Component
 const FeaturedCard: React.FC<{
     item: SliderItem
     imagePosition: 'left' | 'right'
@@ -311,7 +327,8 @@ const FeaturedCard: React.FC<{
 
     const contentSection = (
         <div className="flex-1 padding-large flex flex-col relative z-10 pointer-events-none">
-            <span className="font-subtext-semibold mb-4 text-muted-foreground block">
+            <span className="font-subtext-semibold mb-4 text-copper inline-flex items-center gap-2">
+                <span className="h-px w-6 bg-copper/60" aria-hidden />
                 {item.badge}
             </span>
             <h3 className="font-heading-3-bold mb-5 text-foreground">{item.name}</h3>
@@ -352,11 +369,7 @@ const FeaturedCard: React.FC<{
                 sliderEnabled ? 'w-full' : 'w-full max-w-[1100px]'
             } relative block-card-base block-card-min-h-featured group flex flex-col overflow-hidden hover:-translate-y-0.5 hover:shadow-md md:flex-row`}
         >
-            <Link
-                href={linkHref as never}
-                className="absolute inset-0 z-0"
-                aria-label={item.name}
-            />
+            <Link href={toHref(linkHref)} className="absolute inset-0 z-0" aria-label={item.name} />
             {enableSelection && item.slug && (
                 <div className="absolute top-4 left-4 z-20 pointer-events-auto">
                     <AddToSelectionButton

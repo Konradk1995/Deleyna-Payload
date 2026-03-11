@@ -86,6 +86,14 @@ const formMetaByCategory: Record<
             en: 'Thank you! We have received your request and will get back to you.',
         },
     },
+    class_inquiry: {
+        title: { de: 'Class / Kurs-Anfrage', en: 'Class / Course inquiry' },
+        submitButtonLabel: { de: 'Platz anfragen', en: 'Request spot' },
+        confirmationText: {
+            de: 'Danke für deine Anfrage! Wir melden uns schnellstmöglich bei dir mit allen Details zur Class.',
+            en: "Thanks for your inquiry! We'll get back to you as soon as possible with all the class details.",
+        },
+    },
 }
 
 const pageBreakTranslations: Record<
@@ -175,6 +183,12 @@ const fieldLabelByName: Record<string, LocalizedText> = {
     description: { de: 'Beschreibung', en: 'Description' },
     requirements: { de: 'Anforderungen', en: 'Requirements' },
     name: { de: 'Name', en: 'Name' },
+    className: { de: 'Kurs / Class', en: 'Class / Course' },
+    classDate: { de: 'Gewünschtes Datum', en: 'Preferred date' },
+    participants: { de: 'Anzahl Teilnehmer', en: 'Number of participants' },
+    danceLevel: { de: 'Tanzerfahrung', en: 'Dance experience' },
+    whatsapp: { de: 'WhatsApp-Nummer', en: 'WhatsApp number' },
+    classMessage: { de: 'Nachricht / Fragen', en: 'Message / Questions' },
 }
 
 const optionLabelByFieldValue: Record<string, Record<string, LocalizedText>> = {
@@ -212,6 +226,12 @@ const optionLabelByFieldValue: Record<string, Record<string, LocalizedText>> = {
         parttime: { de: 'Teilzeit', en: 'Part-time' },
         freelance: { de: 'Freelance', en: 'Freelance' },
         internship: { de: 'Praktikum', en: 'Internship' },
+    },
+    danceLevel: {
+        none: { de: 'Keine Erfahrung', en: 'No experience' },
+        beginner: { de: 'Anfänger', en: 'Beginner' },
+        intermediate: { de: 'Fortgeschritten', en: 'Intermediate' },
+        advanced: { de: 'Profi', en: 'Advanced' },
     },
 }
 
@@ -305,12 +325,16 @@ function localizeForm(form: Form, locale: LocaleCode): Form {
         ...form,
         title: formMeta?.title?.[locale] || form.title,
         submitButtonLabel:
-            formMeta?.submitButtonLabel?.[locale] || getTextForLocale(form.submitButtonLabel, locale),
+            formMeta?.submitButtonLabel?.[locale] ||
+            getTextForLocale(form.submitButtonLabel, locale),
         confirmationMessage:
             formMeta?.confirmationText?.[locale] != null
                 ? lexicalMessage(formMeta.confirmationText[locale] as string)
                 : form.confirmationMessage,
-        fields: (form.fields || []).map((field) => localizeField(field, locale)),
+        // Keep fields as bilingual "DE / EN" strings — Payload replaces the entire
+        // blocks array per locale update, so we can only persist one locale's data.
+        // The frontend's localizeFieldLabel() splits bilingual labels at render time.
+        fields: form.fields,
     }
 }
 
@@ -613,7 +637,7 @@ const forms: Array<Form> = [
             {
                 blockType: 'checkbox',
                 name: 'consent',
-                label: 'Ich stimme der Verarbeitung meiner Daten zu / I agree to data processing',
+                label: 'Datenschutz zustimmen / Agree to data processing',
                 required: true,
                 width: 100,
             },
@@ -685,7 +709,7 @@ const forms: Array<Form> = [
                 options: [
                     { label: 'Fotoshooting / Photoshoot', value: 'photoshoot' },
                     { label: 'Videoproduktion / Video', value: 'video' },
-                    { label: 'Event / Show / Live', value: 'event' },
+                    { label: 'Event & Show', value: 'event' },
                     { label: 'Kampagne / Campaign', value: 'campaign' },
                     { label: 'TV / Film', value: 'tv_film' },
                     { label: 'Social Media Content', value: 'social_media' },
@@ -738,7 +762,7 @@ const forms: Array<Form> = [
             {
                 blockType: 'textarea',
                 name: 'desiredTalentProfile',
-                label: 'Gewünschtes Talentprofil (Look, Haare, Stil etc.) / Desired talent profile (look, hair, style, etc.)',
+                label: 'Gewünschtes Talentprofil / Desired talent profile',
                 required: false,
                 width: 100,
             },
@@ -767,7 +791,7 @@ const forms: Array<Form> = [
             {
                 blockType: 'checkbox',
                 name: 'consent',
-                label: 'Ich stimme der Verarbeitung meiner Daten zu / I agree to data processing',
+                label: 'Datenschutz zustimmen / Agree to data processing',
                 required: true,
                 width: 100,
             },
@@ -892,6 +916,87 @@ const forms: Array<Form> = [
         ],
     },
     {
+        title: 'Class / Kurs-Anfrage',
+        formCategory: 'class_inquiry',
+        submitButtonLabel: 'Platz anfragen',
+        confirmationType: 'message',
+        confirmationMessage: lexicalMessage(
+            'Danke für deine Anfrage! Wir melden uns schnellstmöglich bei dir mit allen Details zur Class.',
+        ),
+        fields: [
+            {
+                blockType: 'text',
+                name: 'firstName',
+                label: 'Vorname / First Name',
+                required: true,
+                width: 50,
+            },
+            {
+                blockType: 'text',
+                name: 'lastName',
+                label: 'Nachname / Last Name',
+                required: true,
+                width: 50,
+            },
+            { blockType: 'email', name: 'email', label: 'E-Mail', required: true, width: 50 },
+            {
+                blockType: 'text',
+                name: 'whatsapp',
+                label: 'WhatsApp-Nummer / WhatsApp number',
+                required: false,
+                width: 50,
+            },
+            {
+                blockType: 'text',
+                name: 'className',
+                label: 'Kurs / Class',
+                required: false,
+                width: 50,
+            },
+            {
+                blockType: 'date',
+                name: 'classDate',
+                label: 'Gewünschtes Datum / Preferred date',
+                required: false,
+                width: 50,
+            },
+            {
+                blockType: 'number',
+                name: 'participants',
+                label: 'Anzahl Teilnehmer / Number of participants',
+                required: false,
+                width: 50,
+            },
+            {
+                blockType: 'select',
+                name: 'danceLevel',
+                label: 'Tanzerfahrung / Dance experience',
+                required: false,
+                width: 50,
+                options: [
+                    { label: 'Keine Erfahrung / No experience', value: 'none' },
+                    { label: 'Anfänger / Beginner', value: 'beginner' },
+                    { label: 'Fortgeschritten / Intermediate', value: 'intermediate' },
+                    { label: 'Profi / Advanced', value: 'advanced' },
+                ],
+            },
+            {
+                blockType: 'textarea',
+                name: 'classMessage',
+                label: 'Nachricht oder Fragen / Message or questions',
+                required: false,
+                width: 100,
+            },
+            {
+                blockType: 'checkbox',
+                name: 'consent',
+                label: 'Datenschutz zustimmen / Agree to data processing',
+                required: true,
+                width: 100,
+            },
+        ],
+    },
+    {
         title: 'Sonstige Anfrage',
         formCategory: 'other',
         submitButtonLabel: 'Absenden',
@@ -961,8 +1066,29 @@ export async function formsSeeder(payload: Payload) {
                 where: { formCategory: { equals: form.formCategory } },
             })
 
+            // Payload replaces block arrays per-locale update, wiping the other
+            // locale's sub-field data. Our localization config: EN falls back to DE
+            // (fallbackLocale: 'de'). So we:
+            //   1) Set EN first (bilingual labels satisfy required validation)
+            //   2) Set DE last — DE labels persist, EN falls back to them
+            // The frontend's localizeOptionLabel splits "DE / EN" strings.
+
             if (existing.docs.length > 0) {
                 console.log(`  🔄  Form "${deForm.title}" already exists, updating...`)
+                // 1) EN: bilingual labels + EN-specific doc-level fields
+                await payload.update({
+                    collection: 'forms',
+                    id: existing.docs[0].id,
+                    locale: 'en',
+                    data: {
+                        submitButtonLabel: enForm.submitButtonLabel,
+                        confirmationType: enForm.confirmationType,
+                        confirmationMessage: enForm.confirmationMessage,
+                        fields: deForm.fields,
+                    } as any,
+                    context: { disableRevalidate: true },
+                })
+                // 2) DE last: bilingual labels + DE doc-level fields (title is NOT localized)
                 await payload.update({
                     collection: 'forms',
                     id: existing.docs[0].id,
@@ -973,26 +1099,14 @@ export async function formsSeeder(payload: Payload) {
                         confirmationType: deForm.confirmationType,
                         confirmationMessage: deForm.confirmationMessage,
                         fields: deForm.fields,
-                    } as never,
-                    context: { disableRevalidate: true },
-                })
-                await payload.update({
-                    collection: 'forms',
-                    id: existing.docs[0].id,
-                    locale: 'en',
-                    data: {
-                        title: enForm.title,
-                        submitButtonLabel: enForm.submitButtonLabel,
-                        confirmationType: enForm.confirmationType,
-                        confirmationMessage: enForm.confirmationMessage,
-                        fields: enForm.fields,
-                    } as never,
+                    } as any,
                     context: { disableRevalidate: true },
                 })
                 created++ // Count as "processed" or "updated"
                 continue
             }
 
+            // New form: create sets DE (default locale)
             const createdForm = await payload.create({
                 collection: 'forms',
                 data: {
@@ -1002,20 +1116,29 @@ export async function formsSeeder(payload: Payload) {
                     confirmationType: deForm.confirmationType,
                     confirmationMessage: deForm.confirmationMessage,
                     fields: deForm.fields,
-                } as never,
+                } as any,
                 context: { disableRevalidate: true },
             })
+            // EN: bilingual labels + EN doc-level fields
             await payload.update({
                 collection: 'forms',
                 id: createdForm.id,
                 locale: 'en',
                 data: {
-                    title: enForm.title,
                     submitButtonLabel: enForm.submitButtonLabel,
                     confirmationType: enForm.confirmationType,
                     confirmationMessage: enForm.confirmationMessage,
-                    fields: enForm.fields,
-                } as never,
+                    fields: deForm.fields,
+                } as any,
+                context: { disableRevalidate: true },
+            })
+            // Re-set DE to restore block labels wiped by EN update
+            await payload.update({
+                collection: 'forms',
+                id: createdForm.id,
+                data: {
+                    fields: deForm.fields,
+                } as any,
                 context: { disableRevalidate: true },
             })
 

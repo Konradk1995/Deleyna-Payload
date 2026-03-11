@@ -6,8 +6,9 @@ import type { TalentItem } from './FeaturedTalentsCarousel'
 
 interface FeaturedTalentsGridProps {
     talents: TalentItem[]
-    overline?: string | null
+    badge?: string | null
     title?: string | null
+    headingLevel?: string | null
     className?: string
     locale?: string
 }
@@ -17,25 +18,27 @@ interface FeaturedTalentsGridProps {
  */
 export function FeaturedTalentsGrid({
     talents,
-    overline,
+    badge,
     title,
+    headingLevel,
     className,
     locale,
 }: FeaturedTalentsGridProps) {
     if (!talents || talents.length === 0) return null
 
-    const defaultTitle = locale === 'de' ? 'Featured Talente' : 'Featured Roster'
+    const defaultTitle = locale === 'de' ? 'Featured Talente' : 'Featured Talents'
 
     return (
         <section
-            className={cn('section-padding-lg section-atmosphere relative bg-muted/30 padding-large', className)}
+            className={cn('section-padding-lg section-atmosphere relative bg-muted/30', className)}
         >
-            <div className="pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-copper/9 blur-[110px]" />
-            <div className="pointer-events-none absolute -right-24 bottom-1/4 h-72 w-72 rounded-full bg-copper/8 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-copper/9 blur-[110px]" aria-hidden="true" />
+            <div className="pointer-events-none absolute -right-24 bottom-1/4 h-72 w-72 rounded-full bg-copper/8 blur-[100px]" aria-hidden="true" />
             <div className="container relative">
                 <SectionHeader
-                    overline={overline ?? undefined}
+                    overline={badge ?? undefined}
                     title={title ?? defaultTitle}
+                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                     titleClassName="chrome-text"
                 />
                 <div className="grid grid-cols-1 gap-medium sm:grid-cols-2 lg:grid-cols-4">

@@ -40,6 +40,20 @@ export const ScrollFadeIn: React.FC<Props> = ({
     delay = 0,
 }) => {
     const { ref, inView } = useInView({ threshold: 0.1, rootMargin: '0px', triggerOnce: true })
+    const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false)
+
+    React.useEffect(() => {
+        const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+        setPrefersReducedMotion(mq.matches)
+        const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+        mq.addEventListener('change', handler)
+        return () => mq.removeEventListener('change', handler)
+    }, [])
+
+    if (prefersReducedMotion) {
+        return <div className={cn(className)}>{children}</div>
+    }
+
     const start = animations[animation]
     const transform = inView
         ? 'translate3d(0, 0, 0) scale(1)'

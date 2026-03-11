@@ -130,6 +130,7 @@ const nextConfig = {
                 value: 'camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(), usb=(), bluetooth=(), serial=()',
             },
             { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
+            { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ]
 
         return [
@@ -224,7 +225,7 @@ const nextConfig = {
 
     // Performance optimizations
     experimental: {
-        optimizePackageImports: ['@payloadcms/ui', 'lucide-react', 'date-fns'],
+        optimizePackageImports: ['@payloadcms/ui', 'lucide-react', 'motion'],
         serverActions: {
             bodySizeLimit: '10mb',
         },
@@ -233,7 +234,8 @@ const nextConfig = {
     // Image optimization
     images: {
         formats: ['image/avif', 'image/webp'],
-        deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+        // Mobile (640), Tablet (768, 828), Laptop (1024, 1080), Desktop (1200, 1920)
+        deviceSizes: [640, 768, 750, 828, 1024, 1080, 1200, 1920],
         imageSizes: [16, 32, 48, 64, 96, 128, 256, 384, 512, 1024],
         minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
         remotePatterns: imageRemotePatterns,

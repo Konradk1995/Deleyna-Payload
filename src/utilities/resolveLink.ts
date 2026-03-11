@@ -1,4 +1,4 @@
-import { resolveLocale, withLocalePath } from '@/utilities/locale'
+import { resolveLocale } from '@/utilities/locale'
 import { localizePageSlug } from '@/utilities/pageSlugAliases'
 
 export type LinkLike = {
@@ -18,6 +18,7 @@ export type ResolvedLink = { href: string; label: string | null; newTab?: boolea
 
 /**
  * Resolves a Payload link field (reference / custom / archive) to href and label.
+ * Returns paths WITHOUT locale prefix — next-intl's Link adds it automatically.
  * Use with depth: 1 when fetching so reference.value is populated with slug.
  */
 export function resolveLink(
@@ -26,22 +27,22 @@ export function resolveLink(
 ): ResolvedLink | null {
     if (!link) return null
 
-    const hasLocale = Boolean(locale)
-    const resolvedLocale = hasLocale ? resolveLocale(locale) : undefined
-    const localePrefix = resolvedLocale ? `/${resolvedLocale}` : ''
+    const resolvedLocale = locale ? resolveLocale(locale) : 'de'
     let href: string
 
     if (link.type === 'custom' && link.url) {
-        href = link.url.startsWith('http')
-            ? link.url
-            : resolvedLocale
-              ? withLocalePath(link.url, resolvedLocale)
-              : link.url
+        if (link.url.startsWith('http')) {
+            href = link.url
+        } else {
+            // Strip any existing locale prefix from custom URLs
+            const stripped = link.url.replace(/^\/(de|en)\//, '/')
+            href = stripped
+        }
     } else if (link.type === 'archive') {
         if (link.archive === 'posts') {
-            href = `${localePrefix}/${resolvedLocale === 'de' ? 'magazin' : 'blog'}`
+            href = `/${resolvedLocale === 'de' ? 'magazin' : 'blog'}`
         } else {
-            href = `${localePrefix}/${resolvedLocale === 'de' ? 'talente' : 'talents'}`
+            href = `/${resolvedLocale === 'de' ? 'talente' : 'talents'}`
         }
     } else if (link.type === 'reference' && link.reference) {
         const ref = link.reference
@@ -51,15 +52,12 @@ export function resolveLink(
         if (!slug) return null
         const relationTo = 'relationTo' in ref ? (ref as { relationTo?: string }).relationTo : undefined
         if (relationTo === 'posts') {
-            href = `${localePrefix}/${resolvedLocale === 'de' ? 'magazin' : 'blog'}/${slug}`
+            href = `/${resolvedLocale === 'de' ? 'magazin' : 'blog'}/${slug}`
         } else if (relationTo === 'talents') {
-            href = `${localePrefix}/${resolvedLocale === 'de' ? 'talente' : 'talents'}/${slug}`
+            href = `/${resolvedLocale === 'de' ? 'talente' : 'talents'}/${slug}`
         } else {
             const localizedPagePathSlug = localizePageSlug(slug, resolvedLocale)
-            href =
-                localizedPagePathSlug === 'home'
-                    ? localePrefix || '/'
-                    : `${localePrefix}/${localizedPagePathSlug}`
+            href = localizedPagePathSlug === 'home' ? '/' : `/${localizedPagePathSlug}`
         }
     } else {
         return null

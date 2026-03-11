@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 import { link } from '@/fields/link'
+import { sectionHeaderFields } from '@/fields/sectionHeader'
 
 const benefitIconOptions = [
     { label: { de: 'Award', en: 'Award' }, value: 'award' },
@@ -18,24 +19,21 @@ export const CoachingBlock: Block = {
         plural: { de: 'Coaching', en: 'Coaching' },
     },
     fields: [
+        ...sectionHeaderFields({ headingLevel: true }),
         {
-            name: 'overline',
-            type: 'text',
-            localized: true,
-            label: { de: 'Overline', en: 'Overline' },
-        },
-        {
-            name: 'title',
-            type: 'text',
-            required: true,
-            localized: true,
-            label: { de: 'Titel', en: 'Title' },
-        },
-        {
-            name: 'description',
-            type: 'textarea',
-            localized: true,
-            label: { de: 'Beschreibung', en: 'Description' },
+            name: 'backgroundColor',
+            type: 'select',
+            defaultValue: 'white',
+            options: [
+                { label: { de: 'Weiß', en: 'White' }, value: 'white' },
+                { label: { de: 'Hellgrau', en: 'Light gray' }, value: 'muted' },
+            ],
+            admin: {
+                description: {
+                    de: 'Hintergrund der Section (Dark/Light Mode wird automatisch angepasst)',
+                    en: 'Section background (dark/light mode adapts automatically)',
+                },
+            },
         },
         {
             name: 'benefitsSubheading',
@@ -53,8 +51,13 @@ export const CoachingBlock: Block = {
             minRows: 1,
             maxRows: 6,
             labels: {
-                singular: { de: 'Benefit', en: 'Benefit' },
-                plural: { de: 'Benefits', en: 'Benefits' },
+                singular: { de: 'Vorteil', en: 'Benefit' },
+                plural: { de: 'Vorteile', en: 'Benefits' },
+            },
+            admin: {
+                components: {
+                    RowLabel: '@/components/admin/RowLabels#TitleRowLabel',
+                },
             },
             fields: [
                 {
@@ -89,35 +92,19 @@ export const CoachingBlock: Block = {
         },
         {
             name: 'coaches',
-            type: 'array',
-            minRows: 0,
-            maxRows: 8,
-            labels: {
-                singular: { de: 'Coach', en: 'Coach' },
-                plural: { de: 'Coaches', en: 'Coaches' },
+            type: 'relationship',
+            relationTo: 'talents',
+            hasMany: true,
+            label: { de: 'Coaches', en: 'Coaches' },
+            filterOptions: {
+                isCoach: { equals: true },
             },
-            fields: [
-                {
-                    name: 'name',
-                    type: 'text',
-                    required: true,
-                    localized: true,
-                    label: { de: 'Name', en: 'Name' },
+            admin: {
+                description: {
+                    de: 'Talente mit aktivem Coach-Status auswählen (nur Talente mit "Coach"-Häkchen werden angezeigt)',
+                    en: 'Select talents with active coach status (only talents with "Coach" checkbox are shown)',
                 },
-                {
-                    name: 'role',
-                    type: 'text',
-                    required: true,
-                    localized: true,
-                    label: { de: 'Rolle', en: 'Role' },
-                },
-                {
-                    name: 'available',
-                    type: 'checkbox',
-                    defaultValue: true,
-                    label: { de: 'Verfügbar', en: 'Available' },
-                },
-            ],
+            },
         },
         {
             name: 'ctaText',

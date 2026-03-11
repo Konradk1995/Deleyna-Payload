@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { adminOrEditor } from '../access'
 import { revalidatePostsArchive } from '@/hooks/revalidateArchiveGlobals'
+import { link } from '../fields/link'
 
 export const PostsArchive: GlobalConfig = {
     slug: 'posts-archive',
@@ -98,6 +99,17 @@ export const PostsArchive: GlobalConfig = {
                                 condition: (_, siblingData) => siblingData?.showCta,
                             },
                         },
+                        link({
+                            appearances: ['primary', 'secondary', 'outline', 'copper'],
+                            optionalLink: true,
+                            overrides: {
+                                name: 'ctaLink',
+                                label: { de: 'CTA Button', en: 'CTA button' },
+                                admin: {
+                                    condition: (_, siblingData) => siblingData?.showCta,
+                                },
+                            },
+                        }),
                     ],
                 },
                 {
@@ -115,6 +127,39 @@ export const PostsArchive: GlobalConfig = {
                             label: { de: 'Meta Beschreibung', en: 'Meta description' },
                             localized: true,
                             maxLength: 160,
+                        },
+                        {
+                            name: 'metaKeywords',
+                            type: 'text',
+                            label: { de: 'Meta Keywords', en: 'Meta keywords' },
+                            localized: true,
+                            admin: {
+                                description: {
+                                    de: 'Kommagetrennte Keywords für SEO',
+                                    en: 'Comma-separated keywords for SEO',
+                                },
+                            },
+                        },
+                        {
+                            name: 'noIndex',
+                            type: 'checkbox',
+                            label: { de: 'Nicht indexieren', en: 'No index' },
+                            defaultValue: false,
+                            admin: {
+                                description: {
+                                    de: 'Suchmaschinen bitten, diese Seite nicht zu indexieren.',
+                                    en: 'Ask search engines not to index this page.',
+                                },
+                            },
+                        },
+                        {
+                            name: 'ogImage',
+                            type: 'upload',
+                            relationTo: 'media',
+                            label: { de: 'Social Media Bild', en: 'Social media image' },
+                            admin: {
+                                description: { de: 'Bild für Social Media (1200x630px). Fallback: globales Logo.', en: 'Image for social media (1200x630px). Fallback: global logo.' },
+                            },
                         },
                     ],
                 },

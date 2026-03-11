@@ -79,13 +79,14 @@ export const VideoHero: React.FC<Page['hero']> = (props) => {
     }, [posterImageMobile, posterSrc])
 
     return (
-        <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden md:min-h-screen">
+        <section className="relative flex min-h-[75svh] items-center justify-center overflow-hidden md:min-h-[85vh] -mt-[var(--header-h)]">
             {/* Background Video */}
             {(desktopVideo || mobileVideo) && (
                 <div className="absolute inset-0 z-0">
                     {/* Desktop Video */}
                     {desktopVideo && (
                         <video
+                            aria-hidden="true"
                             className={cn(
                                 'absolute inset-0 w-full h-full object-cover z-0 pointer-events-none',
                                 mobileVideo ? 'hidden md:block' : 'block',
@@ -104,6 +105,7 @@ export const VideoHero: React.FC<Page['hero']> = (props) => {
                     {/* Mobile Video */}
                     {mobileVideo && (
                         <video
+                            aria-hidden="true"
                             className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none block md:hidden"
                             autoPlay={autoPlay ?? true}
                             loop={loop ?? true}
@@ -129,14 +131,20 @@ export const VideoHero: React.FC<Page['hero']> = (props) => {
             <div className="hero-overlay absolute inset-0 z-[1]" />
 
             {/* Content */}
-            <div className="container relative z-10 padding-section-hero text-center text-on-media md:py-24">
-                {badge && <p className="overline mb-4 text-on-media-muted">{badge}</p>}
+            <div className="container relative z-10 padding-section-hero text-center text-on-media">
+                {badge && (
+                    <span className="font-subtext-semibold mb-10 inline-flex items-center gap-3 text-copper">
+                        <span className="h-px w-8 bg-copper/60" aria-hidden />
+                        {badge}
+                        <span className="h-px w-8 bg-copper/60" aria-hidden />
+                    </span>
+                )}
                 {(headline || subtext) && (
                     <div className="mx-auto max-w-3xl">
                         {headline && (
                             <h1
                                 className={cn(
-                                    'headline-sexy text-gradient-copper font-heading-1-bold leading-none tracking-tight hyphens-auto [overflow-wrap:anywhere] pb-1 text-balance',
+                                    'headline-sexy text-gradient-copper font-heading-1-bold tracking-tight hyphens-auto [overflow-wrap:anywhere] text-balance',
                                     subtext ? 'mb-4' : '',
                                 )}
                             >

@@ -78,6 +78,9 @@ export const Header: GlobalConfig = {
                                     en: 'Navigation cards that expand from the header',
                                 },
                                 initCollapsed: true,
+                                components: {
+                                    RowLabel: '@/components/admin/RowLabels#NavCardRowLabel',
+                                },
                             },
                             fields: [
                                 {
@@ -194,6 +197,9 @@ export const Header: GlobalConfig = {
                                 description: {
                                     de: 'Call-to-Action Buttons im Header (max. 3)',
                                     en: 'Call-to-action buttons in the header (max. 3)',
+                                },
+                                components: {
+                                    RowLabel: '@/components/admin/RowLabels#LinkRowLabel',
                                 },
                             },
                             maxRows: 3,

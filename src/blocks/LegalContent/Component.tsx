@@ -41,7 +41,7 @@ export const LegalContentBlock: React.FC<Props> = ({
         >
             <div className="container">
                 {title && (
-                    <h2 className="mb-10 font-display-tight font-heading-3-bold text-foreground leading-none tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere] pb-1">
+                    <h2 className="mb-10 font-display-tight font-heading-3-bold text-foreground tracking-tight text-balance hyphens-auto [overflow-wrap:anywhere]">
                         {title}
                     </h2>
                 )}

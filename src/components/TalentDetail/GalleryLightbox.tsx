@@ -64,8 +64,8 @@ export function GalleryLightbox({ images, talentName: _talentName }: GalleryLigh
                             loading="lazy"
                         />
                         {img.caption && (
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                                <p className="text-sm text-white">{img.caption}</p>
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-media-overlay/60 to-transparent p-4">
+                                <p className="text-sm text-on-media">{img.caption}</p>
                             </div>
                         )}
                     </button>

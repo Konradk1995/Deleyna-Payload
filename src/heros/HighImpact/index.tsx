@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Page } from '@/payload-types'
+import type { Page, Media as MediaType } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { CMSLink } from '@/components/CMSLink'
 import RichText from '@/components/RichText'
@@ -24,22 +24,22 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
     heroLogo,
     badge,
 }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const isVideo = (m: any) =>
-        m &&
-        typeof m === 'object' &&
-        (m.mimeType?.includes('video') ||
-            (typeof m.url === 'string' &&
-                (m.url.toLowerCase().endsWith('.mp4') || m.url.toLowerCase().endsWith('.webm'))))
+    const isVideo = (m: MediaType | string | null | undefined): boolean => {
+        if (!m || typeof m === 'string') return false
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getMediaUrlForVideo = (m: any) =>
+        return Boolean(
+            m.mimeType?.includes('video') ||
+            (typeof m.url === 'string' &&
+                (m.url.toLowerCase().endsWith('.mp4') || m.url.toLowerCase().endsWith('.webm'))),
+        )
+    }
+
+    const getMediaUrlForVideo = (m: MediaType | string | null | undefined): string =>
         m && typeof m === 'object' && typeof m.url === 'string'
             ? getMediaUrl(m.url, m.updatedAt)
             : ''
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getMimeType = (m: any) => {
+    const getMimeType = (m: MediaType | string | null | undefined): string => {
         const url = getMediaUrlForVideo(m)
         return m && typeof m === 'object' && typeof m.mimeType === 'string'
             ? m.mimeType
@@ -48,8 +48,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
               : 'video/mp4'
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getPosterUrl = (m: any) =>
+    const getPosterUrl = (m: MediaType | string | null | undefined): string | undefined =>
         isVideo(m) && m && typeof m === 'object'
             ? (m.thumbnailURL ??
               (m.sizes as Record<string, { url?: string }> | undefined)?.thumbnail?.url ??
@@ -60,7 +59,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
         (media || mediaMobile) && typeof (media || mediaMobile) === 'object',
     )
     return (
-        <section className="relative flex min-h-[74svh] items-center justify-center overflow-hidden md:min-h-[80vh]">
+        <section className="relative flex min-h-[75svh] items-center justify-center overflow-hidden md:min-h-[85vh] -mt-[var(--header-h)]">
             {/* Background Content */}
             {(media || mediaMobile) && (
                 <div className="absolute inset-0 z-0">
@@ -74,6 +73,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
                         >
                             {isVideo(media) ? (
                                 <video
+                                    aria-hidden="true"
                                     className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
                                     autoPlay
                                     loop
@@ -105,6 +105,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
                         <div className="absolute inset-0 z-0 block md:hidden">
                             {isVideo(mediaMobile) ? (
                                 <video
+                                    aria-hidden="true"
                                     className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
                                     autoPlay
                                     loop
@@ -154,14 +155,20 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
                         />
                     </div>
                 )}
-                {badge && <p className="font-subtext-semibold text-copper mb-10">{badge}</p>}
+                {badge && (
+                    <span className="font-subtext-semibold mb-10 inline-flex items-center gap-3 text-copper">
+                        <span className="h-px w-8 bg-copper/60" aria-hidden />
+                        {badge}
+                        <span className="h-px w-8 bg-copper/60" aria-hidden />
+                    </span>
+                )}
                 {(headline || subtext) && (
                     <div className="mx-auto max-w-3xl">
                         <div className="w-32 h-px mx-auto mb-8 transition-transform duration-1000 scale-x-100 hero-divider" />
                         {headline && (
                             <h1
                                 className={cn(
-                                    'headline-sexy text-gradient-copper font-heading-1-bold leading-none pb-1 drop-shadow-sm text-balance hyphens-auto [overflow-wrap:anywhere]',
+                                    'headline-sexy text-gradient-copper font-heading-1-bold drop-shadow-sm text-balance hyphens-auto [overflow-wrap:anywhere]',
                                     subtext ? 'mb-4' : '',
                                 )}
                             >
@@ -199,14 +206,18 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
                     <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                         {links.map(({ link }, i) => {
                             const appearance = resolveHeroLinkAppearance(link.appearance, i)
-                            const mediaClass = hasMediaBackdrop
-                                ? appearance === 'primary' ||
-                                  appearance === 'primary-pill' ||
-                                  appearance === 'copper' ||
-                                  appearance === 'nav-cta'
-                                    ? '!bg-copper !text-background border border-copper/60 hover:border-copper hover:!bg-copper/90 shadow-copper-glow font-bold'
-                                    : 'hero-btn-glass'
-                                : ''
+                            const isPrimary =
+                                appearance === 'primary' ||
+                                appearance === 'primary-pill' ||
+                                appearance === 'copper' ||
+                                appearance === 'nav-cta'
+                            const primaryClass =
+                                '!bg-copper !text-background border border-copper/60 hover:border-copper hover:!bg-copper/90 shadow-copper-glow font-bold'
+                            const mediaClass = isPrimary
+                                ? primaryClass
+                                : hasMediaBackdrop
+                                  ? 'hero-btn-glass'
+                                  : 'border-border hover:border-copper/40'
 
                             return (
                                 <CMSLink

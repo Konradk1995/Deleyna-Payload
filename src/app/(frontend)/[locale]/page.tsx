@@ -15,6 +15,8 @@ import { getBusinessDataForSchema } from '@/utilities/getSEOSettings'
 import type { Metadata } from 'next'
 import type { Page } from '@/payload-types'
 
+export const revalidate = 3600
+
 export async function generateMetadata({
     params,
 }: {

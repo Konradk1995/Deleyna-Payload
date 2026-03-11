@@ -10,7 +10,7 @@ export const Error = ({ name, locale }: { name: string; locale?: 'de' | 'en' }) 
   } = useFormContext()
   const lang = resolveFormLocale(locale)
   return (
-    <p className="mt-1.5 font-normal-text-regular text-destructive text-sm" role="alert">
+    <p className="mt-1.5 font-normal-text-regular text-destructive text-sm" role="alert" aria-live="assertive">
       {(errors[name]?.message as string) || requiredFieldMessage(lang)}
     </p>
   )

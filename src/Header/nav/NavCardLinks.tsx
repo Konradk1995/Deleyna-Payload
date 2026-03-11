@@ -33,26 +33,28 @@ export const NavCardLinks: React.FC<NavCardLinksProps> = ({
     itemLabel,
 }) => {
     return (
-        <div className="nav-card-links flex min-w-0 flex-1 flex-col gap-[4px] w-full sm:w-auto">
+        <div className="nav-card-links flex min-w-0 flex-1 flex-col gap-0.5 w-full sm:w-auto">
             {links.map((lnk, i) => {
                 if (!lnk?.link) return null
 
                 return (
                     <div
                         key={lnk.id || `${itemLabel}-link-${i}`}
-                        className={`inline-flex items-center gap-[6px] no-underline cursor-pointer transition-opacity duration-300 hover:opacity-75 text-current ${
+                        className={`group/link inline-flex items-center gap-2 no-underline cursor-pointer rounded-lg px-2 py-1.5 -mx-2 transition-colors duration-200 hover:bg-muted/60 text-current ${
                             size === 'sm'
-                                ? 'text-sm text-current/85 gap-2'
-                                : 'nav-link-text text-current/90'
+                                ? 'text-sm text-foreground/80'
+                                : 'nav-link-text text-foreground/90'
                         }`}
                     >
-                        {renderLinkIcon(lnk.icon, 'h-4 w-4 shrink-0') || (
-                            <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden />
-                        )}
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center text-copper/70 group-hover/link:text-copper transition-colors">
+                            {renderLinkIcon(lnk.icon, 'h-3.5 w-3.5') || (
+                                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                            )}
+                        </span>
                         <CMSLink
                             {...lnk.link}
                             appearance="inline"
-                            className="text-current break-words !no-underline"
+                            className="text-current break-words !no-underline group-hover/link:text-foreground transition-colors"
                             onClick={onClose}
                         />
                     </div>

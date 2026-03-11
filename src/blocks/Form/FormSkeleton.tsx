@@ -15,7 +15,7 @@ export const FormSkeleton: React.FC<FormSkeletonProps> = ({ fieldCount = 3 }) =>
             </div>
 
             {/* Form container skeleton */}
-            <div className="surface-pill rounded-[2rem] border border-border/70 bg-background/85 padding-large shadow-copper-glow backdrop-blur-md">
+            <div className="surface-pill rounded-[var(--block-radius-xl)] border border-border/70 bg-background/85 padding-large shadow-copper-glow backdrop-blur-md">
                 <div className="grid grid-cols-12 gap-x-6 gap-y-6">
                     {/* Field skeletons */}
                     {Array.from({ length: fieldCount }).map((_, index) => {

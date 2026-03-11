@@ -24,8 +24,9 @@ export interface TalentItem {
 
 interface FeaturedTalentsCarouselProps {
     talents: TalentItem[]
-    overline?: string | null
+    badge?: string | null
     title?: string | null
+    headingLevel?: string | null
     layout?: 'carousel' | 'premium'
     size?: 'normal' | 'hero'
     className?: string
@@ -53,8 +54,9 @@ const mapOptionValue = (
 
 export function FeaturedTalentsCarousel({
     talents,
-    overline,
+    badge,
     title,
+    headingLevel,
     layout = 'carousel',
     size = 'normal',
     className,
@@ -110,6 +112,7 @@ export function FeaturedTalentsCarousel({
         else if (diff < -threshold) goPrev()
         touchStart.current = null
     }
+    // Placeholder for future autoplay feature
     const stopAutoplay = () => {}
 
     if (!talents || talents.length === 0) return null
@@ -142,7 +145,7 @@ export function FeaturedTalentsCarousel({
         return (
             <section
                 className={cn(
-                    'relative overflow-visible bg-background text-foreground dark:bg-surface-inverse dark:text-on-media',
+                    'relative overflow-visible bg-background text-foreground',
                     isHero ? 'py-20 lg:py-28' : 'section-padding-lg',
                     className,
                 )}
@@ -155,8 +158,9 @@ export function FeaturedTalentsCarousel({
 
                 <div className="container relative mb-12">
                     <SectionHeader
-                        overline={overline ?? undefined}
+                        overline={badge ?? undefined}
                         title={title ?? defaultTitle}
+                        as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                         titleClassName="chrome-text"
                         className={cn(isHero ? 'mb-16 lg:mb-20' : 'mb-0')}
                     />
@@ -240,7 +244,7 @@ export function FeaturedTalentsCarousel({
                                                         className="absolute inset-0 z-0"
                                                         style={{
                                                             background:
-                                                                'radial-gradient(ellipse 70% 90% at 50% 55%, rgba(184,134,72,0.20) 0%, rgba(184,134,72,0.08) 40%, transparent 100%)',
+                                                                'radial-gradient(ellipse 70% 90% at 50% 55%, rgb(var(--copper) / 0.20) 0%, rgb(var(--copper) / 0.08) 40%, transparent 100%)',
                                                         }}
                                                     />
                                                 )}
@@ -374,7 +378,7 @@ export function FeaturedTalentsCarousel({
                                                     pathname: '/talents/[slug]',
                                                     params: { slug: activeTalent.slug },
                                                 }}
-                                                className="group inline-flex items-center gap-1.5 rounded-full bg-copper px-4 py-2 text-xs font-bold text-white transition hover:bg-copper-accent hover:shadow-[0_0_20px_rgba(var(--copper-rgb),0.4)]"
+                                                className="group inline-flex items-center gap-1.5 rounded-full bg-copper px-4 py-2 text-xs font-bold text-background transition hover:bg-copper-glow hover:shadow-copper-glow"
                                             >
                                                 {locale === 'de'
                                                     ? 'Profil ansehen'
@@ -394,7 +398,7 @@ export function FeaturedTalentsCarousel({
                             type="button"
                             onClick={goPrev}
                             aria-label={locale === 'de' ? 'Vorheriges Talent' : 'Previous talent'}
-                            className="flex h-14 w-14 items-center justify-center rounded-full border border-copper/30 bg-copper/5 text-copper transition hover:bg-copper hover:text-white hover:shadow-[0_0_15px_rgba(var(--copper-rgb),0.3)]"
+                            className="flex h-14 w-14 items-center justify-center rounded-full border border-copper/30 bg-copper/5 text-copper transition hover:bg-copper hover:text-background hover:shadow-copper-glow"
                         >
                             <ChevronLeft className="h-7 w-7" />
                         </button>
@@ -422,7 +426,7 @@ export function FeaturedTalentsCarousel({
                             type="button"
                             onClick={goNext}
                             aria-label={locale === 'de' ? 'Nächstes Talent' : 'Next talent'}
-                            className="flex h-14 w-14 items-center justify-center rounded-full border border-copper/30 bg-copper/5 text-copper transition hover:bg-copper hover:text-white hover:shadow-[0_0_15px_rgba(var(--copper-rgb),0.3)]"
+                            className="flex h-14 w-14 items-center justify-center rounded-full border border-copper/30 bg-copper/5 text-copper transition hover:bg-copper hover:text-background hover:shadow-copper-glow"
                         >
                             <ChevronRight className="h-7 w-7" />
                         </button>
@@ -438,7 +442,7 @@ export function FeaturedTalentsCarousel({
     return (
         <section
             className={cn(
-                'section-padding-lg section-atmosphere relative overflow-x-clip bg-background text-foreground dark:bg-surface-inverse dark:text-on-media',
+                'section-padding-lg section-atmosphere relative overflow-x-clip bg-background text-foreground',
                 className,
             )}
         >
@@ -450,8 +454,9 @@ export function FeaturedTalentsCarousel({
 
             <div className="container relative">
                 <SectionHeader
-                    overline={overline ?? undefined}
+                    overline={badge ?? undefined}
                     title={title ?? defaultTitle}
+                    as={(headingLevel as 'h1' | 'h2' | 'h3') || 'h2'}
                     titleClassName="chrome-text"
                 />
             </div>
@@ -531,7 +536,7 @@ export function FeaturedTalentsCarousel({
                                 />
 
                                 {/* Gold glow behind active card */}
-                                <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[var(--block-radius)] bg-copper/8 blur-2xl" />
+                                <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[var(--block-radius)] bg-copper/8 blur-2xl" aria-hidden="true" />
                             </div>
 
                             {/* Next card (peek) */}
