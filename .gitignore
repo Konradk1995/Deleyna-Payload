@@ -62,3 +62,6 @@ tests/lighthouse/reports/
 # Temp files
 .tmp/
 .pnpm-store
+
+# Worktrees
+.worktrees/
