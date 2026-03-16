@@ -323,7 +323,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                                 {typeof featuredPost.featuredImage === 'object' &&
                                 (featuredPost.featuredImage as Media)?.url ? (
                                     <Image
-                                        src={(featuredPost.featuredImage as Media).url!}
+                                        src={(featuredPost.featuredImage as Media).url as string}
                                         alt={
                                             (featuredPost.featuredImage as Media).alt ||
                                             featuredPost.title ||

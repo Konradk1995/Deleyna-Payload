@@ -78,7 +78,7 @@ export function TalentCard({
                 {/* Image Background */}
                 {imageUrl ? (
                     <Image
-                        src={imageUrl}
+                        src={imageUrl || undefined}
                         alt={imageAlt || name}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"

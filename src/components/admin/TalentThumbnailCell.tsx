@@ -49,7 +49,7 @@ export const TalentThumbnailCell: React.FC<TalentThumbnailCellProps> = ({ rowDat
         )
     }
 
-    return (
+    return url ? (
         <Image
             src={url}
             alt=""
@@ -64,5 +64,5 @@ export const TalentThumbnailCell: React.FC<TalentThumbnailCellProps> = ({ rowDat
                 border: '1px solid var(--theme-elevation-150)',
             }}
         />
-    )
+    ) : null
 }

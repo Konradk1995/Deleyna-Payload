@@ -54,13 +54,15 @@ export const TeamBlockComponent: React.FC<TeamBlockProps & { id?: string; classN
                                 <article className="group flex h-full flex-col rounded-[var(--block-radius)] border border-border/70 glass-morphism padding-large transition duration-300 hover:-translate-y-0.5 hover:border-copper/40 hover:bg-foreground/5 hover:shadow-copper-glow focus-within:border-copper/40 focus-within:shadow-copper-glow">
                                     {image && typeof image === 'object' && image.url && (
                                         <div className="relative mb-4 aspect-square overflow-hidden rounded-[var(--block-radius)] bg-muted">
-                                            <Image
-                                                src={image.url}
-                                                alt={image.alt ?? member.name ?? 'Team member'}
-                                                fill
-                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                                sizes="(max-width: 640px) calc(50vw - 1.5rem), (max-width: 1024px) calc(50vw - 1.5rem), calc(25vw - 1.5rem)"
-                                            />
+                                            {image.url ? (
+                                                <Image
+                                                    src={image.url}
+                                                    alt={image.alt ?? member.name ?? 'Team member'}
+                                                    fill
+                                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    sizes="(max-width: 640px) calc(50vw - 1.5rem), (max-width: 1024px) calc(50vw - 1.5rem), calc(25vw - 1.5rem)"
+                                                />
+                                            ) : null}
                                         </div>
                                     )}
                                     {(!image || typeof image !== 'object' || !image.url) && (

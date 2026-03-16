@@ -166,14 +166,16 @@ export const InfoCardsBlock: React.FC<Props> = (props) => {
                                             {icon && typeof icon === 'object' && icon.url && (
                                                 <div className="mb-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[var(--block-radius)] border border-border bg-muted transition-transform duration-300 group-hover:scale-105 md:mb-5 md:h-14 md:w-14">
                                                     <div className="relative h-6 w-6 md:h-7 md:w-7">
-                                                        <Image
-                                                            src={icon.url}
-                                                            alt={icon.alt ?? ''}
-                                                            fill
-                                                            className="object-contain"
-                                                            sizes="(max-width: 768px) 24px, 28px"
-                                                            loading="lazy"
-                                                        />
+                                                        {icon.url ? (
+                                                            <Image
+                                                                src={icon.url}
+                                                                alt={icon.alt ?? ''}
+                                                                fill
+                                                                className="object-contain"
+                                                                sizes="(max-width: 768px) 24px, 28px"
+                                                                loading="lazy"
+                                                            />
+                                                        ) : null}
                                                     </div>
                                                 </div>
                                             )}

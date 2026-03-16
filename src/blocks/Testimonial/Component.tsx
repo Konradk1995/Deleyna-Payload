@@ -153,6 +153,7 @@ function SingleTestimonial({ item }: { item: TestimonialItem }) {
                     <div className="mt-8 flex items-center gap-4">
                         {avatarData?.url && (
                             <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-copper/40">
+                            {avatarData.url ? (
                                 <Image
                                     src={avatarData.url}
                                     alt={avatarData.alt || item.author}
@@ -160,6 +161,7 @@ function SingleTestimonial({ item }: { item: TestimonialItem }) {
                                     className="object-cover"
                                     sizes="56px"
                                 />
+                            ) : null}
                             </div>
                         )}
                         <div className="text-left">
@@ -186,16 +188,18 @@ function SingleTestimonial({ item }: { item: TestimonialItem }) {
 
                     {logoData?.url && (
                         <div className="mt-6 relative h-8 w-24">
-                            <Image
-                                src={logoData.url}
-                                alt={logoData.alt || item.company || ''}
-                                fill
-                                className={cn(
-                                    'object-contain',
-                                    hasMedia ? 'brightness-0 invert opacity-60' : 'opacity-50',
-                                )}
-                                sizes="96px"
-                            />
+                            {logoData.url ? (
+                                <Image
+                                    src={logoData.url}
+                                    alt={logoData.alt || item.company || ''}
+                                    fill
+                                    className={cn(
+                                        'object-contain',
+                                        hasMedia ? 'brightness-0 invert opacity-60' : 'opacity-50',
+                                    )}
+                                    sizes="96px"
+                                />
+                            ) : null}
                         </div>
                     )}
                 </div>
@@ -268,13 +272,15 @@ function TestimonialCard({
                 <div className="mt-auto flex items-center gap-3">
                     {avatarData?.url && (
                         <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-copper/30">
-                            <Image
-                                src={avatarData.url}
-                                alt={avatarData.alt || item.author}
-                                fill
-                                className="object-cover"
-                                sizes="40px"
-                            />
+                            {avatarData.url ? (
+                                <Image
+                                    src={avatarData.url}
+                                    alt={avatarData.alt || item.author}
+                                    fill
+                                    className="object-cover"
+                                    sizes="40px"
+                                />
+                            ) : null}
                         </div>
                     )}
                     <div className="min-w-0 flex-1">
@@ -299,16 +305,18 @@ function TestimonialCard({
                     </div>
                     {logoData?.url && (
                         <div className="relative h-6 w-16 flex-shrink-0">
-                            <Image
-                                src={logoData.url}
-                                alt={logoData.alt || item.company || ''}
-                                fill
-                                className={cn(
-                                    'object-contain',
-                                    hasMedia ? 'brightness-0 invert opacity-50' : 'opacity-40',
-                                )}
-                                sizes="64px"
-                            />
+                            {logoData.url ? (
+                                <Image
+                                    src={logoData.url}
+                                    alt={logoData.alt || item.company || ''}
+                                    fill
+                                    className={cn(
+                                        'object-contain',
+                                        hasMedia ? 'brightness-0 invert opacity-50' : 'opacity-40',
+                                    )}
+                                    sizes="64px"
+                                />
+                            ) : null}
                         </div>
                     )}
                 </div>

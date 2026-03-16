@@ -133,13 +133,15 @@ export const CoachingBlockComponent: React.FC<
                                                 {/* Coach image or avatar */}
                                                 {image && typeof image === 'object' && image.url ? (
                                                     <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">
-                                                        <Image
-                                                            src={image.url}
-                                                            alt={image.alt ?? coach.name ?? 'Coach'}
-                                                            fill
-                                                            className="object-cover"
-                                                            sizes="56px"
-                                                        />
+                                                        {image.url ? (
+                                                            <Image
+                                                                src={image.url}
+                                                                alt={image.alt ?? coach.name ?? 'Coach'}
+                                                                fill
+                                                                className="object-cover"
+                                                                sizes="56px"
+                                                            />
+                                                        ) : null}
                                                     </div>
                                                 ) : (
                                                     <div

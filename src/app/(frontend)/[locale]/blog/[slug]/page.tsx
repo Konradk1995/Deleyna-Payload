@@ -358,7 +358,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     </div>
 
                     {/* Featured Image (chrome-grace: rounded-2xl) */}
-                    {featuredImage?.url && (
+                    {featuredImage?.url ? (
                         <div className="relative aspect-[16/9] overflow-hidden rounded-[var(--block-radius)] mb-10 glass-morphism border border-border">
                             <Image
                                 src={featuredImage.url}
@@ -369,7 +369,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                                 priority
                             />
                         </div>
-                    )}
+                    ) : null}
 
                     {isClassPost && classDetails && (
                         <div className="mb-10 rounded-[var(--block-radius)] border border-copper/30 bg-copper/5 padding-medium">
@@ -546,7 +546,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                                         className="group block rounded-[var(--block-radius)] overflow-hidden border border-border glass-morphism transition hover:border-copper/30 hover:bg-foreground/5"
                                     >
                                         <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                                            {relImage?.url && (
+                                            {relImage?.url ? (
                                                 <Image
                                                     src={relImage.url}
                                                     alt={relImage.alt || related.title || ''}
@@ -555,7 +555,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                                                     sizes="33vw"
                                                     loading="lazy"
                                                 />
-                                            )}
+                                            ) : null}
                                         </div>
                                         <div className="p-4">
                                             <h3 className="font-semibold line-clamp-2 group-hover:text-primary transition-colors">

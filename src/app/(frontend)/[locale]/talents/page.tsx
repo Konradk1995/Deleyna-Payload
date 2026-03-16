@@ -275,9 +275,9 @@ export default async function TalentsPage({ params }: PageProps) {
 
                             <div className="relative">
                                 <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/70 bg-card/70 shadow-xl">
-                                    {heroImage ? (
+                                    {heroImage?.url ? (
                                         <Image
-                                            src={heroImage.url as string}
+                                            src={heroImage.url}
                                             alt={heroImage.alt || heroHeadline || 'Talent showcase'}
                                             fill
                                             className="object-cover"

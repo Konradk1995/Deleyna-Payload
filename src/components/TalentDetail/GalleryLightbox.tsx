@@ -55,14 +55,16 @@ export function GalleryLightbox({ images, talentName: _talentName }: GalleryLigh
                         onClick={() => setOpenIndex(index)}
                         className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-muted glass-morphism border border-border cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper"
                     >
-                        <Image
-                            src={img.url}
-                            alt={img.alt}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            loading="lazy"
-                        />
+                        {img.url ? (
+                            <Image
+                                src={img.url}
+                                alt={img.alt}
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                loading="lazy"
+                            />
+                        ) : null}
                         {img.caption && (
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-media-overlay/60 to-transparent p-4">
                                 <p className="text-sm text-on-media">{img.caption}</p>
@@ -133,14 +135,16 @@ export function GalleryLightbox({ images, talentName: _talentName }: GalleryLigh
                             className="relative max-h-[85vh] max-w-[90vw]"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <Image
-                                src={images[openIndex].url}
-                                alt={images[openIndex].alt}
-                                width={1200}
-                                height={1600}
-                                className="max-h-[85vh] w-auto rounded-lg object-contain"
-                                sizes="90vw"
-                            />
+                            {images[openIndex]?.url ? (
+                                <Image
+                                    src={images[openIndex].url}
+                                    alt={images[openIndex].alt}
+                                    width={1200}
+                                    height={1600}
+                                    className="max-h-[85vh] w-auto rounded-lg object-contain"
+                                    sizes="90vw"
+                                />
+                            ) : null}
                             {images[openIndex].caption && (
                                 <p className="mt-3 text-center text-sm text-white/80">
                                     {images[openIndex].caption}

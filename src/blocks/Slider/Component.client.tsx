@@ -293,13 +293,15 @@ const CompactCard: React.FC<{
             <div className="relative z-10 flex items-end justify-between mt-4 md:mt-6 pointer-events-none">
                 {hasImage ? (
                     <div className="relative h-[120px] w-[120px] transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-105 md:h-[140px] md:w-[140px]">
+                    {item.image ? (
                         <Image
-                            src={item.image!}
+                            src={item.image}
                             alt={item.name}
                             fill
                             className="object-contain"
                             sizes="140px"
                         />
+                    ) : null}
                     </div>
                 ) : (
                     <div className="w-[45px] md:w-[50px]" />

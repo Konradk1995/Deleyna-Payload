@@ -199,7 +199,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                     </div>
 
                     {/* Featured image */}
-                    {featuredImage?.url && (
+                    {featuredImage?.url ? (
                         <div className="relative aspect-[16/9] overflow-hidden rounded-[var(--block-radius)] mb-10 glass-morphism border border-border">
                             <Image
                                 src={featuredImage.url}
@@ -210,7 +210,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                                 priority
                             />
                         </div>
-                    )}
+                    ) : null}
 
                     {/* Compensation info */}
                     {job.compensation && (
@@ -297,7 +297,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                                         aria-label={other.title}
                                         className="group block rounded-[var(--block-radius)] overflow-hidden border border-border glass-morphism transition hover:border-copper/30 hover:bg-foreground/5"
                                     >
-                                        {otherImage?.url && (
+                                        {otherImage?.url ? (
                                             <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                                                 <Image
                                                     src={otherImage.url}
@@ -308,7 +308,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                                                     loading="lazy"
                                                 />
                                             </div>
-                                        )}
+                                        ) : null}
                                         <div className="p-4">
                                             {other.jobType && (
                                                 <span className="badge-pill badge-pill-sm badge-pill-copper mb-2 inline-block">
